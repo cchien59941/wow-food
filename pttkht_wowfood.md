@@ -2,7 +2,10 @@
 
 ## Mục Lục
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 
 - [1. Giới Thiệu](#1-giới-thiệu)
 - [2. Phân Tích Yêu Cầu](#2-phân-tích-yêu-cầu)
@@ -13,6 +16,9 @@
 - [7. Hiệu Suất &amp; Tối Ưu Hóa](#7-hiệu-suất--tối-ưu-hóa)
 - [8. Kiểm Thử](#8-kiểm-thử)
 - [9. Triển Khai &amp; Vận Hành](#9-triển-khai--vận-hành)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 - [1. Giới Thiệu](#1-giới-thiệu)
@@ -259,8 +265,8 @@ OrderDetails
 
 ---
 
-## 6. Bảo Mật
 
+<<<<<<< Updated upstream
 ### 6.1 Xác Thực & Phép Cấp
 
 - JWT tokens
@@ -284,8 +290,110 @@ OrderDetails
 ### 6.4 Quản Lý Session
 
 *Mô tả session timeout, session storage*
+=======
+## 6. THIẾT KẾ DỮ LIỆU HỆ THỐNG
 
----
+### 6.1 Mô tả dữ liệu
+
+Hệ thống Web Food được xây dựng nhằm phục vụ hoạt động đặt món ăn trực tuyến, quản lý đơn hàng và hỗ trợ khách hàng. Cơ sở dữ liệu **food-order** được thiết kế trên nền tảng MariaDB/MySQL, đáp ứng các yêu cầu lưu trữ, truy xuất và đảm bảo tính toàn vẹn dữ liệu.
+
+Các nhóm dữ liệu chính trong hệ thống bao gồm:
+>>>>>>> Stashed changes
+
+* **Dữ liệu quản trị viên** : phục vụ cho việc quản lý hệ thống, theo dõi và xử lý các yêu cầu từ người dùng.
+* **Dữ liệu người dùng** : lưu trữ thông tin tài khoản khách hàng đăng ký sử dụng dịch vụ.
+* **Dữ liệu danh mục món ăn** : hỗ trợ phân loại món ăn theo từng nhóm cụ thể.
+* **Dữ liệu món ăn** : quản lý thông tin chi tiết của các món được cung cấp trên hệ thống.
+* **Dữ liệu đơn hàng** : ghi nhận quá trình đặt món, trạng thái và thông tin giao hàng.
+* **Dữ liệu trò chuyện** : lưu lịch sử trao đổi giữa khách hàng và quản trị viên nhằm hỗ trợ và giải đáp thắc mắc.
+
+Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
+
+### 6.2 Biểu đồ ER (Entity – Relationship)
+
+Dựa trên cơ sở dữ liệu hiện tại, hệ thống bao gồm các thực thể chính sau:
+
+1. **Quản trị viên (tbl_admin)**
+   * id (khóa chính)
+   * full_name
+   * email
+   * username
+   * password
+2. **Người dùng (tbl_user)**
+   * id (khóa chính)
+   * full_name
+   * username (duy nhất)
+   * password
+   * email (duy nhất)
+   * phone
+   * address
+   * status
+   * created_at
+3. **Danh mục (tbl_category)**
+   * id (khóa chính)
+   * title
+   * featured
+   * active
+   * image_name
+4. **Món ăn (tbl_food)**
+   * id (khóa chính)
+   * title
+   * description
+   * price
+   * image_name
+   * category_id (khóa ngoại)
+   * featured
+   * active
+5. **Đơn hàng (tbl_order)**
+   * id (khóa chính)
+   * order_code (duy nhất)
+   * user_id (khóa ngoại)
+   * food
+   * price
+   * qty
+   * total
+   * order_date
+   * status
+   * customer_name
+   * customer_contact
+   * customer_email
+   * customer_address
+6. **Trò chuyện (tbl_chat)**
+   * id (khóa chính)
+   * user_id (khóa ngoại)
+   * admin_id (khóa ngoại)
+   * sender_type
+   * message
+   * is_read
+   * created_at
+
+**Các mối quan hệ giữa các thực thể:**
+
+* Một người dùng có thể phát sinh nhiều đơn hàng.
+* Người dùng và quản trị viên có thể trao đổi nhiều tin nhắn thông qua chức năng chat.
+* Mỗi danh mục có thể chứa nhiều món ăn khác nhau.
+
+### 6.3 Thiết kế dữ liệu (Lược đồ quan hệ)
+
+Các bảng dữ liệu trong hệ thống được thiết kế như sau:
+
+* **TBL_ADMIN** (id PK, full_name, email, username, password)
+* **TBL_USER** (id PK, full_name, username UQ, password, email UQ, phone, address, status, created_at)
+* **TBL_CATEGORY** (id PK, title, featured, active, image_name)
+* **TBL_FOOD** (id PK, title, description, price, image_name, category_id FK, featured, active)
+* **TBL_ORDER** (id PK, order_code UQ, user_id FK, food, price, qty, total, order_date, status, customer_name, customer_contact, customer_email, customer_address)
+* **TBL_CHAT** (id PK, user_id FK, admin_id FK, sender_type, message, is_read, created_at)
+
+Các ràng buộc khóa ngoại được thiết lập nhằm đảm bảo tính toàn vẹn dữ liệu, đồng thời hỗ trợ kiểm soát mối quan hệ giữa các bảng.
+
+### 6.4 Sơ đồ ERD
+
+Sơ đồ ERD thể hiện rõ cấu trúc tổng thể của cơ sở dữ liệu và mối liên hệ giữa các bảng. Người dùng liên kết với bảng đơn hàng và bảng trò chuyện; quản trị viên tham gia vào quá trình trao đổi hỗ trợ; danh mục đóng vai trò phân loại cho các món ăn.
+
+Mặc dù thiết kế hiện tại đáp ứng tốt nhu cầu của hệ thống, tuy nhiên bảng đơn hàng vẫn lưu trực tiếp tên món ăn thay vì liên kết khóa ngoại tới bảng món ăn. Điều này có thể gây khó khăn trong việc mở rộng và chuẩn hóa dữ liệu khi hệ thống phát triển lớn hơn.
+
+**Kết luận:**
+Thiết kế dữ liệu của hệ thống Web Food được xây dựng phù hợp với yêu cầu nghiệp vụ thực tế, đảm bảo khả năng quản lý, truy xuất và vận hành ổn định. Trong giai đoạn tiếp theo, hệ thống có thể được cải tiến bằng cách chuẩn hóa sâu hơn cấu trúc cơ sở dữ liệu nhằm nâng cao hiệu quả và tính mở rộng.
 
 ## 7. Hiệu Suất & Tối Ưu Hóa
 
