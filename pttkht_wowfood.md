@@ -1,19 +1,6 @@
 # Phân Tích Thiết Kế Hệ Thống Web Food
 
 ## Mục Lục
-<<<<<<< Updated upstream
-=======
-
-- [1. Giới Thiệu](#1-giới-thiệu)
-- [2. Phân Tích Yêu Cầu](#2-phân-tích-yêu-cầu)
-- [3. Kiến Trúc Hệ Thống](#3-kiến-trúc-hệ-thống)
-- [4. Thiết Kế Cơ Sở Dữ Liệu](#4-thiết-kế-cơ-sở-dữ-liệu)
-- [5. Thiết Kế API](#5-thiết-kế-api)
-- [6. Bảo Mật](#6-bảo-mật)
-- [7. Hiệu Suất &amp; Tối Ưu Hóa](#7-hiệu-suất--tối-ưu-hóa)
-- [8. Kiểm Thử](#8-kiểm-thử)
-- [9. Triển Khai &amp; Vận Hành](#9-triển-khai--vận-hành)
->>>>>>> Stashed changes
 
 - [1. Giới Thiệu](#1-giới-thiệu)
 - [2. Mô tả tổng quan](#2-phân-tích-yêu-cầu)
@@ -40,29 +27,6 @@
 ---
 
 ## 2. Mô tả bài toán
-
-<<<<<<< Updated upstream
-### 2.1 Yêu Cầu Chức Năng
-
-- **Quản lý người dùng**: Đăng ký, đăng nhập, cập nhật hồ sơ
-- **Quản lý nhà hàng**: Thêm menu, cập nhật giá cả, quản lý đơn hàng
-- **Quản lý đơn hàng**: Tạo, theo dõi, hủy đơn
-- **Thanh toán**: Tích hợp gateway thanh toán
-- **Giao hàng**: Quản lý tài xế, theo dõi vị trí
-- **Đánh giá & Bình luận**: Hệ thống rating sao
-
-### 2.2 Yêu Cầu Phi Chức Năng
-
-- **Hiệu suất**: Thời gian phản hồi < 2 giây
-- **Khả dụng**: 99.9% uptime
-- **Bảo mật**: Mã hóa dữ liệu, xác thực
-- **Khả năng mở rộng**: Hỗ trợ 100,000+ người dùng đồng thời
-- **Khả năng bảo trì**: Code sạch, tài liệu đầy đủ
-
-### 2.3 Trường Hợp Sử Dụng Chính
-
-*Liệt kê các user story quan trọng*
-=======
 Website bán đồ ăn là một hệ thống ứng dụng web được xây dựng nhằm phục vụ nhu cầu đặt món và quản lý hoạt động kinh doanh ẩm thực trong môi trường trực tuyến. Hệ thống cho phép khách hàng truy cập, xem thực đơn, lựa chọn món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện thông qua trình duyệt web.
 
 Về phía người dùng, website hỗ trợ các chức năng cơ bản như đăng ký và đăng nhập tài khoản, tìm kiếm và xem chi tiết món ăn, quản lý giỏ hàng, thực hiện đặt hàng và lựa chọn phương thức thanh toán phù hợp. Thông tin đơn hàng sau khi được tạo sẽ được lưu trữ và cập nhật liên tục, giúp khách hàng dễ dàng theo dõi quá trình xử lý và giao hàng.
@@ -142,17 +106,6 @@ Website được thiết kế theo mô hình  client–server , kết hợp vớ
 | 29 | Thông tin cá nhân | Quản lý thông tin cá nhân nhân viên |
 
 
-=======
-### 3.2 Các Thành Phần Chính
-
-- **Frontend**: React/Vue/Angular
-- **Backend**: Node.js/Python/Java
-- **Database**: PostgreSQL/MySQL
-- **Cache**: Redis
-- **Message Queue**: RabbitMQ/Kafka
-- **Cloud Storage**: AWS S3/Google Cloud Storage
->>>>>>> Stashed changes
-
 ### 3.3 Luồng Dữ Liệu Chính
 
 *Mô tả cách dữ liệu chảy qua hệ thống*
@@ -216,48 +169,48 @@ OrderDetails
 
 ---
 
-## 5. Thiết Kế API
+## 5. Thiết Kế Phần Mềm 
 
-### 5.1 Endpoints Chính
+### 5.1 Tổng quan các chức năng người dùng (User-facing)
 
-#### Authentication
+5.1.1 Duyệt và tìm món
+- `index.php`: Trang chủ hiển thị các danh mục nổi bật và các món ăn tiêu biểu. Cho phép dẫn link tới `category-food.php` hoặc `food.php`.
+- `categories.php`: Liệt kê toàn bộ danh mục kèm ảnh minh họa.
+- `category-food.php`: Hiển thị danh sách món theo `category_id` kèm phân trang nếu cần.
+- `food-search.php` và `search-suggestions.php`: Tìm kiếm tên món (có AJAX gợi ý khi nhập từ khóa).
 
-- `POST /api/auth/register` - Đăng ký người dùng
-- `POST /api/auth/login` - Đăng nhập
-- `POST /api/auth/logout` - Đăng xuất
-- `POST /api/auth/refresh-token` - Làm mới token
+5.1.2 Xem chi tiết và đặt món
+- `food.php`: Hiển thị thông tin chi tiết món (tên, mô tả, thành phần, giá, ảnh), cho phép chọn số lượng và thêm vào giỏ hàng.
+- Thêm vào giỏ có thể thực hiện qua AJAX gọi `api/add-to-cart.php`.
 
-#### Users
+5.1.3 Giỏ hàng và thanh toán
+- `user/cart.php`: Hiện danh sách món trong giỏ, cho phép sửa số lượng, xóa mục.
+- `user/checkout.php`: Form nhập địa chỉ giao hàng, phương thức thanh toán và tóm tắt đơn.
+- `user/payment.php`: Xử lý trả về trạng thái thanh toán (trong đồ án có thể mô phỏng thành công/thất bại).
+- `order.php` (file gốc): Tạo bản ghi đơn hàng nếu dự án thiết kế như vậy.
 
-- `GET /api/users/{id}` - Lấy thông tin người dùng
-- `PUT /api/users/{id}` - Cập nhật thông tin người dùng
-- `DELETE /api/users/{id}` - Xóa người dùng
+5.1.4 Quản lý tài khoản
+- `user/register.php`, `user/login.php`, `user/logout.php`: Đăng ký/đăng nhập/đăng xuất người dùng.
+- `user/forgot-password.php`, `user/reset-password.php`, `api/send-verification.php`, `user/verify-code.php`: Luồng khôi phục mật khẩu bằng mã xác minh gửi email.
 
-#### Restaurants
-
-- `GET /api/restaurants` - Liệt kê nhà hàng
-- `GET /api/restaurants/{id}` - Chi tiết nhà hàng
-- `POST /api/restaurants` - Tạo nhà hàng mới
-- `PUT /api/restaurants/{id}` - Cập nhật nhà hàng
-- `DELETE /api/restaurants/{id}` - Xóa nhà hàng
-
-#### Orders
-
-- `GET /api/orders` - Liệt kê đơn hàng
-- `POST /api/orders` - Tạo đơn hàng
-- `GET /api/orders/{id}` - Chi tiết đơn hàng
-- `PUT /api/orders/{id}` - Cập nhật trạng thái đơn hàng
-- `DELETE /api/orders/{id}` - Hủy đơn hàng
-
-### 5.2 Request/Response Format
-
-*Mô tả định dạng JSON, pagination, error handling*
-
-### 5.3 Authentication & Authorization
-
-*Mô tả JWT tokens, roles, permissions*
+5.1.5. Tin nhắn / Chat (user ↔ admin)
+- `user/chat.php`: Giao diện chat cho user.
+- API hỗ trợ: `api/send-message.php`, `api/get-messages.php`, `api/get-chat-list.php`, `api/get-unread-count.php`, `api/mark-messages-read.php`.
 
 ---
+
+### 5.2 Chức năng quản trị (Admin)
+
+- `admin/login.php`, `admin/logout.php`: Xác thực admin (session-based). Kiểm tra quyền truy cập bằng `admin/partials/login-check.php`.
+- `admin/index.php`: Bảng điều khiển hiển thị thông tin tổng quan: đơn mới, doanh thu, số tin nhắn chưa đọc.
+- Quản lý admin: `admin/manage-admin.php`, `admin/add-admin.php`, `admin/update-admin.php`, `admin/delete-admin.php`.
+- Quản lý danh mục: `admin/manage-category.php`, `admin/add-category.php`, `admin/update-category.php`, `admin/delete-category.php`.
+- Quản lý món ăn: `admin/manage-food.php`, `admin/add-food.php`, `admin/update-food.php`, `admin/delete-food.php`.
+- Quản lý đơn hàng: `admin/manage-order.php`, `admin/update-order.php`.
+- Quản lý chat: `admin/manage-chat.php` để xem và trả lời khách.
+
+---
+
 
 ## 6. Bảo Mật
 
