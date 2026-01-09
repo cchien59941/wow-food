@@ -1,6 +1,19 @@
 # Phân Tích Thiết Kế Hệ Thống Web Food
 
 ## Mục Lục
+<<<<<<< Updated upstream
+=======
+
+- [1. Giới Thiệu](#1-giới-thiệu)
+- [2. Phân Tích Yêu Cầu](#2-phân-tích-yêu-cầu)
+- [3. Kiến Trúc Hệ Thống](#3-kiến-trúc-hệ-thống)
+- [4. Thiết Kế Cơ Sở Dữ Liệu](#4-thiết-kế-cơ-sở-dữ-liệu)
+- [5. Thiết Kế API](#5-thiết-kế-api)
+- [6. Bảo Mật](#6-bảo-mật)
+- [7. Hiệu Suất &amp; Tối Ưu Hóa](#7-hiệu-suất--tối-ưu-hóa)
+- [8. Kiểm Thử](#8-kiểm-thử)
+- [9. Triển Khai &amp; Vận Hành](#9-triển-khai--vận-hành)
+>>>>>>> Stashed changes
 
 - [1. Giới Thiệu](#1-giới-thiệu)
 - [2. Mô tả tổng quan](#2-phân-tích-yêu-cầu)
@@ -26,8 +39,9 @@
 
 ---
 
-## 2. Phân Tích Yêu Cầu
+## 2. Mô tả bài toán
 
+<<<<<<< Updated upstream
 ### 2.1 Yêu Cầu Chức Năng
 
 - **Quản lý người dùng**: Đăng ký, đăng nhập, cập nhật hồ sơ
@@ -48,8 +62,15 @@
 ### 2.3 Trường Hợp Sử Dụng Chính
 
 *Liệt kê các user story quan trọng*
+=======
+Website bán đồ ăn là một hệ thống ứng dụng web được xây dựng nhằm phục vụ nhu cầu đặt món và quản lý hoạt động kinh doanh ẩm thực trong môi trường trực tuyến. Hệ thống cho phép khách hàng truy cập, xem thực đơn, lựa chọn món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện thông qua trình duyệt web.
 
----
+Về phía người dùng, website hỗ trợ các chức năng cơ bản như đăng ký và đăng nhập tài khoản, tìm kiếm và xem chi tiết món ăn, quản lý giỏ hàng, thực hiện đặt hàng và lựa chọn phương thức thanh toán phù hợp. Thông tin đơn hàng sau khi được tạo sẽ được lưu trữ và cập nhật liên tục, giúp khách hàng dễ dàng theo dõi quá trình xử lý và giao hàng.
+
+Về phía quản trị viên, hệ thống cung cấp các công cụ quản lý toàn diện bao gồm quản lý danh mục và món ăn, quản lý đơn hàng, quản lý người dùng và thống kê doanh thu. Các chức năng này giúp người quản lý kiểm soát hiệu quả hoạt động kinh doanh, giảm thiểu sai sót trong quá trình xử lý đơn và nâng cao chất lượng dịch vụ.
+>>>>>>> Stashed changes
+
+Website được thiết kế theo mô hình  client–server , kết hợp với cơ sở dữ liệu để lưu trữ và xử lý dữ liệu. Hệ thống chú trọng đến các yếu tố như  tính bảo mật, độ ổn định, hiệu năng và khả năng mở rộng , đảm bảo đáp ứng tốt nhu cầu sử dụng thực tế và có thể phát triển trong tương lai, chẳng hạn như tích hợp thanh toán trực tuyến hoặc dịch vụ giao hàng.
 
 ## 3. Luồng màn hình
 
@@ -85,6 +106,7 @@
 └─────────────────────────────────────────────┘
 ```
 
+<<<<<<< Updated upstream
 ### 3.2 Mô tả màn hình
 
 | STT | Màn hình | Mô tả |
@@ -120,6 +142,16 @@
 | 29 | Thông tin cá nhân | Quản lý thông tin cá nhân nhân viên |
 
 
+=======
+### 3.2 Các Thành Phần Chính
+
+- **Frontend**: React/Vue/Angular
+- **Backend**: Node.js/Python/Java
+- **Database**: PostgreSQL/MySQL
+- **Cache**: Redis
+- **Message Queue**: RabbitMQ/Kafka
+- **Cloud Storage**: AWS S3/Google Cloud Storage
+>>>>>>> Stashed changes
 
 ### 3.3 Luồng Dữ Liệu Chính
 
