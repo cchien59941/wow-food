@@ -1,21 +1,13 @@
 # Phân Tích Thiết Kế Hệ Thống Web Food
 
-## Mục Lục
-- [1. Giới Thiệu](#1-giới-thiệu)
-- [2. Mô tả tổng quan](#2-phân-tích-yêu-cầu)
-- [3. Luồng màn hình](#3-kiến-trúc-hệ-thống) 
-- [4. Tổng quan về phần mềm](#4-thiết-kế-cơ-sở-dữ-liệu)
-- [5. Thiết kế phần mềm ](#5-thiết-kế-api)
-- [6. Thiết kế dữ liệu](#6-bảo-mật)
-- 
-
 ## 1. Giới Thiệu
+### 1.1 Giới thiệu đề tài
 - Tên dự án: Food_order
 - Mục tiêu: Xây dựng hệ thống đặt đồ ăn trực tuyến đơn giản, có giao diện người dùng thân thiện, API cho thao tác giỏ hàng và nhắn tin, cùng trang quản trị để quản lý danh mục, món ăn, đơn hàng và cuộc hội thoại.
 - Phạm vi báo cáo: mô tả chức năng, luồng dữ liệu, API chính, cấu trúc cơ sở dữ liệu, xác thực, bảo mật cơ bản và hướng dẫn chạy môi trường local để minh họa.
 
 
-### 1.1 Mục Đích Dự Án
+### 1.2 Mô tả bài toán
 Dự án Food_order được thực hiện với mục đích xây dựng một hệ thống đặt đồ ăn trực tuyến đơn giản, dễ sử dụng và phù hợp cho việc học tập, nghiên cứu và minh họa quy trình phát triển một ứng dụng web hoàn chỉnh. Hệ thống hướng tới việc cung cấp cho người dùng một nền tảng thuận tiện để xem danh mục món ăn, lựa chọn sản phẩm, quản lý giỏ hàng, đặt đơn và trao đổi thông tin thông qua chức năng nhắn tin.
 
 Bên cạnh đó, dự án còn tập trung xây dựng API backend phục vụ các thao tác cốt lõi như quản lý giỏ hàng, xử lý đơn hàng và quản lý hội thoại, giúp minh họa mô hình tách biệt giữa frontend và backend trong phát triển web hiện đại. Hệ thống quản trị (Admin) được thiết kế nhằm hỗ trợ người quản lý trong việc kiểm soát danh mục, món ăn, đơn hàng và các cuộc hội thoại với khách hàng một cách hiệu quả.
@@ -39,28 +31,22 @@ Hệ thống Web Food được xây dựng nhằm cung cấp một nền tảng 
 
 Bên cạnh đó, hệ thống Web Food còn hướng tới việc xây dựng và minh họa một kiến trúc web hiện đại với sự tách biệt rõ ràng giữa giao diện người dùng và API xử lý nghiệp vụ. Thông qua hệ thống, các chức năng xác thực, phân quyền và bảo mật cơ bản được áp dụng nhằm đảm bảo an toàn dữ liệu và quyền truy cập của người dùng.
 
-### 1.2 Phạm Vi Hệ Thống
-
-*Liệt kê các tính năng chính*
-
-### 1.3 Các Bên Liên Quan
-
-*Xác định người dùng chính: Khách hàng, Nhà hàng, Admin, Tài xế giao hàng, v.v.*
-
----
-
-## 2. Mô tả bài toán
-Website bán đồ ăn là một hệ thống ứng dụng web được xây dựng nhằm phục vụ nhu cầu đặt món và quản lý hoạt động kinh doanh ẩm thực trong môi trường trực tuyến. Hệ thống cho phép khách hàng truy cập, xem thực đơn, lựa chọn món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện thông qua trình duyệt web.
+## 2. Mô tả tổng quan
+Website bán đồ ăn là một hệ thống ứng dụng web được xây dựng nhằm phục vụ nhu cầu đặt món và quản lý hoạt động kinh doanh ẩm thực trong môi trường trực tuyến. Hệ thống cho phép khách hàng truy cập, xem thực đơn, lựa chọn món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện thông qua trình duyệt web
 
 Về phía người dùng, website hỗ trợ các chức năng cơ bản như đăng ký và đăng nhập tài khoản, tìm kiếm và xem chi tiết món ăn, quản lý giỏ hàng, thực hiện đặt hàng và lựa chọn phương thức thanh toán phù hợp. Thông tin đơn hàng sau khi được tạo sẽ được lưu trữ và cập nhật liên tục, giúp khách hàng dễ dàng theo dõi quá trình xử lý và giao hàng.
 
 Về phía quản trị viên, hệ thống cung cấp các công cụ quản lý toàn diện bao gồm quản lý danh mục và món ăn, quản lý đơn hàng, quản lý người dùng và thống kê doanh thu. Các chức năng này giúp người quản lý kiểm soát hiệu quả hoạt động kinh doanh, giảm thiểu sai sót trong quá trình xử lý đơn và nâng cao chất lượng dịch vụ.
 
 Website được thiết kế theo mô hình  client–server , kết hợp với cơ sở dữ liệu để lưu trữ và xử lý dữ liệu. Hệ thống chú trọng đến các yếu tố như  tính bảo mật, độ ổn định, hiệu năng và khả năng mở rộng , đảm bảo đáp ứng tốt nhu cầu sử dụng thực tế và có thể phát triển trong tương lai, chẳng hạn như tích hợp thanh toán trực tuyến hoặc dịch vụ giao hàng.
-
+### 2.1 Tổng quan hệ thống
+### 2.2 Xác định các tác nhân
+### 2.3 Xác định yêu cầu hệ thống
+#### 2.3.1 Yêu cầu chức năng
+#### 2.3.2 Yêu cầu phi chức năng
 ## 3. Luồng màn hình
 
-### 3.1 Sơ Đồ Kiến Trúc Tổng Thể
+### 3.1 Các chức năng hệ thống
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -91,7 +77,7 @@ Website được thiết kế theo mô hình  client–server , kết hợp vớ
 │  └──────────────┘  └──────────────┘        │
 └─────────────────────────────────────────────┘
 ```
-### 3.2 Mô tả màn hình
+### 3.2 Biểu đồ mô tả hệ thống
 
 | STT | Màn hình | Mô tả |
 |-----|----------|-------|
@@ -131,9 +117,9 @@ Website được thiết kế theo mô hình  client–server , kết hợp vớ
 
 ---
 
-## 4. Thiết Kế Cơ Sở Dữ Liệu
+## 4. Tổng quan về phần mềm
 
-### 4.1 Schema Chính
+### 4.1 Kiến trúc hệ thống
 
 *Liệt kê các bảng chính và mối quan hệ*
 
@@ -178,9 +164,8 @@ OrderDetails
 └── quantity
 ```
 
-### 4.2 Indexes
+### 4.2 Luồng hoạt động phần mềm
 
-*Liệt kê các index quan trọng để tối ưu hiệu suất*
 
 ### 4.3 Các Ràng Buộc (Constraints)
 
