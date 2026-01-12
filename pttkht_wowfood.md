@@ -366,6 +366,7 @@ Tính tổng tiền → Hiển thị nút thanh toán
 
 ### 5.1.4. Đặt hàng và thanh toán
 
+<<<<<<< Updated upstream
 #### 1. Thanh toán (Checkout)
 **Mô tả:** Người dùng điền thông tin giao hàng và xác nhận đặt hàng.
 
@@ -466,6 +467,81 @@ Các nhóm dữ liệu chính trong hệ thống bao gồm:
 * **Dữ liệu trò chuyện** : lưu lịch sử trao đổi giữa khách hàng và quản trị viên nhằm hỗ trợ và giải đáp thắc mắc.
 
 Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
+=======
+### 6.1 Phân tích dữ liệu hệ thống
+1. Các đối tượng dữ liệu chính
+1.1. Admin
+Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
+Thuộc tính chính:
+* id: Khóa chính
+* full_name: Họ tên quản trị viên
+* email: Email
+* username: Tên đăng nhập
+* password: Mật khẩu (đã/hoặc chưa mã hóa)
+1.2. User
+Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
+Thuộc tính chính:
+* id: Khóa chính
+* full_name, username, password
+* email, phone, address
+* status: Trạng thái tài khoản
+* created_at: Thời điểm tạo
+1.3. Category
+Vai trò: Phân loại món ăn.
+Thuộc tính chính:
+* id: Khóa chính
+* title: Tên danh mục (Pizza, Burger, …)
+* featured: Hiển thị nổi bật
+* active: Trạng thái hoạt động
+* image_name: Ảnh minh họa
+1.4. Food
+Vai trò: Lưu thông tin chi tiết món ăn.
+Thuộc tính chính:
+* id: Khóa chính
+* title, description
+* price: Giá bán
+* image_name
+* category_id: Danh mục món ăn
+* featured, active
+1.5. Order (tbl_order)
+Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
+Thuộc tính chính:
+* id: Khóa chính
+* order_code: Mã đơn hàng (duy nhất)
+* user_id: Người đặt hàng
+* food: Tên món (lưu dạng text)
+* price, qty, total
+* order_date
+* status: Trạng thái đơn
+* Thông tin khách hàng: tên, SĐT, email, địa chỉ
+1.6. Chat (tbl_chat)
+Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
+Thuộc tính chính:
+* id: Khóa chính
+* user_id: Người dùng
+* admin_id: Admin trả lời
+* sender_type: user / admin
+* message: Nội dung tin nhắn
+* is_read: Trạng thái đã đọc
+* created_at: Thời gian gửi
+2. Mối quan hệ giữa các đối tượng dữ liệu
+2.1. User – Order
+Quan hệ: 1 – N
+Một user có thể đặt nhiều đơn hàng
+Mỗi đơn hàng thuộc về một user
+2.2. Category – Food
+Quan hệ: 1 – N
+Một danh mục có nhiều món ăn
+Một món ăn chỉ thuộc một danh mục
+2.3. User – Chat
+Quan hệ: 1 – N
+Một user có thể gửi nhiều tin nhắn
+Mỗi tin nhắn gắn với một user
+2.4. Admin – Chat
+Quan hệ: 1 – N
+Một admin có thể trả lời nhiều tin nhắn
+Một tin nhắn admin gắn với một admin
+>>>>>>> Stashed changes
 
 ### 6.2 Biểu đồ ER (Entity – Relationship)
 
