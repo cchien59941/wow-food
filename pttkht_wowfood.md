@@ -30,8 +30,6 @@ Website được thiết kế theo mô hình  client–server , kết hợp vớ
 #### 2.3.1 Yêu cầu chức năng
 #### 2.3.2 Yêu cầu phi chức năng
 ## 3. Luồng màn hình
-
-
 ### 3.1 Mô tả màn hình
 
 | STT | Màn hình                  | Mô tả                                                                                                                                          |
@@ -208,49 +206,254 @@ OrderDetails
 
 ## 5. Thiết Kế Phần Mềm 
 
-### 5.1 Tổng quan các chức năng người dùng (User-facing)
+## 5.1 Thiết kế chức năng phía người dùng
 
-5.1.1 Duyệt và tìm món
-- `index.php`: Trang chủ hiển thị các danh mục nổi bật và các món ăn tiêu biểu. Cho phép dẫn link tới `category-food.php` hoặc `food.php`.
-- `categories.php`: Liệt kê toàn bộ danh mục kèm ảnh minh họa.
-- `category-food.php`: Hiển thị danh sách món theo `category_id` kèm phân trang nếu cần.
-- `food-search.php` và `search-suggestions.php`: Tìm kiếm tên món (có AJAX gợi ý khi nhập từ khóa).
+### 5.1.1. Quản lý tài khoản người dùng
 
-5.1.2 Xem chi tiết và đặt món
-- `food.php`: Hiển thị thông tin chi tiết món (tên, mô tả, thành phần, giá, ảnh), cho phép chọn số lượng và thêm vào giỏ hàng.
-- Thêm vào giỏ có thể thực hiện qua AJAX gọi `api/add-to-cart.php`.
+#### 1. Đăng ký tài khoản
+**Mô tả:** Người dùng có thể đăng ký tài khoản mới để sử dụng hệ thống.
 
-5.1.3 Giỏ hàng và thanh toán
-- `user/cart.php`: Hiện danh sách món trong giỏ, cho phép sửa số lượng, xóa mục.
-- `user/checkout.php`: Form nhập địa chỉ giao hàng, phương thức thanh toán và tóm tắt đơn.
-- `user/payment.php`: Xử lý trả về trạng thái thanh toán (trong đồ án có thể mô phỏng thành công/thất bại).
-- `order.php` (file gốc): Tạo bản ghi đơn hàng nếu dự án thiết kế như vậy.
+**Chức năng:**
+- Form đăng ký với các trường: Họ tên, Email (chỉ chấp nhận Gmail), Mật khẩu, Xác nhận mật khẩu, Số điện thoại, Địa chỉ
+- Validation dữ liệu đầu vào:
+  - Email phải là định dạng Gmail (@gmail.com)
+  - Mật khẩu tối thiểu 6 ký tự
+  - Mật khẩu và xác nhận mật khẩu phải khớp
+- Xác minh email qua mã 6 số:
+  - Tạo mã xác minh ngẫu nhiên 6 chữ số
+  - Gửi mã qua email sử dụng PHPMailer (Gmail SMTP)
+  - Mã có thời hạn 10 phút
+  - Lưu mã vào database với trạng thái chưa xác minh
+- Hash mật khẩu bằng `password_hash()` trước khi lưu vào database
+- Kiểm tra email đã tồn tại trong hệ thống
 
-5.1.4 Quản lý tài khoản
-- `user/register.php`, `user/login.php`, `user/logout.php`: Đăng ký/đăng nhập/đăng xuất người dùng.
-- `user/forgot-password.php`, `user/reset-password.php`, `api/send-verification.php`, `user/verify-code.php`: Luồng khôi phục mật khẩu bằng mã xác minh gửi email.
+**Luồng xử lý:**
+```
+Người dùng nhập thông tin → Validate → Kiểm tra email tồn tại → 
+Tạo mã OTP → Gửi email → Lưu thông tin tạm vào session → 
+Chuyển đến trang xác minh → Nhập mã OTP → Xác minh → 
+Tạo tài khoản → Đăng nhập tự động
+```
 
-5.1.5. Tin nhắn / Chat (user ↔ admin)
-- `user/chat.php`: Giao diện chat cho user.
-- API hỗ trợ: `api/send-message.php`, `api/get-messages.php`, `api/get-chat-list.php`, `api/get-unread-count.php`, `api/mark-messages-read.php`.
+#### 2. Đăng nhập
+**Mô tả:** Người dùng đăng nhập vào hệ thống bằng email và mật khẩu.
+
+**Chức năng:**
+- Form đăng nhập với Email và Mật khẩu
+- Xác thực thông tin đăng nhập:
+  - Kiểm tra email tồn tại trong database
+  - Kiểm tra tài khoản có trạng thái Active
+  - Xác thực mật khẩu bằng `password_verify()`
+- Lưu thông tin user vào session:
+  - `user_id` - ID người dùng
+  - `user` - Tên đăng nhập
+  - `user_full_name` - Họ tên đầy đủ
+- Redirect thông minh:
+  - Nếu có `redirect_food_id` trong session → chuyển đến trang đặt hàng
+  - Ngược lại → chuyển về trang chủ
+- Hiển thị thông báo lỗi nếu đăng nhập thất bại
+
+#### 3. Quên mật khẩu
+**Mô tả:** Người dùng có thể khôi phục mật khẩu nếu quên.
+
+**Chức năng:**
+- Form nhập email để yêu cầu đặt lại mật khẩu
+- Gửi mã xác minh 6 số qua email
+- Giới hạn số lần thử nhập mã (5 lần)
+- Mã xác minh có thời hạn 10 phút
+- Form đặt lại mật khẩu mới sau khi xác minh thành công
+- Hash mật khẩu mới trước khi cập nhật
+
+**Luồng xử lý:**
+```
+Nhập email → Gửi mã OTP → Nhập mã → Xác minh → 
+Đặt mật khẩu mới → Cập nhật database → Thông báo thành công
+```
+
+#### 4. Đăng xuất
+**Mô tả:** Người dùng có thể đăng xuất khỏi hệ thống.
+
+**Chức năng:**
+- Xóa tất cả session của người dùng
+- Chuyển hướng về trang chủ
+- Hiển thị thông báo đăng xuất thành công
 
 ---
-### 5.2 Chức năng quản trị (Admin)
+### 5.1.2. Duyệt và tìm kiếm món ăn
 
-- `admin/login.php`, `admin/logout.php`: Xác thực admin (session-based). Kiểm tra quyền truy cập bằng `admin/partials/login-check.php`.
-- `admin/index.php`: Bảng điều khiển hiển thị thông tin tổng quan: đơn mới, doanh thu, số tin nhắn chưa đọc.
-- Quản lý admin: `admin/manage-admin.php`, `admin/add-admin.php`, `admin/update-admin.php`, `admin/delete-admin.php`.
-- Quản lý danh mục: `admin/manage-category.php`, `admin/add-category.php`, `admin/update-category.php`, `admin/delete-category.php`.
-- Quản lý món ăn: `admin/manage-food.php`, `admin/add-food.php`, `admin/update-food.php`, `admin/delete-food.php`.
-- Quản lý đơn hàng: `admin/manage-order.php`, `admin/update-order.php`.
-- Quản lý chat: `admin/manage-chat.php` để xem và trả lời khách.
+#### 1. Trang chủ
+**Mô tả:** Hiển thị thông tin tổng quan về hệ thống và món ăn nổi bật.
+
+**Chức năng:**
+- Hiển thị form tìm kiếm món ăn
+- Hiển thị 3 danh mục đầu tiên với hình ảnh
+- Hiển thị 6 món ăn đầu tiên trong menu
+- Mỗi món ăn hiển thị: Tên, Giá, Mô tả, Hình ảnh
+- Nút "Thêm vào giỏ" nếu đã đăng nhập, "Đặt ngay" nếu chưa đăng nhập
+- Link "Xem tất cả món ăn" để xem toàn bộ menu
+
+#### 2. Xem danh sách món ăn
+**Mô tả:** Hiển thị toàn bộ món ăn trong hệ thống.
+
+**Chức năng:**
+- Hiển thị tất cả món ăn có trong database
+- Mỗi món ăn hiển thị đầy đủ thông tin: Tên, Giá, Mô tả, Hình ảnh
+- Nút thêm vào giỏ hàng (yêu cầu đăng nhập)
+- Responsive design cho mobile
+
+#### 3. Xem món ăn theo danh mục
+**Mô tả:** Lọc và hiển thị món ăn theo từng danh mục.
+
+**Chức năng:**
+- Hiển thị danh sách tất cả danh mục
+- Khi click vào danh mục, hiển thị các món ăn thuộc danh mục đó
+- Hiển thị thông báo nếu danh mục chưa có món ăn
+
+#### 4. Tìm kiếm món ăn
+**Mô tả:** Tìm kiếm món ăn theo từ khóa.
+
+**Chức năng:**
+- Form tìm kiếm với ô nhập từ khóa
+- Tìm kiếm trong tên món ăn (`title`) và mô tả (`description`)
+- Hiển thị kết quả tìm kiếm với đầy đủ thông tin món ăn
+- Hiển thị thông báo nếu không tìm thấy kết quả
+
+**Luồng xử lý:**
+```
+Nhập từ khóa → Submit form → Query database → 
+Hiển thị kết quả tìm kiếm
+```
+
+---
+### 5.1.3. Quản lý giỏ hàng
+
+#### 1. Thêm món vào giỏ hàng
+**Mô tả:** Người dùng có thể thêm món ăn vào giỏ hàng.
+
+**Chức năng:**
+- Nút "Thêm vào giỏ" trên mỗi món ăn
+- Yêu cầu đăng nhập trước khi thêm vào giỏ
+- Thêm món vào giỏ hàng qua AJAX (không reload trang)
+- Hiển thị thông báo thành công khi thêm vào giỏ
+- Cập nhật số lượng món trong giỏ hàng (badge)
+- Nếu món đã có trong giỏ, tăng số lượng thay vì tạo mới
+
+#### 2. Xem giỏ hàng
+**Mô tả:** Hiển thị danh sách món ăn trong giỏ hàng.
+
+**Chức năng:**
+- Hiển thị danh sách món ăn trong giỏ hàng:
+  - Hình ảnh món ăn
+  - Tên món ăn
+  - Giá đơn vị
+  - Số lượng (có thể tăng/giảm)
+  - Ghi chú cho món ăn (VD: ăn cay, không cay, nhiều, ít...)
+  - Tổng tiền cho mỗi món
+- Tính tổng tiền toàn bộ giỏ hàng
+- Nút tăng/giảm số lượng
+- Nút xóa món khỏi giỏ hàng
+- Ô nhập ghi chú cho từng món
+- Nút "Thanh toán" để chuyển đến trang checkout
+- Hiển thị thông báo nếu giỏ hàng trống
+
+**Luồng xử lý:**
+```
+Load trang → Gọi API get-cart.php → Hiển thị danh sách món → 
+Tính tổng tiền → Hiển thị nút thanh toán
+```
 
 ---
 
-## 6. THIẾT KẾ DỮ LIỆU HỆ THỐNG
+### 5.1.4. Đặt hàng và thanh toán
 
-### 6.1 Mô tả dữ liệu
+#### 1. Thanh toán (Checkout)
+**Mô tả:** Người dùng điền thông tin giao hàng và xác nhận đặt hàng.
 
+**Chức năng:**
+- Form nhập thông tin giao hàng:
+  - Họ tên người nhận (tự động điền từ thông tin user)
+  - Số điện thoại (tự động điền)
+  - Email (tự động điền)
+  - Địa chỉ giao hàng (tự động điền)
+- Hiển thị tóm tắt đơn hàng:
+  - Danh sách món ăn, số lượng, ghi chú
+  - Tổng tiền đơn hàng
+- Chọn phương thức thanh toán:
+  - Tiền mặt (COD)
+  - Thanh toán online
+- Tạo mã đơn hàng duy nhất:
+  - Format: `ORD` + `YYYYMMDD` + `6 ký tự ngẫu nhiên`
+  - Ví dụ: `ORD20241215ABC123`
+- Xử lý đặt hàng:
+  - Tạo đơn hàng cho từng món trong giỏ
+  - Lưu thông tin đơn hàng vào database
+  - Xóa giỏ hàng sau khi đặt hàng thành công
+  - Nếu thanh toán online → chuyển đến trang payment
+  - Nếu thanh toán tiền mặt → chuyển đến trang lịch sử đơn hàng
+
+**Luồng xử lý:**
+```
+Xem giỏ hàng → Click "Thanh toán" → Điền thông tin giao hàng → 
+Chọn phương thức thanh toán → Xác nhận đặt hàng → 
+Tạo mã đơn hàng → Lưu vào database → Xóa giỏ hàng → 
+Chuyển đến trang phù hợp
+```
+
+#### 2. Lịch sử đặt hàng
+**Mô tả:** Người dùng xem lịch sử các đơn hàng đã đặt.
+
+**Chức năng:**
+- Hiển thị danh sách đơn hàng của user:
+  - Mã đơn hàng (có nút copy)
+  - Ngày đặt hàng
+  - Trạng thái đơn hàng (màu sắc khác nhau):
+    - Đã đặt hàng (Ordered) - màu vàng
+    - Đang giao hàng (On Delivery) - màu cam
+    - Đã giao hàng (Delivered) - màu xanh lá
+    - Đã hủy (Cancelled) - màu đỏ
+  - Thông tin món ăn: Tên, Số lượng, Đơn giá, Tổng tiền
+  - Thông tin giao hàng: Tên người nhận, Địa chỉ
+- Nút "Chat hỗ trợ đơn này" để liên hệ admin về đơn hàng cụ thể
+- Hiển thị thông báo nếu chưa có đơn hàng nào
+
+---
+
+### 5.1.5. Hệ thống chat với Admin
+
+#### 1. Chat với Admin
+**Mô tả:** Người dùng có thể chat với admin để được hỗ trợ.
+
+**Chức năng:**
+- Giao diện chat real-time:
+  - Hiển thị tin nhắn đã gửi/nhận
+  - Phân biệt tin nhắn của user và admin (màu sắc khác nhau)
+  - Hiển thị thời gian gửi tin nhắn
+  - Tự động scroll xuống tin nhắn mới nhất
+- Gửi tin nhắn:
+  - Form nhập tin nhắn
+  - Gửi tin nhắn qua AJAX (không reload trang)
+  - Hiển thị tin nhắn ngay sau khi gửi
+- Nhận tin nhắn:
+  - Polling mỗi 2 giây để lấy tin nhắn mới
+  - Tự động hiển thị tin nhắn mới từ admin
+  - Đánh dấu tin nhắn đã đọc khi mở trang chat
+- Chat về đơn hàng cụ thể:
+  - Có thể truyền `order_code` qua URL
+  - Hiển thị thông báo về đơn hàng đang chat
+  - Nút chèn mã đơn hàng vào tin nhắn
+- Badge thông báo số tin nhắn chưa đọc (trong menu)
+
+**Luồng xử lý:**
+```
+Mở trang chat → Load tin nhắn cũ → Bắt đầu polling → 
+Gửi tin nhắn → Lưu vào database → Hiển thị ngay → 
+Admin trả lời → Polling phát hiện tin nhắn mới → Hiển thị
+```
+--- 
+## 5.2 Thiết kế chức năng phía quản trị viên
+
+---
+## 6. Bảo Mật
 Hệ thống Web Food được xây dựng nhằm phục vụ hoạt động đặt món ăn trực tuyến, quản lý đơn hàng và hỗ trợ khách hàng. Cơ sở dữ liệu **food-order** được thiết kế trên nền tảng MariaDB/MySQL, đáp ứng các yêu cầu lưu trữ, truy xuất và đảm bảo tính toàn vẹn dữ liệu.
 
 Các nhóm dữ liệu chính trong hệ thống bao gồm:
