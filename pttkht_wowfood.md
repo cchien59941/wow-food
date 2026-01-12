@@ -1,5 +1,6 @@
 # Phân Tích Thiết Kế Hệ Thống Web Food
 
+
 ## 1. Giới Thiệu
 ### 1.1 Giới thiệu đề tài
 Trong bối cảnh cuộc sống hiện đại với nhịp độ nhanh chóng, việc đặt đồ ăn trực tuyến đã trở thành một nhu cầu thiết yếu của xã hội. Với sự phát triển mạnh mẽ của công nghệ thông tin và thương mại điện tử, các hệ thống đặt món ăn online không chỉ giúp người dùng tiết kiệm thời gian mà còn tạo cơ hội kinh doanh cho các nhà hàng. Đề tài này được chọn nhằm xây dựng một nền tảng toàn diện, dễ sử dụng, kết hợp giữa giao diện thân thiện với người dùng và hệ thống quản lý hiệu quả cho nhà quản trị, góp phần thúc đẩy xu hướng số hóa trong ngành dịch vụ ăn uống.
@@ -30,74 +31,122 @@ Website được thiết kế theo mô hình  client–server , kết hợp vớ
 #### 2.3.2 Yêu cầu phi chức năng
 ## 3. Luồng màn hình
 
-### 3.1 Các chức năng hệ thống
 
-```
-┌─────────────────────────────────────────────┐
-│          Client Layer                       │
-│  ┌──────────────┐  ┌──────────────┐        │
-│  │ Web Frontend │  │ Mobile App   │        │
-│  └──────────────┘  └──────────────┘        │
-└─────────────────────────────────────────────┘
-           │                   │
-┌─────────────────────────────────────────────┐
-│        API Gateway / Load Balancer          │
-└─────────────────────────────────────────────┘
-           │
-┌─────────────────────────────────────────────┐
-│        Application Layer (Microservices)    │
-│  ┌──────────────┐  ┌──────────────┐        │
-│  │ Auth Service │  │ Order Service│        │
-│  └──────────────┘  └──────────────┘        │
-│  ┌──────────────┐  ┌──────────────┐        │
-│  │ User Service │  │ Payment Svc  │        │
-│  └──────────────┘  └──────────────┘        │
-└─────────────────────────────────────────────┘
-           │
-┌─────────────────────────────────────────────┐
-│         Data Access Layer                   │
-│  ┌──────────────┐  ┌──────────────┐        │
-│  │ Database     │  │ Cache (Redis)│        │
-│  └──────────────┘  └──────────────┘        │
-└─────────────────────────────────────────────┘
-```
-### 3.2 Biểu đồ mô tả hệ thống
+### 3.1 Mô tả màn hình
 
-| STT | Màn hình | Mô tả |
-|-----|----------|-------|
-| 1 | Trang chủ | Người dùng xem các món ăn hiển thị trên màn hình, tìm kiếm món ăn, nhập email liên hệ và điều hướng sang các trang khác |
-| 2 | Danh sách món ăn | Hiển thị các món ăn theo danh mục; bộ lọc theo loại món, giá, mức độ phổ biến |
-| 3 | Chi tiết món ăn | Hiển thị tên món, mã món, giá, hình ảnh, mô tả, thành phần, số lượng còn lại |
-| 4 | Giỏ hàng | Danh sách món ăn đã chọn, số lượng, tổng tiền, thông tin khách hàng, phương thức thanh toán |
-| 5 | Theo dõi đơn | Hiển thị tình trạng đơn hàng đang được xử lý (đang chuẩn bị, đang giao, hoàn thành) |
-| 6 | Liên hệ | Thông tin admin/cửa hàng: số điện thoại, email, địa chỉ |
-| 7 | Đăng nhập | Nhân viên và admin đăng nhập vào hệ thống |
-| 8 | Đăng ký | Nhân viên đăng ký tài khoản |
-| 9 | Quên mật khẩu | Nhập email để nhận mã xác thực |
-| 10 | OTP | Nhập mã OTP để xác thực |
-| 11 | Đổi mật khẩu | Nhập thông tin cần thiết để đổi mật khẩu |
-| 12 | Quản lý danh mục | Xem trạng thái, người tạo, tìm kiếm; thao tác thêm, sửa, xóa danh mục món ăn |
-| 13 | Tổng quan | Thống kê người dùng, doanh thu, số đơn hàng, biểu đồ doanh thu, đơn hàng mới |
-| 14 | Tạo danh mục | Tạo danh mục món ăn mới: tên, danh mục cha, vị trí, trạng thái, ảnh, mô tả |
-| 15 | Chỉnh sửa danh mục | Cập nhật thông tin danh mục món ăn |
-| 16 | Thông tin liên hệ | Danh sách email khách hàng và ngày tạo |
-| 17 | Quản lý đơn hàng | Tìm kiếm, xem thông tin đơn hàng: mã đơn, khách hàng, món ăn, thanh toán, trạng thái |
-| 18 | Chỉnh sửa đơn hàng | Sửa tên khách, số điện thoại, ghi chú, phương thức thanh toán, trạng thái đơn |
-| 19 | Quản lý món ăn | Tìm kiếm, tạo mới, sửa, xóa món ăn; xem người tạo/cập nhật, giá, trạng thái |
-| 20 | Tạo mới món ăn | Nhập thông tin món ăn: tên, danh mục, giá, số lượng, hình ảnh, mô tả |
-| 21 | Thùng rác | Danh sách món ăn đã xóa và chức năng khôi phục |
-| 22 | Cài đặt chung | Quản lý thông tin website, tài khoản và nhóm quyền |
-| 23 | Thông tin website | Chỉnh sửa tên website, số điện thoại, email, địa chỉ, logo, favicon |
-| 24 | Quản trị tài khoản | Danh sách nhân viên: số điện thoại, nhóm quyền, chức vụ |
-| 25 | Tạo tài khoản quản trị | Nhập họ tên, email, số điện thoại, nhóm quyền, chức vụ, trạng thái, mật khẩu |
-| 26 | Nhóm quyền | Danh sách nhóm quyền và mô tả |
-| 27 | Tạo nhóm quyền | Thêm nhóm quyền mới |
-| 28 | Chỉnh sửa nhóm quyền | Chỉnh sửa tên nhóm quyền, mô tả và phân quyền |
-| 29 | Thông tin cá nhân | Quản lý thông tin cá nhân nhân viên |
+| STT | Màn hình                  | Mô tả                                                                                                                                          |
+| --- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Trang chủ                  | Người dùng xem các món ăn hiển thị trên màn hình, tìm kiếm món ăn, nhập email liên hệ và điều hướng sang các trang khác |
+| 2   | Danh sách món ăn         | Hiển thị các món ăn theo danh mục; bộ lọc theo loại món, giá, mức độ phổ biến                                                    |
+| 3   | Chi tiết món ăn          | Hiển thị tên món, mã món, giá, hình ảnh, mô tả, thành phần, số lượng còn lại                                                   |
+| 4   | Giỏ hàng                  | Danh sách món ăn đã chọn, số lượng, tổng tiền, thông tin khách hàng, phương thức thanh toán                                    |
+| 5   | Theo dõi đơn             | Hiển thị tình trạng đơn hàng đang được xử lý (đang chuẩn bị, đang giao, hoàn thành)                                           |
+| 6   | Liên hệ                   | Thông tin admin/cửa hàng: số điện thoại, email, địa chỉ                                                                                |
+| 7   | Đăng nhập                | Nhân viên và admin đăng nhập vào hệ thống                                                                                               |
+| 8   | Đăng ký                  | Nhân viên đăng ký tài khoản                                                                                                               |
+| 9   | Quên mật khẩu            | Nhập email để nhận mã xác thực                                                                                                            |
+| 10  | OTP                         | Nhập mã OTP để xác thực                                                                                                                    |
+| 11  | Đổi mật khẩu            | Nhập thông tin cần thiết để đổi mật khẩu                                                                                               |
+| 12  | Quản lý danh mục         | Xem trạng thái, người tạo, tìm kiếm; thao tác thêm, sửa, xóa danh mục món ăn                                                       |
+| 13  | Tổng quan                  | Thống kê người dùng, doanh thu, số đơn hàng, biểu đồ doanh thu, đơn hàng mới                                                     |
+| 14  | Tạo danh mục              | Tạo danh mục món ăn mới: tên, danh mục cha, vị trí, trạng thái, ảnh, mô tả                                                         |
+| 15  | Chỉnh sửa danh mục       | Cập nhật thông tin danh mục món ăn                                                                                                         |
+| 16  | Thông tin liên hệ        | Danh sách email khách hàng và ngày tạo                                                                                                     |
+| 17  | Quản lý đơn hàng       | Tìm kiếm, xem thông tin đơn hàng: mã đơn, khách hàng, món ăn, thanh toán, trạng thái                                             |
+| 18  | Chỉnh sửa đơn hàng     | Sửa tên khách, số điện thoại, ghi chú, phương thức thanh toán, trạng thái đơn                                                    |
+| 19  | Quản lý món ăn          | Tìm kiếm, tạo mới, sửa, xóa món ăn; xem người tạo/cập nhật, giá, trạng thái                                                      |
+| 20  | Tạo mới món ăn          | Nhập thông tin món ăn: tên, danh mục, giá, số lượng, hình ảnh, mô tả                                                               |
+| 21  | Thùng rác                 | Danh sách món ăn đã xóa và chức năng khôi phục                                                                                        |
+| 22  | Cài đặt chung            | Quản lý thông tin website, tài khoản và nhóm quyền                                                                                       |
+| 23  | Thông tin website          | Chỉnh sửa tên website, số điện thoại, email, địa chỉ, logo, favicon                                                                    |
+| 24  | Quản trị tài khoản      | Danh sách nhân viên: số điện thoại, nhóm quyền, chức vụ                                                                               |
+| 25  | Tạo tài khoản quản trị | Nhập họ tên, email, số điện thoại, nhóm quyền, chức vụ, trạng thái, mật khẩu                                                      |
+| 26  | Nhóm quyền                | Danh sách nhóm quyền và mô tả                                                                                                              |
+| 27  | Tạo nhóm quyền           | Thêm nhóm quyền mới                                                                                                                          |
+| 28  | Chỉnh sửa nhóm quyền    | Chỉnh sửa tên nhóm quyền, mô tả và phân quyền                                                                                          |
+| 29  | Thông tin cá nhân        | Quản lý thông tin cá nhân nhân viên                                                                                                       |
 
-### 3.3 Luồng Dữ Liệu Chính
+### 3.2 Các chức năng hệ thống
 
-*Mô tả cách dữ liệu chảy qua hệ thống*
+
+### 3.2.1 Chức năng phía khách hàng
+
+
+Khách hàng là người trực tiếp sử dụng website để xem và đặt món ăn. Hệ thống cung cấp các chức năng sau:
+
+### Xem danh sách món ăn
+
+Hiển thị các món ăn kèm hình ảnh, tên món, giá bán, mô tả và trạng thái còn/hết món.
+
+
+### Tìm kiếm và lọc món ăn
+
+Cho phép người dùng tìm kiếm món ăn theo tên, loại món (đồ ăn nhanh, đồ uống, combo, …), khoảng giá.
+
+### Quản lý giỏ hàng
+
+Thêm, sửa số lượng, xóa món ăn trong giỏ hàng và xem tổng tiền tạm tính.
+
+### Đặt hàng và thanh toán
+
+Cho phép khách hàng nhập thông tin giao hàng, lựa chọn phương thức thanh toán (tiền mặt, chuyển khoản, ví điện tử, …) và xác nhận đơn hàng.
+
+### Đăng ký, đăng nhập tài khoản
+
+Khách hàng có thể tạo tài khoản để lưu thông tin cá nhân và lịch sử mua hàng.
+
+### Quản lý thông tin cá nhân
+
+Cập nhật thông tin cá nhân như tên, số điện thoại, địa chỉ giao hàng.
+
+### Xem lịch sử đơn hàng
+
+Cho phép khách hàng theo dõi trạng thái và xem lại các đơn hàng đã đặt.
+
+---
+
+#### 3.2.2 Chức năng phía quản trị viên
+
+Quản trị viên là người quản lý toàn bộ hoạt động của hệ thống. Các chức năng chính bao gồm:
+
+### Quản lý tài khoản người dùng
+
+Xem, thêm, sửa, khóa hoặc xóa tài khoản khách hàng.
+
+### Quản lý danh mục món ăn
+
+Thêm, chỉnh sửa, xóa các danh mục món ăn (đồ ăn, đồ uống, combo, …).
+
+### Quản lý món ăn
+
+Thêm mới, cập nhật thông tin, giá bán, hình ảnh và trạng thái của món ăn.
+
+### Quản lý đơn hàng
+
+Xem danh sách đơn hàng, cập nhật trạng thái đơn hàng (chờ xác nhận, đang giao, đã giao, hủy).
+
+### Quản lý thanh toán
+
+Theo dõi tình trạng thanh toán của các đơn hàng.
+
+### Thống kê và báo cáo
+
+Thống kê doanh thu theo ngày, tháng, năm; số lượng đơn hàng; các món ăn bán chạy.
+
+### Quản lý nội dung website
+
+Cập nhật banner, thông tin giới thiệu, chính sách bán hàng.
+
+### Phân quyền quản trị
+
+Phân quyền cho các tài khoản quản trị (admin, nhân viên).
+
+### 3.3 Biểu đồ mô tả hệ thống
+
+#### 3.2.1 Use Case Diagram
+
+#### Use case tổng quát hệ thống
+![](public/assets/images/usecase.png)!
 
 ---
 
