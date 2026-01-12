@@ -17,18 +17,33 @@ Quản trị hệ thống: Admin cần công cụ để quản lý đơn hàng, 
 Hệ thống phải đảm bảo tính bảo mật (chống SQL injection, hash mật khẩu), hiệu suất (tải nhanh, giao diện responsive), và khả năng mở rộng (thêm tính năng như thanh toán online, đánh giá sản phẩm).
 
 ## 2. Mô tả tổng quan
-Website bán đồ ăn là một hệ thống ứng dụng web được xây dựng nhằm phục vụ nhu cầu đặt món và quản lý hoạt động kinh doanh ẩm thực trong môi trường trực tuyến. Hệ thống cho phép khách hàng truy cập, xem thực đơn, lựa chọn món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện thông qua trình duyệt web
-
-Về phía người dùng, website hỗ trợ các chức năng cơ bản như đăng ký và đăng nhập tài khoản, tìm kiếm và xem chi tiết món ăn, quản lý giỏ hàng, thực hiện đặt hàng và lựa chọn phương thức thanh toán phù hợp. Thông tin đơn hàng sau khi được tạo sẽ được lưu trữ và cập nhật liên tục, giúp khách hàng dễ dàng theo dõi quá trình xử lý và giao hàng.
-
-Về phía quản trị viên, hệ thống cung cấp các công cụ quản lý toàn diện bao gồm quản lý danh mục và món ăn, quản lý đơn hàng, quản lý người dùng và thống kê doanh thu. Các chức năng này giúp người quản lý kiểm soát hiệu quả hoạt động kinh doanh, giảm thiểu sai sót trong quá trình xử lý đơn và nâng cao chất lượng dịch vụ.
-
-Website được thiết kế theo mô hình  client–server , kết hợp với cơ sở dữ liệu để lưu trữ và xử lý dữ liệu. Hệ thống chú trọng đến các yếu tố như  tính bảo mật, độ ổn định, hiệu năng và khả năng mở rộng , đảm bảo đáp ứng tốt nhu cầu sử dụng thực tế và có thể phát triển trong tương lai, chẳng hạn như tích hợp thanh toán trực tuyến hoặc dịch vụ giao hàng.
 ### 2.1 Tổng quan hệ thống
+Hệ thống web bán đồ ăn là một ứng dụng thương mại điện tử cho phép người dùng đặt món ăn trực tuyến thông qua trình duyệt web. Hệ thống hỗ trợ khách hàng xem menu, tìm kiếm món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện.
+
+Trong bối cảnh thương mại điện tử và xu hướng tiêu dùng online ngày càng phát triển, đặc biệt trong lĩnh vực dịch vụ ăn uống, việc xây dựng một hệ thống đặt đồ ăn trực tuyến hiệu quả, an toàn và thân thiện với người dùng là nhu cầu cấp thiết. Hệ thống không chỉ giúp khách hàng tiết kiệm thời gian mà còn hỗ trợ doanh nghiệp quản lý hoạt động kinh doanh một cách hiệu quả hơn.
 ### 2.2 Xác định các tác nhân
+Hệ thống web bán đồ ăn phục vụ cho các đối tượng chính sau:
+- Khách hàng có nhu cầu đặt món ăn trực tuyến.
+- Quản trị viên quản lý hệ thống
+#### 2.2.1. Khách hàng
+Khách hàng là người sử dụng hệ thống để:
+Đăng ký, đăng nhập tài khoản.
+Xem danh mục và danh sách món ăn.
+Tìm kiếm, lựa chọn món ăn và thêm vào giỏ hàng.
+Đặt hàng, thanh toán và theo dõi trạng thái đơn hàng.
+Trao đổi với quản trị viên thông qua chức năng chat khi cần hỗ trợ.
+#### 2.2.2. Quản trị viên
+Quản trị viên là người quản lý toàn bộ hệ thống, có các chức năng:
+Quản lý người dùng và phân quyền.
+Quản lý danh mục và món ăn (thêm, sửa, xóa).
+Quản lý đơn hàng và cập nhật trạng thái xử lý.
+Theo dõi hoạt động hệ thống và hỗ trợ khách hàng.
+Đảm bảo an toàn và ổn định cho hệ thống.
 ### 2.3 Xác định yêu cầu hệ thống
 #### 2.3.1 Yêu cầu chức năng
+- 
 #### 2.3.2 Yêu cầu phi chức năng
+
 ## 3. Luồng màn hình
 ### 3.1 Mô tả màn hình
 
@@ -467,7 +482,6 @@ Các nhóm dữ liệu chính trong hệ thống bao gồm:
 * **Dữ liệu trò chuyện** : lưu lịch sử trao đổi giữa khách hàng và quản trị viên nhằm hỗ trợ và giải đáp thắc mắc.
 
 Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
-=======
 ### 6.1 Phân tích dữ liệu hệ thống
 1. Các đối tượng dữ liệu chính
 1.1. Admin
@@ -541,8 +555,6 @@ Mỗi tin nhắn gắn với một user
 Quan hệ: 1 – N
 Một admin có thể trả lời nhiều tin nhắn
 Một tin nhắn admin gắn với một admin
->>>>>>> Stashed changes
-
 ### 6.2 Biểu đồ ER (Entity – Relationship)
 
 Dựa trên cơ sở dữ liệu hiện tại, hệ thống bao gồm các thực thể chính sau:
