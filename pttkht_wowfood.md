@@ -2,34 +2,18 @@
 
 ## 1. Giới Thiệu
 ### 1.1 Giới thiệu đề tài
-- Tên dự án: Food_order
-- Mục tiêu: Xây dựng hệ thống đặt đồ ăn trực tuyến đơn giản, có giao diện người dùng thân thiện, API cho thao tác giỏ hàng và nhắn tin, cùng trang quản trị để quản lý danh mục, món ăn, đơn hàng và cuộc hội thoại.
-- Phạm vi báo cáo: mô tả chức năng, luồng dữ liệu, API chính, cấu trúc cơ sở dữ liệu, xác thực, bảo mật cơ bản và hướng dẫn chạy môi trường local để minh họa.
+Trong bối cảnh cuộc sống hiện đại với nhịp độ nhanh chóng, việc đặt đồ ăn trực tuyến đã trở thành một nhu cầu thiết yếu của xã hội. Với sự phát triển mạnh mẽ của công nghệ thông tin và thương mại điện tử, các hệ thống đặt món ăn online không chỉ giúp người dùng tiết kiệm thời gian mà còn tạo cơ hội kinh doanh cho các nhà hàng. Đề tài này được chọn nhằm xây dựng một nền tảng toàn diện, dễ sử dụng, kết hợp giữa giao diện thân thiện với người dùng và hệ thống quản lý hiệu quả cho nhà quản trị, góp phần thúc đẩy xu hướng số hóa trong ngành dịch vụ ăn uống.
 
 
 ### 1.2 Mô tả bài toán
-Dự án Food_order được thực hiện với mục đích xây dựng một hệ thống đặt đồ ăn trực tuyến đơn giản, dễ sử dụng và phù hợp cho việc học tập, nghiên cứu và minh họa quy trình phát triển một ứng dụng web hoàn chỉnh. Hệ thống hướng tới việc cung cấp cho người dùng một nền tảng thuận tiện để xem danh mục món ăn, lựa chọn sản phẩm, quản lý giỏ hàng, đặt đơn và trao đổi thông tin thông qua chức năng nhắn tin.
+Bài toán chính: Trong bối cảnh phát triển thương mại điện tử và xu hướng tiêu dùng online ngày càng phổ biến, đặc biệt là lĩnh vực dịch vụ ăn uống, nhu cầu xây dựng một hệ thống đặt đồ ăn trực tuyến hiệu quả, an toàn và thân thiện với người dùng trở nên cấp thiết. Hệ thống cần giải quyết các vấn đề sau:
 
-Bên cạnh đó, dự án còn tập trung xây dựng API backend phục vụ các thao tác cốt lõi như quản lý giỏ hàng, xử lý đơn hàng và quản lý hội thoại, giúp minh họa mô hình tách biệt giữa frontend và backend trong phát triển web hiện đại. Hệ thống quản trị (Admin) được thiết kế nhằm hỗ trợ người quản lý trong việc kiểm soát danh mục, món ăn, đơn hàng và các cuộc hội thoại với khách hàng một cách hiệu quả.
-
-Thông qua dự án này, nhóm thực hiện mong muốn:
-
-Nắm vững quy trình phân tích yêu cầu và thiết kế hệ thống web.
-
-Áp dụng kiến thức về thiết kế cơ sở dữ liệu, xây dựng API và xác thực người dùng.
-
-Hiểu và triển khai các biện pháp bảo mật cơ bản trong ứng dụng web.
-
-Minh họa cách triển khai và chạy hệ thống trong môi trường local phục vụ phát triển và kiểm thử.
-
-Dự án Food_order không chỉ đáp ứng các chức năng cơ bản của một hệ thống đặt đồ ăn trực tuyến mà còn đóng vai trò là tài liệu tham khảo cho việc học tập và phát triển các hệ thống web tương tự trong tương lai.
-
-*Mô tả mục đích chính của hệ thống web food*
-Hệ thống Web Food được xây dựng nhằm cung cấp một nền tảng trực tuyến hỗ trợ việc đặt đồ ăn một cách nhanh chóng, thuận tiện và hiệu quả. Mục đích chính của hệ thống là giúp người dùng dễ dàng tìm kiếm, lựa chọn món ăn, quản lý giỏ hàng và thực hiện đặt đơn thông qua giao diện web thân thiện, dễ sử dụng.
-
-Đối với phía quản lý, hệ thống cung cấp trang quản trị cho phép quản lý danh mục món ăn, thông tin sản phẩm, đơn hàng và các cuộc hội thoại với khách hàng. Điều này giúp tối ưu hóa quy trình quản lý, giảm thiểu thao tác thủ công và nâng cao hiệu quả vận hành.
-
-Bên cạnh đó, hệ thống Web Food còn hướng tới việc xây dựng và minh họa một kiến trúc web hiện đại với sự tách biệt rõ ràng giữa giao diện người dùng và API xử lý nghiệp vụ. Thông qua hệ thống, các chức năng xác thực, phân quyền và bảo mật cơ bản được áp dụng nhằm đảm bảo an toàn dữ liệu và quyền truy cập của người dùng.
+Quản lý người dùng và bảo mật: Đảm bảo xác thực người dùng qua email, bảo vệ thông tin cá nhân, và phân quyền rõ ràng giữa khách hàng và quản trị viên.
+Quản lý sản phẩm và danh mục: Cho phép hiển thị, tìm kiếm, và quản lý món ăn cùng danh mục một cách dễ dàng.
+Quy trình đặt hàng: Tạo trải nghiệm đặt hàng liền mạch từ xem menu, thêm vào giỏ hàng, đến thanh toán và theo dõi đơn hàng.
+Giao tiếp và hỗ trợ: Cung cấp kênh chat giữa khách hàng và admin để giải quyết vấn đề kịp thời.
+Quản trị hệ thống: Admin cần công cụ để quản lý đơn hàng, món ăn, danh mục, và người dùng một cách hiệu quả.
+Hệ thống phải đảm bảo tính bảo mật (chống SQL injection, hash mật khẩu), hiệu suất (tải nhanh, giao diện responsive), và khả năng mở rộng (thêm tính năng như thanh toán online, đánh giá sản phẩm).
 
 ## 2. Mô tả tổng quan
 Website bán đồ ăn là một hệ thống ứng dụng web được xây dựng nhằm phục vụ nhu cầu đặt món và quản lý hoạt động kinh doanh ẩm thực trong môi trường trực tuyến. Hệ thống cho phép khách hàng truy cập, xem thực đơn, lựa chọn món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện thông qua trình duyệt web
