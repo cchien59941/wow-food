@@ -267,8 +267,24 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 
 ![img](public/assets/images/sequence3.png)
 
+#### A) Quản trị viên
 
+#### 8.
 
+#### 9.
+
+#### 10.
+
+#### 11.
+
+#### 12. Quản lý thanh toán
+![img](public/assets/images/SE_QuanLyThanhToan.jpg)
+#### 13. Thống kê & báo cáo
+
+#### 14. Quản lý nội dung website
+
+#### 15. Quản lý phân quyền
+![img](public/assets/images/SE_QuanLyPhanQuyen.jpg)
 
 
 ---
