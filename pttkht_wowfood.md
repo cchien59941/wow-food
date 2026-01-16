@@ -1,12 +1,13 @@
 # Phân Tích Thiết Kế Hệ Thống Web Food
 
-
 ## 1. Giới Thiệu
+
 ### 1.1 Giới thiệu đề tài
+
 Trong bối cảnh cuộc sống hiện đại với nhịp độ nhanh chóng, việc đặt đồ ăn trực tuyến đã trở thành một nhu cầu thiết yếu của xã hội. Với sự phát triển mạnh mẽ của công nghệ thông tin và thương mại điện tử, các hệ thống đặt món ăn online không chỉ giúp người dùng tiết kiệm thời gian mà còn tạo cơ hội kinh doanh cho các nhà hàng. Đề tài này được chọn nhằm xây dựng một nền tảng toàn diện, dễ sử dụng, kết hợp giữa giao diện thân thiện với người dùng và hệ thống quản lý hiệu quả cho nhà quản trị, góp phần thúc đẩy xu hướng số hóa trong ngành dịch vụ ăn uống.
 
-
 ### 1.2 Mô tả bài toán
+
 Bài toán chính: Trong bối cảnh phát triển thương mại điện tử và xu hướng tiêu dùng online ngày càng phổ biến, đặc biệt là lĩnh vực dịch vụ ăn uống, nhu cầu xây dựng một hệ thống đặt đồ ăn trực tuyến hiệu quả, an toàn và thân thiện với người dùng trở nên cấp thiết. Hệ thống cần giải quyết các vấn đề sau:
 
 Quản lý người dùng và bảo mật: Đảm bảo xác thực người dùng qua email, bảo vệ thông tin cá nhân, và phân quyền rõ ràng giữa khách hàng và quản trị viên.
@@ -17,6 +18,7 @@ Quản trị hệ thống: Admin cần công cụ để quản lý đơn hàng, 
 Hệ thống phải đảm bảo tính bảo mật (chống SQL injection, hash mật khẩu), hiệu suất (tải nhanh, giao diện responsive), và khả năng mở rộng (thêm tính năng như thanh toán online, đánh giá sản phẩm).
 
 ## 2. Mô tả tổng quan
+
 ### 2.1 Tổng quan hệ thống
 Hệ thống web bán đồ ăn là một ứng dụng thương mại điện tử cho phép người dùng đặt món ăn trực tuyến thông qua trình duyệt web. Hệ thống hỗ trợ khách hàng xem menu, tìm kiếm món ăn, đặt hàng và theo dõi trạng thái đơn hàng một cách nhanh chóng và thuận tiện.
 
@@ -39,12 +41,8 @@ Quản lý danh mục và món ăn (thêm, sửa, xóa).
 Quản lý đơn hàng và cập nhật trạng thái xử lý.
 Theo dõi hoạt động hệ thống và hỗ trợ khách hàng.
 Đảm bảo an toàn và ổn định cho hệ thống.
-### 2.3 Xác định yêu cầu hệ thống
-#### 2.3.1 Yêu cầu chức năng
-- 
-#### 2.3.2 Yêu cầu phi chức năng
 
-## 3. Luồng màn hình
+
 ### 3.1 Mô tả màn hình
 
 | STT | Màn hình                  | Mô tả                                                                                                                                          |
@@ -69,7 +67,7 @@ Theo dõi hoạt động hệ thống và hỗ trợ khách hàng.
 | 18  | Chỉnh sửa đơn hàng     | Sửa tên khách, số điện thoại, ghi chú, phương thức thanh toán, trạng thái đơn                                                    |
 | 19  | Quản lý món ăn          | Tìm kiếm, tạo mới, sửa, xóa món ăn; xem người tạo/cập nhật, giá, trạng thái                                                      |
 | 20  | Tạo mới món ăn          | Nhập thông tin món ăn: tên, danh mục, giá, số lượng, hình ảnh, mô tả                                                               |
-| 21  | Thùng rác                 | Danh sách món ăn đã xóa và chức năng khôi phục                                                                                        |
+phục                                                                                        |
 | 22  | Cài đặt chung            | Quản lý thông tin website, tài khoản và nhóm quyền                                                                                       |
 | 23  | Thông tin website          | Chỉnh sửa tên website, số điện thoại, email, địa chỉ, logo, favicon                                                                    |
 | 24  | Quản trị tài khoản      | Danh sách nhân viên: số điện thoại, nhóm quyền, chức vụ                                                                               |
@@ -79,147 +77,203 @@ Theo dõi hoạt động hệ thống và hỗ trợ khách hàng.
 | 28  | Chỉnh sửa nhóm quyền    | Chỉnh sửa tên nhóm quyền, mô tả và phân quyền                                                                                          |
 | 29  | Thông tin cá nhân        | Quản lý thông tin cá nhân nhân viên                                                                                                       |
 
-### 3.2 Các chức năng hệ thống
+---
+
+### 3.2 Các chức năng không liên quan đến màn hình
+
+Ngoài các chức năng được thể hiện trực tiếp thông qua giao diện người dùng, hệ thống website bán đồ ăn còn bao gồm một số chức năng xử lý nền nhằm đảm bảo tính bảo mật, phân quyền và vận hành ổn định của hệ thống.
 
 
-### 3.2.1 Chức năng phía khách hàng
 
+| STT | Chức năng hệ thống | Mô tả |
+|----|-------------------|------|
+| 1 | Gửi OTP | Hệ thống tự động gửi mã OTP để xác thực người dùng khi đăng ký, đăng nhập, quên mật khẩu hoặc thực hiện các thao tác quan trọng |
+| 2 | Quản lý phân quyền | Quản lý và phân quyền truy cập giữa các vai trò trong hệ thống như quản trị viên và nhân viên |
+
+---
+
+### 3.3 Hệ thống cấp quyền
+
+Hệ thống website bán đồ ăn được xây dựng với cơ chế phân quyền rõ ràng nhằm đảm bảo an toàn dữ liệu và giới hạn quyền thao tác của từng nhóm người dùng.  
+Các quyền cơ bản bao gồm: **Xem, Thêm, Sửa, Xóa, Tìm kiếm và các quyền đặc biệt khác**.
+
+
+| Màn hình / Chức năng | Xem | Thêm | Sửa | Xóa | Tìm kiếm | Khác |
+|---------------------|:---:|:---:|:---:|:---:|:--------:|------|
+| Trang chủ | x |  |  |  | x |  |
+| Danh sách món ăn | x |  |  |  | x |  |
+| Chi tiết món ăn | x |  |  |  |  |  |
+| Giỏ hàng | x | x |  |  |  |  |
+| Theo dõi đơn hàng | x |  |  |  |  |  |
+| Liên hệ | x |  |  |  |  |  |
+| Đăng nhập | x | x |  |  |  |  |
+| Đăng ký | x | x |  |  |  |  |
+| Quên mật khẩu | x | x |  |  |  |  |
+| OTP | x | x |  |  |  |  |
+| Đổi mật khẩu | x |  | x |  |  |  |
+| Tổng quan (Dashboard) | x |  |  |  |  |  |
+| Quản lý danh mục | x | x | x | x |  |  |
+| Tạo danh mục |  | x |  |  |  |  |
+| Chỉnh sửa danh mục |  |  | x |  |  |  |
+| Thông tin liên hệ | x |  |  |  |  |  |
+| Quản lý đơn hàng | x | x | x | x | x |  |
+| Chỉnh sửa đơn hàng |  |  | x |  |  |  |
+| Quản lý món ăn | x | x | x | x | x |  |
+| Cài đặt chung | x |  | x |  |  |  |
+| Thông tin website | x |  | x |  |  |  |
+| Quản trị tài khoản | x |  |  |  |  |  |
+| Tạo tài khoản quản trị |  | x |  |  |  |  |
+| Nhóm quyền | x | x | x | x | x |  |
+| Thông tin cá nhân | x |  | x |  |  |  |
+| Đổi mật khẩu cá nhân | x |  | x |  |  |  |
+
+
+#### Trong đó
+
+- **Xem**: Cho phép khách hàng hoặc nhân viên xem thông tin hiển thị trên giao diện hoặc các dữ liệu thống kê liên quan.
+- **Thêm**: Cho phép khách hàng đặt món ăn; cho phép nhân viên hoặc quản trị viên tạo mới dữ liệu trong hệ thống.
+- **Sửa**: Cho phép nhân viên hoặc quản trị viên cập nhật các thông tin đã tồn tại trong hệ thống.
+- **Xóa**: Cho phép xóa dữ liệu khỏi hệ thống, thường chỉ áp dụng cho các vai trò có quyền cao.
+- **Tìm kiếm**: Cho phép lọc và tìm kiếm dữ liệu theo các tiêu chí khác nhau.
+- **Khác**: Bao gồm các quyền đặc biệt như khôi phục dữ liệu, xác thực OTP hoặc các thao tác nâng cao khác.
+
+Hệ thống phân quyền giúp đảm bảo dữ liệu được quản lý chặt chẽ, giảm thiểu rủi ro và nâng cao hiệu quả vận hành website bán đồ ăn.
+
+
+
+## 4. Tổng quan về phần mềm
+
+### Các chức năng hệ thống
+
+### 4.1 Chức năng phía khách hàng
 
 Khách hàng là người trực tiếp sử dụng website để xem và đặt món ăn. Hệ thống cung cấp các chức năng sau:
 
-### Xem danh sách món ăn
+### 4.1.1 Xem danh sách món ăn
 
 Hiển thị các món ăn kèm hình ảnh, tên món, giá bán, mô tả và trạng thái còn/hết món.
 
-
-### Tìm kiếm và lọc món ăn
+### 4.1.2 Tìm kiếm và lọc món ăn
 
 Cho phép người dùng tìm kiếm món ăn theo tên, loại món (đồ ăn nhanh, đồ uống, combo, …), khoảng giá.
 
-### Quản lý giỏ hàng
+### 4.1.3 Quản lý giỏ hàng
 
 Thêm, sửa số lượng, xóa món ăn trong giỏ hàng và xem tổng tiền tạm tính.
 
-### Đặt hàng và thanh toán
+### 4.1.4 Đặt hàng và thanh toán
 
 Cho phép khách hàng nhập thông tin giao hàng, lựa chọn phương thức thanh toán (tiền mặt, chuyển khoản, ví điện tử, …) và xác nhận đơn hàng.
 
-### Đăng ký, đăng nhập tài khoản
+### 4.1.5 Đăng ký, đăng nhập tài khoản
 
 Khách hàng có thể tạo tài khoản để lưu thông tin cá nhân và lịch sử mua hàng.
 
-### Quản lý thông tin cá nhân
+### 4.1.6 Quản lý thông tin cá nhân
 
 Cập nhật thông tin cá nhân như tên, số điện thoại, địa chỉ giao hàng.
 
-### Xem lịch sử đơn hàng
+### 4.1.7 Xem lịch sử đơn hàng
 
 Cho phép khách hàng theo dõi trạng thái và xem lại các đơn hàng đã đặt.
 
 ---
 
-#### 3.2.2 Chức năng phía quản trị viên
+### 4.2 Chức năng phía quản trị viên
 
 Quản trị viên là người quản lý toàn bộ hoạt động của hệ thống. Các chức năng chính bao gồm:
 
-### Quản lý tài khoản người dùng
+### 4.2.1 Quản lý tài khoản người dùng
 
 Xem, thêm, sửa, khóa hoặc xóa tài khoản khách hàng.
 
-### Quản lý danh mục món ăn
+### 4.2.2 Quản lý danh mục món ăn
 
 Thêm, chỉnh sửa, xóa các danh mục món ăn (đồ ăn, đồ uống, combo, …).
 
-### Quản lý món ăn
+### 4.2.3 Quản lý món ăn
 
 Thêm mới, cập nhật thông tin, giá bán, hình ảnh và trạng thái của món ăn.
 
-### Quản lý đơn hàng
+### 4.2.3 Quản lý đơn hàng
 
 Xem danh sách đơn hàng, cập nhật trạng thái đơn hàng (chờ xác nhận, đang giao, đã giao, hủy).
 
-### Quản lý thanh toán
+### 4.2.4 Quản lý thanh toán
 
 Theo dõi tình trạng thanh toán của các đơn hàng.
 
-### Thống kê và báo cáo
+### 4.2.5 Thống kê và báo cáo
 
 Thống kê doanh thu theo ngày, tháng, năm; số lượng đơn hàng; các món ăn bán chạy.
 
-### Quản lý nội dung website
+### 4.2.6 Quản lý nội dung website
 
 Cập nhật banner, thông tin giới thiệu, chính sách bán hàng.
 
-### Phân quyền quản trị
+### 4.2.7 Phân quyền quản trị
 
 Phân quyền cho các tài khoản quản trị (admin, nhân viên).
 
-### 3.3 Biểu đồ mô tả hệ thống
+### 4.3 Biểu đồ mô tả hệ thống
 
-#### 3.2.1 Use Case Diagram
+#### 4.3.1 Use Case Diagram
 
-#### Use case tổng quát hệ thống
-![](public/assets/images/usecase.png)!
+Thể hiện hệ thống làm được gì
 
----
+#### I) Use case tổng quát hệ thống
 
-## 4. Tổng quan về phần mềm
+#### A) Khách hàng
 
-### 4.1 Kiến trúc hệ thống
-
-*Liệt kê các bảng chính và mối quan hệ*
-
-```
-Users
-├── id (PK)
-├── email
-├── password_hash
-├── phone
-├── address
-├── created_at
-└── updated_at
-
-Restaurants
-├── id (PK)
-├── name
-├── owner_id (FK → Users)
-├── address
-├── rating
-└── created_at
-
-MenuItems
-├── id (PK)
-├── restaurant_id (FK → Restaurants)
-├── name
-├── price
-├── description
-└── image_url
-
-Orders
-├── id (PK)
-├── user_id (FK → Users)
-├── restaurant_id (FK → Restaurants)
-├── total_amount
-├── status
-└── created_at
-
-OrderDetails
-├── id (PK)
-├── order_id (FK → Orders)
-├── menu_item_id (FK → MenuItems)
-└── quantity
-```
-
-### 4.2 Luồng hoạt động phần mềm
-
-
-### 4.3 Các Ràng Buộc (Constraints)
-
-*Mô tả primary key, foreign key, unique constraints*
+![img](public/assets/images/usecase2.png)
 
 ---
 
-## 5. Thiết Kế Phần Mềm 
+#### B) Quản trị viên
+
+![img](public/assets/images/usecase1.png)
+
+#### II) Use case chi tiết hệ thống
+
+#### A) Khách hàng
+
+![img](public/assets/images/usecase3.png)
+
+---
+
+#### B) Quản trị viên
+
+![img](public/assets/images/usecase4.png)
+
+#### 4.3.2 Sequence Diagram
+
+Thể hiện các đối tượng tương tác với nhau như thế nào theo thời gian
+
+#### A) Khách hàng
+
+#### 5. Đăng ký, đăng nhập
+
+![img](public/assets/images/sequence.png)
+
+---
+
+![img](public/assets/images/sequence1.png)
+
+#### 6. Quản lý thông tin cá nhân
+
+![img](public/assets/images/sequence2.png)
+
+#### 7. Xem lịch sử đơn hàng
+
+![img](public/assets/images/sequence3.png)
+
+
+
+
+
+---
+
+## 5. Thiết Kế Phần Mềm
 
 ## 5.1 Thiết kế chức năng phía người dùng
 
@@ -640,5 +694,3 @@ Mặc dù thiết kế hiện tại đáp ứng tốt nhu cầu của hệ thố
 
 **Kết luận:**
 Thiết kế dữ liệu của hệ thống Web Food được xây dựng phù hợp với yêu cầu nghiệp vụ thực tế, đảm bảo khả năng quản lý, truy xuất và vận hành ổn định. Trong giai đoạn tiếp theo, hệ thống có thể được cải tiến bằng cách chuẩn hóa sâu hơn cấu trúc cơ sở dữ liệu nhằm nâng cao hiệu quả và tính mở rộng.
-
-
