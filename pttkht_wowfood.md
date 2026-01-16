@@ -187,6 +187,7 @@ Quản trị viên là người quản lý toàn bộ hoạt động của hệ 
 
 Xem, thêm, sửa, khóa hoặc xóa tài khoản khách hàng.
 
+
 ### 4.2.2 Quản lý danh mục món ăn
 
 Thêm, chỉnh sửa, xóa các danh mục món ăn (đồ ăn, đồ uống, combo, …).
@@ -250,6 +251,14 @@ Thể hiện hệ thống làm được gì
 Thể hiện các đối tượng tương tác với nhau như thế nào theo thời gian
 
 #### A) Khách hàng
+
+#### 1. Xem danh sách món ăn
+
+![img](public/assets/images/sequence4.png)
+
+#### 2. Tìm kiếm và lọc món ăn
+
+![img](public/assets/images/sequence5.png) 
 
 #### 5. Đăng ký, đăng nhập
 
