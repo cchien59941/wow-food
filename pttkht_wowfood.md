@@ -280,9 +280,11 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 ### 5.1.1. Quản lý tài khoản người dùng
 
 #### 1. Đăng ký tài khoản
+
 **Mô tả:** Người dùng có thể đăng ký tài khoản mới để sử dụng hệ thống.
 
 **Chức năng:**
+
 - Form đăng ký với các trường: Họ tên, Email (chỉ chấp nhận Gmail), Mật khẩu, Xác nhận mật khẩu, Số điện thoại, Địa chỉ
 - Validation dữ liệu đầu vào:
   - Email phải là định dạng Gmail (@gmail.com)
@@ -297,17 +299,42 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 - Kiểm tra email đã tồn tại trong hệ thống
 
 **Luồng xử lý:**
-```
-Người dùng nhập thông tin → Validate → Kiểm tra email tồn tại → 
-Tạo mã OTP → Gửi email → Lưu thông tin tạm vào session → 
-Chuyển đến trang xác minh → Nhập mã OTP → Xác minh → 
-Tạo tài khoản → Đăng nhập tự động
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant S as Hệ thống (Server)
+    participant DB as Database/Session
+    participant M as Mail Server
+
+    U->>S: Nhập thông tin & Gửi
+    S->>S: Validate dữ liệu
+    S->>DB: Kiểm tra Email tồn tại?
+    DB-->>S: Kết quả (Chưa tồn tại)
+    
+    S->>S: Tạo mã OTP
+    S->>M: Gửi Email chứa OTP
+    S->>DB: Lưu thông tin tạm & OTP vào Session
+    S-->>U: Chuyển hướng đến trang xác minh
+    
+    U->>S: Nhập mã OTP
+    S->>DB: Lấy OTP từ Session để so khớp
+    
+    alt OTP đúng
+        S->>DB: Tạo tài khoản (Insert Database)
+        S->>S: Khởi tạo Session đăng nhập
+        S-->>U: Đăng nhập tự động thành công
+    else OTP sai
+        S-->>U: Thông báo mã lỗi, yêu cầu nhập lại
+    end
 ```
 
 #### 2. Đăng nhập
+
 **Mô tả:** Người dùng đăng nhập vào hệ thống bằng email và mật khẩu.
 
 **Chức năng:**
+
 - Form đăng nhập với Email và Mật khẩu
 - Xác thực thông tin đăng nhập:
   - Kiểm tra email tồn tại trong database
@@ -323,9 +350,11 @@ Tạo tài khoản → Đăng nhập tự động
 - Hiển thị thông báo lỗi nếu đăng nhập thất bại
 
 #### 3. Quên mật khẩu
+
 **Mô tả:** Người dùng có thể khôi phục mật khẩu nếu quên.
 
 **Chức năng:**
+
 - Form nhập email để yêu cầu đặt lại mật khẩu
 - Gửi mã xác minh 6 số qua email
 - Giới hạn số lần thử nhập mã (5 lần)
@@ -334,26 +363,56 @@ Tạo tài khoản → Đăng nhập tự động
 - Hash mật khẩu mới trước khi cập nhật
 
 **Luồng xử lý:**
-```
-Nhập email → Gửi mã OTP → Nhập mã → Xác minh → 
-Đặt mật khẩu mới → Cập nhật database → Thông báo thành công
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant FE as Frontend
+    participant BE as Backend
+    participant DB as Database
+
+    U->>FE: Nhập Email
+    FE->>BE: Yêu cầu gửi OTP
+    BE-->>U: Gửi mã OTP về Email
+    
+    U->>FE: Nhập mã OTP
+    FE->>BE: Gửi mã xác minh
+    BE->>BE: Kiểm tra mã khớp?
+    
+    alt Mã OTP hợp lệ
+        BE-->>FE: Chuyển hướng trang Đặt mật khẩu
+        U->>FE: Nhập mật khẩu mới
+        FE->>BE: Gửi mật khẩu mới
+        BE->>DB: Cập nhật Hash mật khẩu
+        DB-->>BE: Xác nhận cập nhật
+        BE-->>FE: Phản hồi thành công
+        FE-->>U: Hiển thị "Thông báo thành công"
+    else Mã OTP không hợp lệ
+        BE-->>FE: Thông báo lỗi
+        FE-->>U: Yêu cầu nhập lại mã
+    end
 ```
 
 #### 4. Đăng xuất
+
 **Mô tả:** Người dùng có thể đăng xuất khỏi hệ thống.
 
 **Chức năng:**
+
 - Xóa tất cả session của người dùng
 - Chuyển hướng về trang chủ
 - Hiển thị thông báo đăng xuất thành công
 
 ---
+
 ### 5.1.2. Duyệt và tìm kiếm món ăn
 
 #### 1. Trang chủ
+
 **Mô tả:** Hiển thị thông tin tổng quan về hệ thống và món ăn nổi bật.
 
 **Chức năng:**
+
 - Hiển thị form tìm kiếm món ăn
 - Hiển thị 3 danh mục đầu tiên với hình ảnh
 - Hiển thị 6 món ăn đầu tiên trong menu
@@ -362,44 +421,61 @@ Nhập email → Gửi mã OTP → Nhập mã → Xác minh →
 - Link "Xem tất cả món ăn" để xem toàn bộ menu
 
 #### 2. Xem danh sách món ăn
+
 **Mô tả:** Hiển thị toàn bộ món ăn trong hệ thống.
 
 **Chức năng:**
+
 - Hiển thị tất cả món ăn có trong database
 - Mỗi món ăn hiển thị đầy đủ thông tin: Tên, Giá, Mô tả, Hình ảnh
 - Nút thêm vào giỏ hàng (yêu cầu đăng nhập)
 - Responsive design cho mobile
 
 #### 3. Xem món ăn theo danh mục
+
 **Mô tả:** Lọc và hiển thị món ăn theo từng danh mục.
 
 **Chức năng:**
+
 - Hiển thị danh sách tất cả danh mục
 - Khi click vào danh mục, hiển thị các món ăn thuộc danh mục đó
 - Hiển thị thông báo nếu danh mục chưa có món ăn
 
 #### 4. Tìm kiếm món ăn
+
 **Mô tả:** Tìm kiếm món ăn theo từ khóa.
 
 **Chức năng:**
+
 - Form tìm kiếm với ô nhập từ khóa
 - Tìm kiếm trong tên món ăn (`title`) và mô tả (`description`)
 - Hiển thị kết quả tìm kiếm với đầy đủ thông tin món ăn
 - Hiển thị thông báo nếu không tìm thấy kết quả
 
 **Luồng xử lý:**
-```
-Nhập từ khóa → Submit form → Query database → 
-Hiển thị kết quả tìm kiếm
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant F as Form Giao diện
+    participant DB as Cơ sở dữ liệu
+
+    U->>F: Nhập từ khóa bấm Submit
+    F->>DB: Gửi truy vấn (Query)
+    DB-->>F: Trả về dữ liệu
+    F-->>U: Hiển thị kết quả tìm kiếm
 ```
 
 ---
+
 ### 5.1.3. Quản lý giỏ hàng
 
 #### 1. Thêm món vào giỏ hàng
+
 **Mô tả:** Người dùng có thể thêm món ăn vào giỏ hàng.
 
 **Chức năng:**
+
 - Nút "Thêm vào giỏ" trên mỗi món ăn
 - Yêu cầu đăng nhập trước khi thêm vào giỏ
 - Thêm món vào giỏ hàng qua AJAX (không reload trang)
@@ -408,9 +484,11 @@ Hiển thị kết quả tìm kiếm
 - Nếu món đã có trong giỏ, tăng số lượng thay vì tạo mới
 
 #### 2. Xem giỏ hàng
+
 **Mô tả:** Hiển thị danh sách món ăn trong giỏ hàng.
 
 **Chức năng:**
+
 - Hiển thị danh sách món ăn trong giỏ hàng:
   - Hình ảnh món ăn
   - Tên món ăn
@@ -426,9 +504,26 @@ Hiển thị kết quả tìm kiếm
 - Hiển thị thông báo nếu giỏ hàng trống
 
 **Luồng xử lý:**
-```
-Load trang → Gọi API get-cart.php → Hiển thị danh sách món → 
-Tính tổng tiền → Hiển thị nút thanh toán
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant B as Trình duyệt (Frontend)
+    participant S as Server (get-cart.php)
+    participant DB as Database
+
+    U->>B: Truy cập trang Giỏ hàng
+    B->>S: Gửi request lấy dữ liệu giỏ hàng
+    S->>DB: Truy vấn danh sách sản phẩm
+    DB-->>S: Trả về dữ liệu sản phẩm
+    S-->>B: Trả về JSON (List items)
+    
+    Note over B: Xử lý hiển thị danh sách
+    B->>B: Render danh sách món
+    B->>B: Tính toán Tổng tiền (Subtotal)
+    
+    B-->>U: Hiển thị giao diện & Nút thanh toán
+
 ```
 
 ---
@@ -437,9 +532,11 @@ Tính tổng tiền → Hiển thị nút thanh toán
 
 <<<<<<< Updated upstream
 #### 1. Thanh toán (Checkout)
+
 **Mô tả:** Người dùng điền thông tin giao hàng và xác nhận đặt hàng.
 
 **Chức năng:**
+
 - Form nhập thông tin giao hàng:
   - Họ tên người nhận (tự động điền từ thông tin user)
   - Số điện thoại (tự động điền)
@@ -462,17 +559,42 @@ Tính tổng tiền → Hiển thị nút thanh toán
   - Nếu thanh toán tiền mặt → chuyển đến trang lịch sử đơn hàng
 
 **Luồng xử lý:**
-```
-Xem giỏ hàng → Click "Thanh toán" → Điền thông tin giao hàng → 
-Chọn phương thức thanh toán → Xác nhận đặt hàng → 
-Tạo mã đơn hàng → Lưu vào database → Xóa giỏ hàng → 
-Chuyển đến trang phù hợp
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant FE as Frontend (Giao diện)
+    participant BE as Backend (Server)
+    participant DB as Database
+
+    U->>FE: Click "Thanh toán"
+    FE->>U: Hiển thị Form thông tin & PTTT
+    U->>FE: Điền thông tin & Click "Xác nhận"
+    
+    FE->>BE: Gửi yêu cầu đặt hàng (Order Request)
+    
+    activate BE
+    BE->>BE: Tạo mã đơn hàng (Order ID)
+    BE->>DB: Lưu thông tin đơn hàng & Chi tiết món
+    BE->>DB: Xóa dữ liệu giỏ hàng (Clear Cart)
+    deactivate BE
+    
+    alt Thanh toán Online
+        BE-->>FE: Trả về URL thanh toán
+        FE-->>U: Chuyển hướng đến Cổng thanh toán
+    else Thanh toán khi nhận hàng (COD)
+        BE-->>FE: Trả về trạng thái Thành công
+        FE-->>U: Chuyển đến trang "Cảm ơn/Hoàn tất"
+    end
+
 ```
 
 #### 2. Lịch sử đặt hàng
+
 **Mô tả:** Người dùng xem lịch sử các đơn hàng đã đặt.
 
 **Chức năng:**
+
 - Hiển thị danh sách đơn hàng của user:
   - Mã đơn hàng (có nút copy)
   - Ngày đặt hàng
@@ -491,9 +613,11 @@ Chuyển đến trang phù hợp
 ### 5.1.5. Hệ thống chat với Admin
 
 #### 1. Chat với Admin
+
 **Mô tả:** Người dùng có thể chat với admin để được hỗ trợ.
 
 **Chức năng:**
+
 - Giao diện chat real-time:
   - Hiển thị tin nhắn đã gửi/nhận
   - Phân biệt tin nhắn của user và admin (màu sắc khác nhau)
@@ -514,16 +638,726 @@ Chuyển đến trang phù hợp
 - Badge thông báo số tin nhắn chưa đọc (trong menu)
 
 **Luồng xử lý:**
+
+```mermaid
+sequenceDiagram
+    participant U as User (Frontend)
+    participant S as Server/DB
+    participant A as Admin (Dashboard)
+
+    U->>S: Load trang & Lấy tin nhắn cũ
+    S-->>U: Trả về danh sách tin nhắn
+    
+    Note over U: Bắt đầu vòng lặp Polling (mỗi 3-5s)
+    
+    U->>S: [POST] Gửi tin nhắn mới
+    S->>S: Lưu vào Database
+    S-->>U: Xác nhận thành công
+    Note right of U: Hiển thị tin nhắn vừa gửi lên giao diện
+    
+    A->>S: [POST] Admin trả lời tin nhắn
+    S->>S: Lưu tin nhắn của Admin
+    
+    loop Định kỳ (Polling)
+        U->>S: [GET] Kiểm tra tin nhắn mới?
+        S-->>U: Trả về tin nhắn mới của Admin
+    end
+    
+    U->>U: Render tin nhắn của Admin lên màn hình
+
 ```
-Mở trang chat → Load tin nhắn cũ → Bắt đầu polling → 
-Gửi tin nhắn → Lưu vào database → Hiển thị ngay → 
-Admin trả lời → Polling phát hiện tin nhắn mới → Hiển thị
+### 5.1.6 Trang Thanh Toán 
+
+**Mục đích:** Cho phép người dùng thanh toán đơn hàng online với nhiều phương thức thanh toán.
+
+**Các chức năng chính:**
+
+1. **Hiển thị thông tin đơn hàng**
+   - Hiển thị mã đơn hàng (`order_code`)
+   - Hiển thị tổng tiền cần thanh toán
+   - Kiểm tra và hiển thị trạng thái thanh toán hiện tại
+
+2. **Chọn phương thức thanh toán**
+   - **MoMo**: Ví điện tử MoMo (mặc định)
+   - **Bank**: Chuyển khoản ngân hàng
+   - Giao diện radio buttons với icons trực quan
+
+3. **Countdown Timer**
+   - Hiển thị thời gian còn lại (15 phút)
+   - Tự động disable nút thanh toán khi hết hạn
+   - Cảnh báo khi phiên thanh toán sắp hết hạn
+
+4. **Xử lý thanh toán**
+   - Validate form trước khi submit
+   - Tạo/update payment record
+   - Xử lý thanh toán (hiện tại mô phỏng)
+   - Redirect đến lịch sử đơn hàng sau khi thành công
+
+**Luồng xử lý:**
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant B as Browser
+    participant S as Server (PHP)
+    participant DB as Database
+
+    U->>B: Truy cập payment.php
+    B->>S: Gửi order_code
+    S->>S: Kiểm tra Session User
+    S->>DB: Query Order + Payment info
+    DB-->>S: Trả về dữ liệu
+    
+    alt Kiểm tra thất bại
+        S-->>B: Hiển thị lỗi (Đơn không tồn tại/Đã thanh toán)
+    else Kiểm tra hợp lệ
+        S-->>B: Trả về Form thanh toán & Timer
+    end
+    
+    U->>B: Chọn phương thức & Xác nhận
+    B->>S: POST payment_method
+    
+    Note over S,DB: Bắt đầu giao dịch (Transaction)
+    S->>DB: Lưu Payment Record (Status: pending)
+    S->>S: Xử lý mô phỏng Gateway
+    S->>DB: Update Payment: success
+    S->>DB: Update Order: paid / status: Ordered
+    Note over S,DB: Kết thúc giao dịch
+    
+    S-->>B: Redirect order-history.php
+    B-->>U: Hiển thị thông báo thành công
+
 ```
---- 
-## 5.2 Thiết kế chức năng phía quản trị viên
+**Tính năng bảo mật:**
+- Session validation - chỉ user sở hữu đơn hàng mới thanh toán được
+- Prepared statements - ngăn chặn SQL injection
+- Input validation - kiểm tra dữ liệu đầu vào
+- Double submission prevention - disable button sau khi submit
+- Output buffering - tránh lỗi header khi redirect
+
+**Tính năng UX:**
+- Real-time countdown timer
+- Visual feedback khi submit (button disabled, text "Đang xử lý...")
+- Error messages rõ ràng
+- Responsive design
+
+#### 1.1.2. Xử Lý Lỗi và Edge Cases
+
+1. **Đơn hàng không tồn tại**
+   - Redirect đến order-history với thông báo lỗi
+
+2. **Đơn hàng đã thanh toán**
+   - Hiển thị thông báo và redirect
+
+3. **Phiên thanh toán hết hạn**
+   - Tự động set status = 'cancelled'
+   - Hiển thị warning và cho phép tạo lại
+
+4. **Payment record đã tồn tại nhưng chưa hết hạn**
+   - Hiển thị thông tin payment hiện tại
+   - Cho phép tiếp tục thanh toán
 
 ---
+
+## 5.2 Thiết kế chức năng phía quản trị viên
+
+### 5.2.1 Thiết kế chức năng phía quản trị viên
+
+### 1. Quản lý tài khoản Admin
+
+#### 1.1 Đăng nhập Admin
+
+  **Mô tả:** Admin đăng nhập vào hệ thống quản trị.
+
+  **Chức năng:**
+
+- Form đăng nhập với Username và Password
+- Xác thực thông tin đăng nhập
+- Lưu thông tin admin vào session
+- Phân quyền: Chỉ admin mới truy cập được admin panel
+- Redirect về trang chủ nếu đăng nhập thất bại
+
+#### 1.2 Quản lý Admin
+
+  **Mô tả:** Quản lý danh sách quản trị viên trong hệ thống.
+
+  **Chức năng:**
+
+- Xem danh sách tất cả admin:
+  - STT
+  - Họ tên
+  - Tên đăng nhập
+- Thêm admin mới:
+  - Form nhập thông tin: Họ tên, Username, Password
+  - Hash mật khẩu trước khi lưu
+- Cập nhật thông tin admin:
+  - Form sửa thông tin admin
+  - Có thể đổi mật khẩu
+- Xóa admin:
+  - Xác nhận trước khi xóa
+  - Không cho phép xóa chính mình
+
+---
+
+### 2. Bảng điều khiển (Dashboard)
+
+#### 2.1 Dashboard tổng quan
+
+  **Mô tả:** Hiển thị thông tin tổng quan về hệ thống.
+
+  **Chức năng:**
+
+- Thống kê số liệu:
+
+  - Tổng số danh mục
+  - Tổng số món ăn
+  - Tổng số đơn hàng
+  - Tổng doanh thu (từ các đơn đã giao hàng)
+- Biểu đồ thống kê:
+
+  - Biểu đồ cột: So sánh số lượng danh mục, món ăn, đơn hàng
+  - Biểu đồ đường: Doanh thu theo thời gian (7 ngày gần nhất)
+- Hiển thị thông báo khi đăng nhập thành công
+
+  **Sơ đồ Dashboard:**
+
+```mermaid
+  graph TD
+      A[Dashboard] --> B[Thống kê số liệu]
+      A --> C[Biểu đồ thống kê]
+  
+      B --> B1[Tổng số danh mục]
+      B --> B2[Tổng số món ăn]
+      B --> B3[Tổng số đơn hàng]
+      B --> B4[Tổng doanh thu]
+  
+      C --> C1[Biểu đồ cột: So sánh số liệu]
+      C --> C2[Biểu đồ đường: Doanh thu theo thời gian]
+```
+
+---
+
+### 3. Quản lý danh mục món ăn
+
+#### 3.1 Xem danh sách danh mục
+
+  **Mô tả:** Hiển thị danh sách tất cả danh mục món ăn.
+
+  **Chức năng:**
+
+- Hiển thị bảng danh sách danh mục:
+  - STT
+  - Tên danh mục
+  - Hình ảnh (thumbnail)
+  - Trạng thái nổi bật (Featured)
+  - Trạng thái hoạt động (Active)
+- Nút "Thêm danh mục" để tạo mới
+
+#### 3.2 Thêm danh mục
+
+  **Mô tả:** Tạo danh mục món ăn mới.
+
+  **Chức năng:**
+
+- Form nhập thông tin:
+
+  - Tên danh mục (bắt buộc)
+  - Upload hình ảnh danh mục
+  - Chọn trạng thái nổi bật (Yes/No)
+  - Chọn trạng thái hoạt động (Yes/No)
+- Validation:
+
+  - Tên danh mục không được trống
+  - Hình ảnh phải là file ảnh hợp lệ
+- Xử lý upload hình ảnh:
+
+  - Lưu vào thư mục `image/category/`
+  - Đặt tên file tự động hoặc giữ nguyên tên
+- Lưu thông tin vào database
+- Hiển thị thông báo thành công/thất bại
+
+  **Luồng xử lý:**
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant FE as Frontend (Browser)
+    participant BE as Backend (Server)
+    participant ST as Storage (Thư mục/Cloud)
+    participant DB as Database
+
+    U->>FE: Nhập liệu & Chọn file ảnh
+    FE->>BE: Gửi Form Data (Thông tin + File)
+    
+    BE->>BE: Validate (Định dạng ảnh, dung lượng...)
+    
+    alt Hợp lệ
+        BE->>ST: Lưu file ảnh vào thư mục
+        ST-->>BE: Trả về đường dẫn ảnh (Image Path)
+        
+        BE->>DB: Lưu thông tin + Path ảnh vào DB
+        DB-->>BE: Xác nhận lưu thành công
+        
+        BE-->>FE: Phản hồi Thành công
+        FE-->>U: Hiển thị thông báo thành công
+        FE->>FE: Chuyển hướng về Trang quản lý
+    else Không hợp lệ
+        BE-->>FE: Trả về lỗi Validation
+        FE-->>U: Hiển thị thông báo lỗi
+    end
+  
+```
+
+#### 3.3 Cập nhật danh mục
+
+  **Mô tả:** Sửa thông tin danh mục món ăn.
+
+  **Chức năng:**
+
+- Form sửa thông tin (tương tự form thêm)
+- Hiển thị thông tin hiện tại của danh mục
+- Cho phép thay đổi:
+  - Tên danh mục
+  - Hình ảnh (có thể giữ nguyên hoặc upload mới)
+  - Trạng thái nổi bật
+  - Trạng thái hoạt động
+- Xóa hình ảnh cũ nếu upload hình ảnh mới
+- Cập nhật thông tin vào database
+
+#### 3.4 Xóa danh mục
+
+  **Mô tả:** Xóa danh mục món ăn khỏi hệ thống.
+
+  **Chức năng:**
+
+- Xác nhận trước khi xóa
+- Xóa hình ảnh danh mục khỏi server
+- Xóa bản ghi trong database
+- Hiển thị thông báo thành công/thất bại
+- Lưu ý: Cần xử lý các món ăn thuộc danh mục này (chuyển sang danh mục khác hoặc xóa luôn)
+
+---
+
+### 4. Quản lý món ăn
+
+#### 4.1 Xem danh sách món ăn
+
+  **Mô tả:** Hiển thị danh sách tất cả món ăn trong hệ thống.
+
+  **Chức năng:**
+
+- Hiển thị bảng danh sách món ăn:
+  - STT
+  - Tên món ăn
+  - Giá
+  - Hình ảnh (thumbnail)
+  - Trạng thái nổi bật (Featured)
+  - Trạng thái hoạt động (Active)
+- Nút "Thêm món ăn" để tạo mới
+- Nút "Cập nhật" và "Xóa" cho mỗi món ăn
+
+#### 4.2 Thêm món ăn
+
+  **Mô tả:** Tạo món ăn mới trong hệ thống.
+
+  **Chức năng:**
+
+- Form nhập thông tin:
+
+  - Tên món ăn (bắt buộc)
+  - Mô tả món ăn
+  - Giá (bắt buộc, phải là số)
+  - Chọn danh mục (dropdown từ danh sách danh mục)
+  - Upload hình ảnh món ăn
+  - Chọn trạng thái nổi bật (Yes/No)
+  - Chọn trạng thái hoạt động (Yes/No)
+- Validation:
+
+  - Tên món ăn không được trống
+  - Giá phải là số dương
+  - Phải chọn danh mục
+  - Hình ảnh phải là file ảnh hợp lệ
+- Xử lý upload hình ảnh:
+
+  - Lưu vào thư mục `image/food/`
+  - Đặt tên file tự động
+- Lưu thông tin vào database
+- Hiển thị thông báo thành công/thất bại
+
+  **Luồng xử lý:**
+
+```mermaid
+sequenceDiagram
+    participant U as Người dùng
+    participant FE as Frontend
+    participant BE as Backend
+    participant ST as Storage (Thư mục ảnh)
+    participant DB as Database
+
+    U->>FE: Điền form & Chọn ảnh
+    FE->>BE: Gửi Request (FormData)
+    
+    Note over BE: Kiểm tra tính hợp lệ (Validate)
+    
+    alt Dữ liệu hợp lệ
+        BE->>ST: Lưu file ảnh vào server
+        ST-->>BE: Trả về tên file/đường dẫn
+        
+        BE->>DB: INSERT dữ liệu (kèm ID danh mục & Path ảnh)
+        DB-->>BE: Xác nhận thành công
+        
+        BE-->>FE: Trả về mã thành công (200 OK)
+        FE-->>U: Hiển thị Popup thông báo
+        FE->>FE: Chuyển hướng đến /quan-ly
+    else Dữ liệu không hợp lệ
+        BE-->>FE: Trả về thông báo lỗi
+        FE-->>U: Hiển thị lỗi cho người dùng
+    end
+  
+```
+
+#### 4.3 Cập nhật món ăn
+
+  **Mô tả:** Sửa thông tin món ăn.
+
+  **Chức năng:**
+
+- Form sửa thông tin (tương tự form thêm)
+- Hiển thị thông tin hiện tại của món ăn
+- Cho phép thay đổi tất cả thông tin:
+  - Tên món ăn
+  - Mô tả
+  - Giá
+  - Danh mục
+  - Hình ảnh (có thể giữ nguyên hoặc upload mới)
+  - Trạng thái nổi bật
+  - Trạng thái hoạt động
+- Xóa hình ảnh cũ nếu upload hình ảnh mới
+- Cập nhật thông tin vào database
+
+#### 4.4 Xóa món ăn
+
+  **Mô tả:** Xóa món ăn khỏi hệ thống.
+
+  **Chức năng:**
+
+- Xác nhận trước khi xóa
+- Xóa hình ảnh món ăn khỏi server
+- Xóa bản ghi trong database
+- Hiển thị thông báo thành công/thất bại
+- Lưu ý: Cần xử lý các đơn hàng đã đặt món này (có thể giữ lại thông tin hoặc xóa)
+
+---
+
+### 5. Quản lý đơn hàng
+
+#### 5.1 Xem danh sách đơn hàng
+
+  **Mô tả:** Hiển thị tất cả đơn hàng trong hệ thống.
+
+  **Chức năng:**
+
+- Hiển thị bảng danh sách đơn hàng:
+  - STT
+  - Mã đơn hàng (có nút copy)
+  - Món ăn
+  - Giá đơn vị
+  - Số lượng
+  - Tổng tiền
+  - Ngày đặt hàng
+  - Trạng thái đơn hàng (màu sắc khác nhau):
+    - Đã đặt hàng (Ordered) - màu đen
+    - Đang giao hàng (On Delivery) - màu cam
+    - Đã giao hàng (Delivered) - màu xanh lá
+    - Đã hủy (Cancelled) - màu đỏ
+  - Thông tin khách hàng:
+    - Tên khách hàng
+    - Số điện thoại
+    - Email
+    - Địa chỉ giao hàng
+- Sắp xếp đơn hàng mới nhất ở trên
+- Nút "Cập nhật đơn hàng" cho mỗi đơn hàng
+
+#### 5.2 Cập nhật trạng thái đơn hàng
+
+  **Mô tả:** Thay đổi trạng thái đơn hàng.
+
+  **Chức năng:**
+
+- Form cập nhật trạng thái:
+
+  - Hiển thị thông tin đơn hàng hiện tại
+  - Dropdown chọn trạng thái mới:
+    - Ordered (Đã đặt hàng)
+    - On Delivery (Đang giao hàng)
+    - Delivered (Đã giao hàng)
+    - Cancelled (Đã hủy)
+  - Có thể cập nhật thông tin khách hàng
+- Cập nhật trạng thái vào database
+- Hiển thị thông báo thành công/thất bại
+- Lưu ý: Khi đơn hàng chuyển sang "Delivered", tính vào doanh thu
+
+  **Luồng xử lý:**
+
+```mermaid
+sequenceDiagram
+    participant Admin as Quản trị viên
+    participant FE as Frontend (UI)
+    participant BE as Backend (API)
+    participant DB as Database
+
+    Admin->>FE: Click "Cập nhật" đơn hàng
+    FE-->>Admin: Hiển thị danh sách Trạng thái (Dropdown)
+    Admin->>FE: Chọn trạng thái mới & Xác nhận
+    
+    FE->>BE: Gửi Request (Order ID + New Status)
+    activate BE
+    BE->>DB: Thực thi UPDATE đơn hàng
+    DB-->>BE: Xác nhận cập nhật thành công
+    
+    BE-->>FE: Phản hồi Thành công (JSON)
+    deactivate BE
+    
+    FE-->>Admin: Hiển thị thông báo (Toast/Alert)
+    FE->>FE: Cập nhật lại UI (Refresh List)
+  
+```
+
+  **Sơ đồ luồng trạng thái đơn hàng:**
+
+```mermaid
+  stateDiagram-v2
+      [*] --> Ordered: Đặt hàng
+      Ordered --> OnDelivery: Xác nhận đơn
+      Ordered --> Cancelled: Hủy đơn
+      OnDelivery --> Delivered: Giao hàng thành công
+      OnDelivery --> Cancelled: Hủy đơn
+      Delivered --> [*]
+      Cancelled --> [*]
+```
+
+---
+
+### 6. Quản lý chat với người dùng
+
+#### 6.1 Xem danh sách chat
+
+  **Mô tả:** Hiển thị danh sách các cuộc trò chuyện với người dùng.
+
+  **Chức năng:**
+
+- Hiển thị danh sách người dùng đã chat:
+  - Tên người dùng
+  - Tin nhắn cuối cùng (rút gọn nếu quá dài)
+  - Thời gian tin nhắn cuối
+  - Badge số tin nhắn chưa đọc (nếu có)
+- Sắp xếp: Người dùng có tin nhắn mới nhất ở trên
+- Highlight người dùng đang chat
+- Click vào người dùng để xem cuộc trò chuyện
+
+#### 6.2 Chat với người dùng
+
+  **Mô tả:** Admin trả lời tin nhắn từ người dùng.
+
+  **Chức năng:**
+
+- Giao diện chat:
+
+  - Hiển thị tất cả tin nhắn trong cuộc trò chuyện
+  - Phân biệt tin nhắn của admin và user (màu sắc khác nhau)
+  - Hiển thị tên người gửi và thời gian
+  - Tự động scroll xuống tin nhắn mới nhất
+- Gửi tin nhắn:
+
+  - Form nhập tin nhắn
+  - Gửi tin nhắn qua AJAX
+  - Hiển thị tin nhắn ngay sau khi gửi
+  - Lưu vào database với `sender_type = 'admin'`
+- Nhận tin nhắn:
+
+  - Polling mỗi 2 giây để lấy tin nhắn mới
+  - Tự động hiển thị tin nhắn mới từ user
+  - Đánh dấu tin nhắn đã đọc khi admin xem
+- Cập nhật badge số tin nhắn chưa đọc sau khi đọc
+
+  **Luồng xử lý:**
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin (Dashboard)
+    participant S as Server/API
+    participant DB as Database
+    participant U as Người dùng (App/Web)
+
+    A->>S: Chọn User & Yêu cầu load tin nhắn
+    S->>DB: Query tin nhắn theo conversation_id
+    DB-->>S: Trả về mảng messages
+    S-->>A: Hiển thị lịch sử chat
+    
+    Note over A, S: Admin gửi phản hồi
+    A->>S: Gửi tin nhắn mới
+    S->>DB: INSERT INTO messages (content, sender=admin)
+    S-->>A: Thành công (Hiển thị ngay)
+    
+    Note over U, S: User trả lời (vài giây sau)
+    U->>S: Gửi tin nhắn trả lời
+    S->>DB: Lưu tin nhắn của User
+    
+    loop Polling mỗi 3 giây
+        A->>S: [GET] check_new_messages
+        S->>DB: Query messages WHERE is_read=0
+        DB-->>S: Trả về tin nhắn mới của User
+        S-->>A: Hiển thị tin mới của User trên màn hình
+    end
+    
+    A->>S: [POST] mark_as_read (ID tin nhắn)
+    S->>DB: UPDATE messages SET is_read=1
+    DB-->>S: Xác nhận đã đọc
+  
+```
+### 7. Quản Lý Hoàn Tiền 
+
+**Mục đích:** Cho phép quản trị viên tạo, xem và quản lý các yêu cầu hoàn tiền.
+
+**Các chức năng chính:**
+
+1. **Tạo yêu cầu hoàn tiền**
+   - Nhập mã đơn hàng (`order_code`)
+   - Nhập số tiền hoàn (`refund_amount`)
+   - Nhập lý do hoàn tiền (`refund_reason`)
+   - Chọn phương thức hoàn tiền (`refund_method`):
+     - `original`: Hoàn về phương thức gốc
+     - `bank_transfer`: Chuyển khoản ngân hàng
+     - `cash`: Tiền mặt
+
+2. **Validation và Kiểm tra**
+   - Kiểm tra đơn hàng tồn tại
+   - Kiểm tra đơn hàng đã thanh toán chưa
+   - Kiểm tra đã có refund request chưa (tránh trùng lặp)
+   - Tự động liên kết với payment record
+
+3. **Danh sách yêu cầu hoàn tiền**
+   - Hiển thị tất cả refund records
+   - Thông tin chi tiết: ID, mã đơn, khách hàng, số tiền, lý do, trạng thái, phương thức, thời gian, người xử lý
+   - Color coding theo trạng thái
+
+4. **Cập nhật trạng thái hoàn tiền**
+   - Modal popup để cập nhật
+   - Chọn trạng thái mới:
+     - `pending` → `processing` → `completed`
+     - `pending` → `processing` → `failed`
+   - Nhập mã giao dịch hoàn tiền (khi completed)
+
+5. **Tự động cập nhật liên quan**
+   - Cập nhật `payment.payment_status` = 'refunded'
+   - Cập nhật `order.payment_status` = 'refunded'
+   - Cập nhật `order.status` = 'Cancelled'
+   - Ghi nhận `processed_by` (admin_id) và `processed_at`
+
+**Luồng xử lý hoàn tiền:**
+
+```mermaid
+sequenceDiagram
+    participant A as Admin
+    participant S as Server (PHP)
+    participant DB as Database
+
+    Note over A, DB: Giai đoạn 1: Tạo yêu cầu hoàn tiền
+    A->>S: Gửi thông tin hoàn tiền (order_code, amount,...)
+    S->>DB: Kiểm tra (Order tồn tại, Đã thanh toán, Đã hoàn tiền chưa?)
+    DB-->>S: Trả về kết quả
+    
+    alt Hợp lệ
+        S->>DB: Tạo Refund Record (pending)
+        S->>DB: Update Status (Payment & Order -> refunded)
+        S-->>A: Thông báo thành công
+    else Thất bại
+        S-->>A: Hiển thị lỗi tương ứng
+    end
+
+    Note over A, DB: Giai đoạn 2: Xử lý hoàn tiền
+    A->>S: Cập nhật trạng thái (Completed) + Transaction ID
+    S->>DB: Update Refund Record (status, transaction_id, admin_id, time)
+    DB-->>S: Xác nhận lưu
+    S-->>A: Hoàn tất quy trình
+```
+
+5. **Status Workflow**
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+
+    Pending: Yêu cầu mới tạo\nChờ xử lý
+
+    Pending --> Processing: Bắt đầu xử lý hoàn tiền
+
+    Processing: Đang xử lý hoàn tiền
+
+    Processing --> Completed: Hoàn tiền thành công
+    Processing --> Failed: Hoàn tiền không thành công
+
+    Completed: Hoàn tất
+    Failed: Thất bại
+
+```
+
+**Mô tả trạng thái:**
+- **pending**: Yêu cầu mới tạo, đang chờ admin xử lý
+- **processing**: Admin đã bắt đầu xử lý, đang chờ hoàn tất
+- **completed**: Đã hoàn tất, tiền đã được trả lại khách hàng
+- **failed**: Xử lý thất bại, cần xử lý lại hoặc liên hệ khách hàng
+
+**Tính năng đặc biệt:**
+- Chỉ admin mới có quyền tạo và cập nhật refund
+- Tracking đầy đủ ai xử lý và khi nào (`processed_by`, `processed_at`)
+- Tự động cập nhật các bảng liên quan
+- Hỗ trợ partial refund (số tiền hoàn < số tiền đã thanh toán)
+
+---
+### 8. Trang Quản Lý Thanh Toán 
+
+**Mục đích:** Cho phép quản trị viên xem và quản lý tất cả các giao dịch thanh toán trong hệ thống.
+
+**Các chức năng chính:**
+
+1. **Danh sách giao dịch thanh toán**
+   - Hiển thị tất cả payment records
+   - Sắp xếp theo thời gian (mới nhất trước)
+   - Hiển thị đầy đủ thông tin: ID, mã đơn, phương thức, số tiền, trạng thái, mã giao dịch, thời gian
+
+2. **Lọc và tìm kiếm**
+   - Tìm kiếm theo order_code
+   - Lọc theo trạng thái thanh toán
+   - Lọc theo phương thức thanh toán
+
+3. **Chi tiết giao dịch**
+   - Click vào đơn hàng để xem chi tiết
+   - Link đến trang quản lý đơn hàng
+
+4. **Xử lý hoàn tiền**
+   - Link nhanh đến trang hoàn tiền cho payment đã thành công
+   - Tự động điền order_code
+
+**Các trạng thái thanh toán:**
+- **pending** (Chờ thanh toán) - màu cam
+- **success** (Thành công) - màu xanh
+- **failed** (Thất bại) - màu đỏ
+- **cancelled** (Đã hủy) - màu xám
+- **refunded** (Đã hoàn tiền) - màu tím
+
+**Tính năng:**
+- Real-time data từ database
+- Color coding cho trạng thái
+- Quick actions (Xem đơn hàng, Hoàn tiền)
+- Responsive table design
+
+---
+
+
 ## 6. Bảo Mật
+
 Hệ thống Web Food được xây dựng nhằm phục vụ hoạt động đặt món ăn trực tuyến, quản lý đơn hàng và hỗ trợ khách hàng. Cơ sở dữ liệu **food-order** được thiết kế trên nền tảng MariaDB/MySQL, đáp ứng các yêu cầu lưu trữ, truy xuất và đảm bảo tính toàn vẹn dữ liệu.
 
 Các nhóm dữ liệu chính trong hệ thống bao gồm:
@@ -536,44 +1370,79 @@ Các nhóm dữ liệu chính trong hệ thống bao gồm:
 * **Dữ liệu trò chuyện** : lưu lịch sử trao đổi giữa khách hàng và quản trị viên nhằm hỗ trợ và giải đáp thắc mắc.
 
 Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
+<<<<<<< Updated upstream
 ### 6.1 Phân tích dữ liệu hệ thống
 1. Các đối tượng dữ liệu chính
 1.1. Admin
 Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
 Thuộc tính chính:
+=======
+
+### 6.1 Phân tích dữ liệu hệ thống
+
+1. Các đối tượng dữ liệu chính
+   1.1. Admin
+   Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
+   Thuộc tính chính:
+
+>>>>>>> Stashed changes
 * id: Khóa chính
 * full_name: Họ tên quản trị viên
 * email: Email
 * username: Tên đăng nhập
 * password: Mật khẩu (đã/hoặc chưa mã hóa)
+<<<<<<< Updated upstream
 1.2. User
 Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
 Thuộc tính chính:
+=======
+  1.2. User
+  Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
+  Thuộc tính chính:
+>>>>>>> Stashed changes
 * id: Khóa chính
 * full_name, username, password
 * email, phone, address
 * status: Trạng thái tài khoản
 * created_at: Thời điểm tạo
+<<<<<<< Updated upstream
 1.3. Category
 Vai trò: Phân loại món ăn.
 Thuộc tính chính:
+=======
+  1.3. Category
+  Vai trò: Phân loại món ăn.
+  Thuộc tính chính:
+>>>>>>> Stashed changes
 * id: Khóa chính
 * title: Tên danh mục (Pizza, Burger, …)
 * featured: Hiển thị nổi bật
 * active: Trạng thái hoạt động
 * image_name: Ảnh minh họa
+<<<<<<< Updated upstream
 1.4. Food
 Vai trò: Lưu thông tin chi tiết món ăn.
 Thuộc tính chính:
+=======
+  1.4. Food
+  Vai trò: Lưu thông tin chi tiết món ăn.
+  Thuộc tính chính:
+>>>>>>> Stashed changes
 * id: Khóa chính
 * title, description
 * price: Giá bán
 * image_name
 * category_id: Danh mục món ăn
 * featured, active
+<<<<<<< Updated upstream
 1.5. Order (tbl_order)
 Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
 Thuộc tính chính:
+=======
+  1.5. Order (tbl_order)
+  Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
+  Thuộc tính chính:
+>>>>>>> Stashed changes
 * id: Khóa chính
 * order_code: Mã đơn hàng (duy nhất)
 * user_id: Người đặt hàng
@@ -582,9 +1451,15 @@ Thuộc tính chính:
 * order_date
 * status: Trạng thái đơn
 * Thông tin khách hàng: tên, SĐT, email, địa chỉ
+<<<<<<< Updated upstream
 1.6. Chat (tbl_chat)
 Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
 Thuộc tính chính:
+=======
+  1.6. Chat (tbl_chat)
+  Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
+  Thuộc tính chính:
+>>>>>>> Stashed changes
 * id: Khóa chính
 * user_id: Người dùng
 * admin_id: Admin trả lời
@@ -592,6 +1467,7 @@ Thuộc tính chính:
 * message: Nội dung tin nhắn
 * is_read: Trạng thái đã đọc
 * created_at: Thời gian gửi
+<<<<<<< Updated upstream
 2. Mối quan hệ giữa các đối tượng dữ liệu
 2.1. User – Order
 Quan hệ: 1 – N
@@ -609,6 +1485,27 @@ Mỗi tin nhắn gắn với một user
 Quan hệ: 1 – N
 Một admin có thể trả lời nhiều tin nhắn
 Một tin nhắn admin gắn với một admin
+=======
+
+2. Mối quan hệ giữa các đối tượng dữ liệu
+   2.1. User – Order
+   Quan hệ: 1 – N
+   Một user có thể đặt nhiều đơn hàng
+   Mỗi đơn hàng thuộc về một user
+   2.2. Category – Food
+   Quan hệ: 1 – N
+   Một danh mục có nhiều món ăn
+   Một món ăn chỉ thuộc một danh mục
+   2.3. User – Chat
+   Quan hệ: 1 – N
+   Một user có thể gửi nhiều tin nhắn
+   Mỗi tin nhắn gắn với một user
+   2.4. Admin – Chat
+   Quan hệ: 1 – N
+   Một admin có thể trả lời nhiều tin nhắn
+   Một tin nhắn admin gắn với một admin
+
+>>>>>>> Stashed changes
 ### 6.2 Biểu đồ ER (Entity – Relationship)
 
 Dựa trên cơ sở dữ liệu hiện tại, hệ thống bao gồm các thực thể chính sau:
