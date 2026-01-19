@@ -314,8 +314,10 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 ![img](public/assets/images/SE_QuanLyThanhToan.png)
 
 #### 13. Thống kê & báo cáo
+
 ![img](public/assets/images/SE_ThongKeBaoCao.png)
 #### 14. Quản lý nội dung website
+
 ![img](public/assets/images/SE_QuanLyNoiDung.png)
 
 ---
