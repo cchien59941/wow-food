@@ -254,11 +254,27 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 
 #### 1. Xem danh sách món ăn
 
-![img](public/assets/images/sequence4.png)
+![img](public/assets/images/Sequence4.jpg)
 
 #### 2. Tìm kiếm và lọc món ăn
 
-![img](public/assets/images/sequence5.png)
+![img](public/assets/images/sequence5.jpg)
+
+#### 3. quản lý giỏ hàng
+
+![img](public/assets/images/sequence6.png)
+
+#### 4.đặt hàng và thanh toán
+
+![img](public/assets/images/sequence7.png)
+
+#### 3. quản lý giỏ hàng
+
+![img](public/assets/images/sequence6.png)
+
+#### 4.đặt hàng và thanh toán
+
+![img](public/assets/images/sequence7.png)
 
 #### 5. Đăng ký, đăng nhập
 
@@ -926,10 +942,10 @@ sequenceDiagram
     alt Hợp lệ
         BE->>ST: Lưu file ảnh vào thư mục
         ST-->>BE: Trả về đường dẫn ảnh (Image Path)
-      
+    
         BE->>DB: Lưu thông tin + Path ảnh vào DB
         DB-->>BE: Xác nhận lưu thành công
-      
+    
         BE-->>FE: Phản hồi Thành công
         FE-->>U: Hiển thị thông báo thành công
         FE->>FE: Chuyển hướng về Trang quản lý
@@ -1034,10 +1050,10 @@ sequenceDiagram
     alt Dữ liệu hợp lệ
         BE->>ST: Lưu file ảnh vào server
         ST-->>BE: Trả về tên file/đường dẫn
-      
+    
         BE->>DB: INSERT dữ liệu (kèm ID danh mục & Path ảnh)
         DB-->>BE: Xác nhận thành công
-      
+    
         BE-->>FE: Trả về mã thành công (200 OK)
         FE-->>U: Hiển thị Popup thông báo
         FE->>FE: Chuyển hướng đến /quan-ly
@@ -1643,6 +1659,12 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
   1.2. User
   Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
   Thuộc tính chính:
+<<<<<<< Updated upstream
+=======
+  1.2. User
+  Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
+  Thuộc tính chính:
+>>>>>>> Stashed changes
 * id: Khóa chính
 * full_name, username, password
 * email, phone, address
