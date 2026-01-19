@@ -248,11 +248,27 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 
 #### 1. Xem danh sách món ăn
 
-![img](public/assets/images/sequence4.png)
+![img](public/assets/images/Sequence4.jpg)
 
 #### 2. Tìm kiếm và lọc món ăn
 
-![img](public/assets/images/sequence5.png)
+![img](public/assets/images/sequence5.jpg)
+
+#### 3. quản lý giỏ hàng
+
+![img](public/assets/images/sequence6.png)
+
+#### 4.đặt hàng và thanh toán
+
+![img](public/assets/images/sequence7.png)
+
+#### 3. quản lý giỏ hàng
+
+![img](public/assets/images/sequence6.png)
+
+#### 4.đặt hàng và thanh toán
+
+![img](public/assets/images/sequence7.png)
 
 #### 5. Đăng ký, đăng nhập
 
@@ -272,13 +288,9 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 
 #### A) Quản trị viên
 
-#### 8. Quản lý danh mục món ăn
+#### 8.
 
-![img](public/assets/images/QlyDanhMucMonAn.jpg)
-
-#### 9.Quản lý tài khoản người dùng
-
-![img](public/assets/images/QlyTaiKhoanNguoiDung.jpg)
+#### 9.
 
 #### 10.
 
@@ -554,8 +566,6 @@ sequenceDiagram
 ---
 
 ### 5.1.4. Đặt hàng và thanh toán
-
-<<<<<<< Updated upstream
 
 #### 1. Thanh toán (Checkout)
 
@@ -926,10 +936,10 @@ sequenceDiagram
     alt Hợp lệ
         BE->>ST: Lưu file ảnh vào thư mục
         ST-->>BE: Trả về đường dẫn ảnh (Image Path)
-      
+    
         BE->>DB: Lưu thông tin + Path ảnh vào DB
         DB-->>BE: Xác nhận lưu thành công
-      
+    
         BE-->>FE: Phản hồi Thành công
         FE-->>U: Hiển thị thông báo thành công
         FE->>FE: Chuyển hướng về Trang quản lý
@@ -1034,10 +1044,10 @@ sequenceDiagram
     alt Dữ liệu hợp lệ
         BE->>ST: Lưu file ảnh vào server
         ST-->>BE: Trả về tên file/đường dẫn
-      
+    
         BE->>DB: INSERT dữ liệu (kèm ID danh mục & Path ảnh)
         DB-->>BE: Xác nhận thành công
-      
+    
         BE-->>FE: Trả về mã thành công (200 OK)
         FE-->>U: Hiển thị Popup thông báo
         FE->>FE: Chuyển hướng đến /quan-ly
@@ -1395,6 +1405,224 @@ stateDiagram-v2
 
 ---
 
+## 5.3 Sơ đồ tổng quan hệ thống
+
+### 5.3.1 Sơ đồ luồng người dùng
+
+```mermaid
+  sequenceDiagram
+    autonumber
+    participant U as Người dùng
+    participant S as Hệ thống (Frontend/Server)
+    participant DB as Database / Admin
+
+    U->>S: Truy cập Trang chủ
+    S->>S: Kiểm tra trạng thái đăng nhập
+
+    alt Chưa đăng nhập
+        S-->>U: Hiển thị trang Đăng ký/Đăng nhập
+        U->>S: Gửi thông tin đăng ký
+        S->>DB: Lưu User & Gửi OTP/Email
+        DB-->>S: Xác nhận xác minh email
+        S-->>U: Yêu cầu Đăng nhập
+        U->>S: Nhập tài khoản/mật khẩu
+        S->>DB: Kiểm tra thông tin
+        DB-->>S: Trả về Session/Token
+    else Đã đăng nhập
+        S-->>U: Hiển thị trang Duyệt món ăn
+    end
+
+    Note over U, S: Giai đoạn Mua sắm
+    U->>S: Tìm kiếm / Xem danh mục
+    S->>DB: Query danh sách món ăn
+    DB-->>S: Trả về kết quả
+    U->>S: Thêm món vào Giỏ hàng
+    S->>DB: Lưu item vào giỏ hàng
+  
+    U->>S: Truy cập xem Giỏ hàng & Click Thanh toán
+    S->>DB: Kiểm tra tồn kho & Tính tổng tiền
+    DB-->>S: Trả về thông tin thanh toán
+    U->>S: Xác nhận đặt hàng
+    S->>DB: Tạo đơn hàng & Xóa giỏ hàng
+  
+    Note over S, DB: Giai đoạn Xử lý & Theo dõi
+    S-->>U: Đặt hàng thành công!
+    U->>S: Theo dõi trạng thái đơn hàng
+    S->>DB: Lấy status (Đang xử lý/Đang giao)
+    U->>S: Xem Lịch sử đơn hàng
+    U->>DB: Chat với Admin (Khi cần hỗ trợ)
+    DB-->>U: Admin phản hồi tin nhắn
+```
+
+### 5.3.2 Sơ đồ luồng quản trị viên
+
+```mermaid
+  sequenceDiagram
+    autonumber
+    participant A as Admin
+    participant S as Server/Backend
+    participant DB as Database
+    participant U as Người dùng (Client)
+
+    A->>S: Đăng nhập Admin
+    S->>DB: Kiểm tra quyền (Role)
+    DB-->>S: Hợp lệ
+    S-->>A: Hiển thị Dashboard
+  
+    Note over A, DB: Quản lý Món ăn
+    A->>S: Cập nhật thông tin món ăn
+    S->>DB: Lưu thay đổi (UPDATE)
+    DB-->>S: Thành công
+    S-->>A: Hiển thị thông báo thành công
+
+    Note over A, U: Quản lý Chat & Đơn hàng
+    A->>S: Xem danh sách Chat
+    S->>DB: Lấy tin nhắn mới
+    DB-->>S: Trả về dữ liệu
+    A->>S: Gửi tin nhắn trả lời
+    S-->>U: Hiển thị tin nhắn cho User
+  
+    A->>S: Cập nhật trạng thái Đơn hàng (E2)
+    S->>DB: Update status='Shipping'
+    S-->>U: Gửi thông báo: Đơn hàng đang giao
+```
+
+### 5.3.4 Sơ đồ tương tác User - Admin
+
+```mermaid
+  sequenceDiagram
+      participant U as User
+      participant S as System
+      participant A as Admin
+  
+      U->>S: Đăng ký tài khoản
+      S->>U: Gửi mã xác minh email
+      U->>S: Xác minh mã
+      S->>U: Tạo tài khoản thành công
+  
+      U->>S: Đăng nhập
+      S->>U: Xác thực thành công
+  
+      U->>S: Duyệt món ăn
+      U->>S: Thêm vào giỏ hàng
+      U->>S: Thanh toán
+      S->>U: Tạo đơn hàng
+  
+      A->>S: Xem danh sách đơn hàng
+      A->>S: Cập nhật trạng thái đơn hàng
+      S->>U: Thông báo trạng thái mới (nếu có)
+  
+      U->>S: Gửi tin nhắn chat
+      S->>A: Thông báo tin nhắn mới
+      A->>S: Trả lời tin nhắn
+      S->>U: Hiển thị tin nhắn mới
+```
+
+### 5.3.5 Sơ Đồ Luồng Thanh Toán
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Người dùng
+    participant FE as Frontend (UI)
+    participant BE as Backend (Server)
+    participant DB as Database
+
+    U->>FE: Mở trang thanh toán
+    FE->>BE: Gửi order_code & session_id
+  
+    activate BE
+    BE->>BE: Kiểm tra đăng nhập (Session)
+    BE->>DB: Truy vấn thông tin đơn hàng
+    DB-->>BE: Trả về dữ liệu đơn hàng
+    BE-->>FE: Hiển thị thông tin đơn hàng
+    deactivate BE
+
+    U->>FE: Chọn PTTT & Nhấn "Xác nhận"
+    FE->>BE: Gửi yêu cầu thanh toán (POST)
+  
+    activate BE
+    BE->>DB: Ghi nhận thanh toán (Payment Record)
+    BE->>DB: Cập nhật trạng thái đơn hàng (Status: Paid)
+    DB-->>BE: Xác nhận lưu thành công
+    BE-->>FE: Phản hồi kết quả (Redirect URL)
+    deactivate BE
+
+    FE->>U: Chuyển hướng đến Lịch sử đơn hàng
+    FE-->>U: Hiển thị thông báo "Thành công"
+
+
+```
+
+### 5.3.6 Sơ Đồ Luồng Hoàn Tiền
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as Admin
+    participant S as Hệ thống (Backend)
+    participant DB as Database
+
+    A->>S: Truy cập Trang hoàn tiền
+    S->>DB: Lấy danh sách yêu cầu & đơn hàng
+    DB-->>S: Trả về dữ liệu
+    S-->>A: Hiển thị Form & Danh sách yêu cầu
+
+    A->>S: Gửi yêu cầu hoàn tiền (order_code, amount,...)
+  
+    activate S
+    S->>DB: Kiểm tra (Tồn tại, Đã thanh toán, Đã hoàn chưa?)
+    DB-->>S: Kết quả hợp lệ
+  
+    S->>DB: Tạo Refund Record (status: pending)
+    S->>DB: Cập nhật status (Payment & Order -> refunded)
+    DB-->>S: Xác nhận lưu thành công
+    S-->>A: Thông báo tạo yêu cầu thành công
+    deactivate S
+
+    Note over A, DB: Quản trị viên xử lý theo luồng
+    A->>S: Cập nhật trạng thái xử lý (Pending -> Completed)
+    S->>DB: Ghi nhận admin_id, time, transaction_id
+    DB-->>S: Hoàn tất cập nhật
+    S-->>A: Hiển thị trạng thái mới
+```
+
+### 5.3.7 Sơ Đồ Trạng Thái Thanh Toán
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Người dùng
+    participant S as Hệ thống (System)
+    participant G as Cổng thanh toán (Gateway)
+    participant A as Quản trị viên (Admin)
+
+    U->>S: Khởi tạo thanh toán
+    S->>S: Tạo bản ghi (Trạng thái: Pending)
+  
+    alt Thanh toán thành công
+        G-->>S: Gửi tín hiệu thành công (IPN/Webhook)
+        S->>S: Cập nhật trạng thái: Success
+        S-->>U: Thông báo: Thành công
+    else Thanh toán thất bại
+        G-->>S: Gửi tín hiệu lỗi
+        S->>S: Cập nhật trạng thái: Failed
+        S-->>U: Thông báo: Thất bại (Mời thử lại)
+    else Hết thời gian (Timeout)
+        S->>S: Cronjob quét đơn quá hạn
+        S->>S: Cập nhật trạng thái: Cancelled
+    end
+
+    Note over A, S: Quy trình hậu mãi
+    A->>S: Yêu cầu hoàn tiền (Refund request)
+    S->>G: Gửi lệnh hoàn tiền qua API
+    G-->>S: Xác nhận hoàn tiền thành công
+    S->>S: Cập nhật trạng thái: Refunded
+                 
+```
+
+---
+
 ## 6. Bảo Mật
 
 Hệ thống Web Food được xây dựng nhằm phục vụ hoạt động đặt món ăn trực tuyến, quản lý đơn hàng và hỗ trợ khách hàng. Cơ sở dữ liệu **food-order** được thiết kế trên nền tảng MariaDB/MySQL, đáp ứng các yêu cầu lưu trữ, truy xuất và đảm bảo tính toàn vẹn dữ liệu.
@@ -1409,7 +1637,6 @@ Các nhóm dữ liệu chính trong hệ thống bao gồm:
 * **Dữ liệu trò chuyện** : lưu lịch sử trao đổi giữa khách hàng và quản trị viên nhằm hỗ trợ và giải đáp thắc mắc.
 
 Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
-<<<<<<< Updated upstream
 
 ### 6.1 Phân tích dữ liệu hệ thống
 
@@ -1417,112 +1644,40 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
    1.1. Admin
    Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
    Thuộc tính chính:
-   =======
-
-### 6.1 Phân tích dữ liệu hệ thống
-
-1. Các đối tượng dữ liệu chính
-   1.1. Admin
-   Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
-   Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
 
 * id: Khóa chính
 * full_name: Họ tên quản trị viên
 * email: Email
 * username: Tên đăng nhập
 * password: Mật khẩu (đã/hoặc chưa mã hóa)
-  <<<<<<< Updated upstream
   1.2. User
   Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
   Thuộc tính chính:
-  =======
-  1.2. User
-  Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
-  Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * full_name, username, password
 * email, phone, address
 * status: Trạng thái tài khoản
-* created_at: Thời điểm tạo
-  <<<<<<< Updated upstream
+* created_at: Thời điểm tạo 
   1.3. Category
   Vai trò: Phân loại món ăn.
   Thuộc tính chính:
-  =======
-  1.3. Category
-  Vai trò: Phân loại món ăn.
-  Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * title: Tên danh mục (Pizza, Burger, …)
 * featured: Hiển thị nổi bật
 * active: Trạng thái hoạt động
 * image_name: Ảnh minh họa
-  <<<<<<< Updated upstream
   1.4. Food
   Vai trò: Lưu thông tin chi tiết món ăn.
   Thuộc tính chính:
-  =======
-  1.4. Food
-  Vai trò: Lưu thông tin chi tiết món ăn.
-  Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * title, description
 * price: Giá bán
 * image_name
 * category_id: Danh mục món ăn
 * featured, active
-  <<<<<<< Updated upstream
   1.5. Order (tbl_order)
   Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
   Thuộc tính chính:
-  =======
-  1.5. Order (tbl_order)
-  Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
-  Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * order_code: Mã đơn hàng (duy nhất)
 * user_id: Người đặt hàng
@@ -1531,23 +1686,9 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 * order_date
 * status: Trạng thái đơn
 * Thông tin khách hàng: tên, SĐT, email, địa chỉ
-  <<<<<<< Updated upstream
   1.6. Chat (tbl_chat)
   Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
   Thuộc tính chính:
-  =======
-  1.6. Chat (tbl_chat)
-  Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
-  Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * user_id: Người dùng
 * admin_id: Admin trả lời
@@ -1555,7 +1696,6 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 * message: Nội dung tin nhắn
 * is_read: Trạng thái đã đọc
 * created_at: Thời gian gửi
-  <<<<<<< Updated upstream
 
 2. Mối quan hệ giữa các đối tượng dữ liệu
    2.1. User – Order
@@ -1574,32 +1714,6 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
    Quan hệ: 1 – N
    Một admin có thể trả lời nhiều tin nhắn
    Một tin nhắn admin gắn với một admin
-   =======
-3. Mối quan hệ giữa các đối tượng dữ liệu
-   2.1. User – Order
-   Quan hệ: 1 – N
-   Một user có thể đặt nhiều đơn hàng
-   Mỗi đơn hàng thuộc về một user
-   2.2. Category – Food
-   Quan hệ: 1 – N
-   Một danh mục có nhiều món ăn
-   Một món ăn chỉ thuộc một danh mục
-   2.3. User – Chat
-   Quan hệ: 1 – N
-   Một user có thể gửi nhiều tin nhắn
-   Mỗi tin nhắn gắn với một user
-   2.4. Admin – Chat
-   Quan hệ: 1 – N
-   Một admin có thể trả lời nhiều tin nhắn
-   Một tin nhắn admin gắn với một admin
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
 
 ### 6.2 Biểu đồ ER (Entity – Relationship)
 
@@ -1678,7 +1792,7 @@ Các bảng dữ liệu trong hệ thống được thiết kế như sau:
 
 Các ràng buộc khóa ngoại được thiết lập nhằm đảm bảo tính toàn vẹn dữ liệu, đồng thời hỗ trợ kiểm soát mối quan hệ giữa các bảng.
 
-### 6.4 Sơ đồ ERD (na test)
+### 6.4 Sơ đồ ERD
 
 Sơ đồ ERD thể hiện rõ cấu trúc tổng thể của cơ sở dữ liệu và mối liên hệ giữa các bảng. Người dùng liên kết với bảng đơn hàng và bảng trò chuyện; quản trị viên tham gia vào quá trình trao đổi hỗ trợ; danh mục đóng vai trò phân loại cho các món ăn.
 
