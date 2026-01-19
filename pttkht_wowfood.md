@@ -218,23 +218,13 @@ Phân quyền cho các tài khoản quản trị (admin, nhân viên).
 
 ### 4.3 Biểu đồ mô tả hệ thống
 
+#### Đặc tả Use Case tổng quan hệ thống
+
 #### 4.3.1 Use Case Diagram
 
 Thể hiện hệ thống làm được gì
+                                                                                     |
 
-#### I) Use case tổng quát hệ thống
-
-#### A) Khách hàng
-
-![img](public/assets/images/usecase2.png)
-
----
-
-#### B) Quản trị viên
-
-![img](public/assets/images/usecase1.png)
-
-#### II) Use case chi tiết hệ thống
 
 #### A) Khách hàng
 
@@ -245,6 +235,10 @@ Thể hiện hệ thống làm được gì
 #### B) Quản trị viên
 
 ![img](public/assets/images/usecase4.png)
+
+--- 
+
+####  Chi tiết hệ thống
 
 #### 4.3.2 Sequence Diagram
 
