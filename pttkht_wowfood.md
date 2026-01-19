@@ -1415,15 +1415,6 @@ Các nhóm dữ liệu chính trong hệ thống bao gồm:
 * **Dữ liệu trò chuyện** : lưu lịch sử trao đổi giữa khách hàng và quản trị viên nhằm hỗ trợ và giải đáp thắc mắc.
 
 Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
-<<<<<<< Updated upstream
-
-### 6.1 Phân tích dữ liệu hệ thống
-
-1. Các đối tượng dữ liệu chính
-   1.1. Admin
-   Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
-   Thuộc tính chính:
-   =======
 
 ### 6.1 Phân tích dữ liệu hệ thống
 
@@ -1432,79 +1423,51 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
    Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
    Thuộc tính chính:
 
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
+### 6.1 Phân tích dữ liệu hệ thống
+
+1. Các đối tượng dữ liệu chính
+   1.1. Admin
+   Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
+   Thuộc tính chính:
 
 * id: Khóa chính
 * full_name: Họ tên quản trị viên
 * email: Email
 * username: Tên đăng nhập
 * password: Mật khẩu (đã/hoặc chưa mã hóa)
-  <<<<<<< Updated upstream
   1.2. User
   Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
   Thuộc tính chính:
-  =======
   1.2. User
   Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
   Thuộc tính chính:
 
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
 
 * id: Khóa chính
 * full_name, username, password
 * email, phone, address
 * status: Trạng thái tài khoản
 * created_at: Thời điểm tạo
-  <<<<<<< Updated upstream
   1.3. Category
   Vai trò: Phân loại món ăn.
   Thuộc tính chính:
-  =======
   1.3. Category
   Vai trò: Phân loại món ăn.
   Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
 
 * id: Khóa chính
 * title: Tên danh mục (Pizza, Burger, …)
 * featured: Hiển thị nổi bật
 * active: Trạng thái hoạt động
 * image_name: Ảnh minh họa
-  <<<<<<< Updated upstream
+
   1.4. Food
   Vai trò: Lưu thông tin chi tiết món ăn.
   Thuộc tính chính:
-  =======
   1.4. Food
   Vai trò: Lưu thông tin chi tiết món ăn.
   Thuộc tính chính:
 
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
 
 * id: Khóa chính
 * title, description
@@ -1512,23 +1475,12 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 * image_name
 * category_id: Danh mục món ăn
 * featured, active
-  <<<<<<< Updated upstream
   1.5. Order (tbl_order)
   Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
   Thuộc tính chính:
-  =======
   1.5. Order (tbl_order)
   Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
   Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * order_code: Mã đơn hàng (duy nhất)
 * user_id: Người đặt hàng
@@ -1537,23 +1489,12 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 * order_date
 * status: Trạng thái đơn
 * Thông tin khách hàng: tên, SĐT, email, địa chỉ
-  <<<<<<< Updated upstream
   1.6. Chat (tbl_chat)
   Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
   Thuộc tính chính:
-  =======
   1.6. Chat (tbl_chat)
   Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
   Thuộc tính chính:
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
-
 * id: Khóa chính
 * user_id: Người dùng
 * admin_id: Admin trả lời
@@ -1561,7 +1502,6 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 * message: Nội dung tin nhắn
 * is_read: Trạng thái đã đọc
 * created_at: Thời gian gửi
-  <<<<<<< Updated upstream
 
 2. Mối quan hệ giữa các đối tượng dữ liệu
    2.1. User – Order
@@ -1580,7 +1520,6 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
    Quan hệ: 1 – N
    Một admin có thể trả lời nhiều tin nhắn
    Một tin nhắn admin gắn với một admin
-   =======
 3. Mối quan hệ giữa các đối tượng dữ liệu
    2.1. User – Order
    Quan hệ: 1 – N
@@ -1598,14 +1537,6 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
    Quan hệ: 1 – N
    Một admin có thể trả lời nhiều tin nhắn
    Một tin nhắn admin gắn với một admin
-
->>>>>>> Stashed changes
->>>>>>>
->>>>>>
->>>>>
->>>>
->>>
->>
 
 ### 6.2 Biểu đồ ER (Entity – Relationship)
 
@@ -1684,7 +1615,7 @@ Các bảng dữ liệu trong hệ thống được thiết kế như sau:
 
 Các ràng buộc khóa ngoại được thiết lập nhằm đảm bảo tính toàn vẹn dữ liệu, đồng thời hỗ trợ kiểm soát mối quan hệ giữa các bảng.
 
-### 6.4 Sơ đồ ERD (na test)
+### 6.4 Sơ đồ ERD
 
 Sơ đồ ERD thể hiện rõ cấu trúc tổng thể của cơ sở dữ liệu và mối liên hệ giữa các bảng. Người dùng liên kết với bảng đơn hàng và bảng trò chuyện; quản trị viên tham gia vào quá trình trao đổi hỗ trợ; danh mục đóng vai trò phân loại cho các món ăn.
 
