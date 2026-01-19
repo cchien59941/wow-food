@@ -237,6 +237,19 @@ Thể hiện hệ thống làm được gì
 ![img](public/assets/images/usecase4.png)
 
 --- 
+##### Đặc tả 
+
+| Thuộc tính         | Mô tả                                                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên Use Case**   | Sử dụng hệ thống Website bán đồ ăn                                                                                                |
+| **Tác nhân chính** | Khách hàng                                                                                                                        |
+| **Tác nhân phụ**   | Quản trị viên                                                                                                                     |
+| **Mô tả**          | Hệ thống cho phép khách hàng xem và đặt món ăn trực tuyến; quản trị viên quản lý món ăn, đơn hàng, người dùng và nội dung website |
+| **Tiền điều kiện** | Hệ thống hoạt động bình thường                                                                                                    |
+| **Hậu điều kiện**  | Dữ liệu được lưu trữ và cập nhật chính xác                                                                                        |
+| **Luồng chính**    | Người dùng truy cập website và thực hiện các chức năng phù hợp với vai trò                                                        |
+| **Luồng thay thế** | Lỗi hệ thống hoặc người dùng chưa đăng nhập                                                                                       |
+
 
 ####  Chi tiết hệ thống
 
