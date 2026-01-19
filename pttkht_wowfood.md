@@ -277,19 +277,14 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 ![img](public/assets/images/sequence3.png)
 
 #### A) Quản trị viên
-
 #### 8. Quản lý danh mục món ăn
-
-![img](public/assets/images/QlyDanhMucMonAn.jpg)
-
+![img](public/assets/images/SE_QlyDanhMucMonAn.png)
 #### 9. Quản lý tài khoản người dùng
-
-![img](public/assets/images/QlyTaiKhoanNguoiDung.jpg)
-
+![img](public/assets/images/SE_QlyTaiKhoanNguoiDung.png)
 #### 10. Quản lý đơn hàng
-![img](public/assets/images/QlyDonHang.jpg)
+![img](public/assets/images/SE_QlyDonHang.png)
 #### 11. Quản lý món ăn
-![img](public/assets/images/QlyMonAn.jpg)
+![img](public/assets/images/SE_QlyMonAn.png)
 #### 12. Quản lý thanh toán
 
 ![img](public/assets/images/SE_QuanLyThanhToan.jpg)
@@ -1399,7 +1394,7 @@ stateDiagram-v2
 
 ---
 
-## 6. Bảo Mật
+## 6. Thiết kế dữ liệu
 
 Hệ thống Web Food được xây dựng nhằm phục vụ hoạt động đặt món ăn trực tuyến, quản lý đơn hàng và hỗ trợ khách hàng. Cơ sở dữ liệu **food-order** được thiết kế trên nền tảng MariaDB/MySQL, đáp ứng các yêu cầu lưu trữ, truy xuất và đảm bảo tính toàn vẹn dữ liệu.
 
