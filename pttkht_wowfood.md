@@ -282,14 +282,14 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 
 ![img](public/assets/images/QlyDanhMucMonAn.jpg)
 
-#### 9.Quản lý tài khoản người dùng
+#### 9. Quản lý tài khoản người dùng
 
 ![img](public/assets/images/QlyTaiKhoanNguoiDung.jpg)
 
-#### 10.
-
-#### 11.
-
+#### 10. Quản lý đơn hàng
+![img](public/assets/images/QlyDonHang.jpg)
+#### 11. Quản lý món ăn
+![img](public/assets/images/QlyMonAn.jpg)
 #### 12. Quản lý thanh toán
 
 ![img](public/assets/images/SE_QuanLyThanhToan.jpg)
@@ -560,8 +560,6 @@ sequenceDiagram
 ---
 
 ### 5.1.4. Đặt hàng và thanh toán
-
-<<<<<<< Updated upstream
 
 #### 1. Thanh toán (Checkout)
 
