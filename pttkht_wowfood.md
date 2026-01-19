@@ -218,23 +218,13 @@ Phân quyền cho các tài khoản quản trị (admin, nhân viên).
 
 ### 4.3 Biểu đồ mô tả hệ thống
 
+#### Đặc tả Use Case tổng quan hệ thống
+
 #### 4.3.1 Use Case Diagram
 
 Thể hiện hệ thống làm được gì
+                                                                                     |
 
-#### I) Use case tổng quát hệ thống
-
-#### A) Khách hàng
-
-![img](public/assets/images/usecase2.png)
-
----
-
-#### B) Quản trị viên
-
-![img](public/assets/images/usecase1.png)
-
-#### II) Use case chi tiết hệ thống
 
 #### A) Khách hàng
 
@@ -245,6 +235,23 @@ Thể hiện hệ thống làm được gì
 #### B) Quản trị viên
 
 ![img](public/assets/images/usecase4.png)
+
+--- 
+##### Đặc tả 
+
+| Thuộc tính         | Mô tả                                                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên Use Case**   | Sử dụng hệ thống Website bán đồ ăn                                                                                                |
+| **Tác nhân chính** | Khách hàng                                                                                                                        |
+| **Tác nhân phụ**   | Quản trị viên                                                                                                                     |
+| **Mô tả**          | Hệ thống cho phép khách hàng xem và đặt món ăn trực tuyến; quản trị viên quản lý món ăn, đơn hàng, người dùng và nội dung website |
+| **Tiền điều kiện** | Hệ thống hoạt động bình thường                                                                                                    |
+| **Hậu điều kiện**  | Dữ liệu được lưu trữ và cập nhật chính xác                                                                                        |
+| **Luồng chính**    | Người dùng truy cập website và thực hiện các chức năng phù hợp với vai trò                                                        |
+| **Luồng thay thế** | Lỗi hệ thống hoặc người dùng chưa đăng nhập                                                                                       |
+
+
+####  Chi tiết hệ thống
 
 #### 4.3.2 Sequence Diagram
 
@@ -1659,12 +1666,6 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
   1.2. User
   Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
   Thuộc tính chính:
-<<<<<<< Updated upstream
-=======
-  1.2. User
-  Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
-  Thuộc tính chính:
->>>>>>> Stashed changes
 * id: Khóa chính
 * full_name, username, password
 * email, phone, address
