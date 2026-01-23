@@ -239,7 +239,7 @@ Chức năng cho phép khách hàng truy cập trang danh sách món ăn và xem
 
 #### 2. Tìm kiếm và lọc món ăn
 
-![img](public/assets/images/sequence5.jpg)
+![img](public/assets/images/Sequence5.jpg)
 
 ### Tên chức năng
 Tìm kiếm và lọc món ăn
@@ -268,7 +268,7 @@ Chức năng cho phép khách hàng tìm kiếm món ăn theo từ khóa hoặc 
 
 #### 3. quản lý giỏ hàng
 
-![img](public/assets/images/sequence6.png)
+![img](public/assets/images/Sequence6.png)
 
 ### Tên chức năng
 Quản lý giỏ hàng
@@ -297,7 +297,7 @@ Chức năng cho phép khách hàng thêm, xóa hoặc cập nhật số lượn
 
 #### 4.đặt hàng và thanh toán
 
-![img](public/assets/images/sequence7.png)
+![img](public/assets/images/Sequence7.png)
 
 ### Tên chức năng
 Đặt hàng và thanh toán
