@@ -210,11 +210,7 @@ Thống kê doanh thu theo ngày, tháng, năm; số lượng đơn hàng; các 
 
 ### 4.2.6 Quản lý nội dung website
 
-Cập nhật banner, thông tin giới thiệu, chính sách bán hàng.
-
-### 4.2.7 Phân quyền quản trị
-
-Phân quyền cho các tài khoản quản trị (admin, nhân viên).
+Cập nhật banner, thông tin giới thiệu, chính sách bán hàn
 
 ### 4.3 Biểu đồ mô tả hệ thống
 
@@ -223,8 +219,6 @@ Phân quyền cho các tài khoản quản trị (admin, nhân viên).
 #### 4.3.1 Use Case Diagram
 
 Thể hiện hệ thống làm được gì
-                                                                                     |
-
 
 #### A) Khách hàng
 
@@ -236,22 +230,22 @@ Thể hiện hệ thống làm được gì
 
 ![img](public/assets/images/usecase4.png)
 
---- 
-##### Đặc tả 
+---
 
-| Thuộc tính         | Mô tả                                                                                                                             |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| **Tên Use Case**   | Sử dụng hệ thống Website bán đồ ăn                                                                                                |
-| **Tác nhân chính** | Khách hàng                                                                                                                        |
-| **Tác nhân phụ**   | Quản trị viên                                                                                                                     |
-| **Mô tả**          | Hệ thống cho phép khách hàng xem và đặt món ăn trực tuyến; quản trị viên quản lý món ăn, đơn hàng, người dùng và nội dung website |
-| **Tiền điều kiện** | Hệ thống hoạt động bình thường                                                                                                    |
-| **Hậu điều kiện**  | Dữ liệu được lưu trữ và cập nhật chính xác                                                                                        |
-| **Luồng chính**    | Người dùng truy cập website và thực hiện các chức năng phù hợp với vai trò                                                        |
-| **Luồng thay thế** | Lỗi hệ thống hoặc người dùng chưa đăng nhập                                                                                       |
+##### Đặc tả
 
+| Thuộc tính                 | Mô tả                                                                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Tên Use Case**      | Sử dụng hệ thống Website bán đồ ăn                                                                                                                   |
+| **Tác nhân chính**  | Khách hàng                                                                                                                                                 |
+| **Tác nhân phụ**    | Quản trị viên                                                                                                                                             |
+| **Mô tả**            | Hệ thống cho phép khách hàng xem và đặt món ăn trực tuyến; quản trị viên quản lý món ăn, đơn hàng, người dùng và nội dung website |
+| **Tiền điều kiện** | Hệ thống hoạt động bình thường                                                                                                                       |
+| **Hậu điều kiện**  | Dữ liệu được lưu trữ và cập nhật chính xác                                                                                                       |
+| **Luồng chính**      | Người dùng truy cập website và thực hiện các chức năng phù hợp với vai trò                                                                     |
+| **Luồng thay thế**   | Lỗi hệ thống hoặc người dùng chưa đăng nhập                                                                                                       |
 
-####  Chi tiết hệ thống
+#### Chi tiết hệ thống
 
 #### 4.3.2 Sequence Diagram
 
@@ -358,17 +352,82 @@ Hậu điều kiện
 
 ![img](public/assets/images/sequence.png)
 
+##### Đặc tả
+
+##### Đăng ký
+
+| Thuộc tính                 | Mô tả                                                                                                                                                                                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Tên kịch bản**    | Đăng ký tài khoản                                                                                                                                                                                                                                                                           |
+| **Tác nhân**         | Khách hàng                                                                                                                                                                                                                                                                                     |
+| **Mô tả**            | Mô tả trình tự các bước khi khách hàng đăng ký tài khoản mới trên hệ thống                                                                                                                                                                                                     |
+| **Tiền điều kiện** | Khách hàng chưa có tài khoản, hệ thống hoạt động bình thường                                                                                                                                                                                                                       |
+| **Hậu điều kiện**  | Tài khoản khách hàng được tạo và lưu vào cơ sở dữ liệu                                                                                                                                                                                                                            |
+| **Luồng chính**      | 1. Khách hàng truy cập trang đăng ký<br />2. Hệ thống hiển thị form đăng ký<br />3. Khách hàng nhập thông tin cá nhân<br />4. Gửi yêu cầu đăng ký<br />5. Hệ thống kiểm tra dữ liệu<br />6. Lưu tài khoản vào CSDL<br />7. Thông báo đăng ký thành công |
+| **Luồng thay thế**   | - Thông tin không hợp lệ → yêu cầu nhập lại<br />- Email đã tồn tại → thông báo lỗi                                                                                                                                                                                             |
+
 ---
 
 ![img](public/assets/images/sequence1.png)
+
+##### Đặc tả
+
+##### Đăng nhập
+
+---
+
+| Thuộc tính                 | Mô tả                                                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Tên kịch bản**    | Đăng nhập tài khoản                                                                                                                                                                                                 |
+| **Tác nhân**         | Khách hàng                                                                                                                                                                                                             |
+| **Mô tả**            | Mô tả quá trình khách hàng đăng nhập vào hệ thống                                                                                                                                                            |
+| **Tiền điều kiện** | Khách hàng đã có tài khoản hợp lệ                                                                                                                                                                               |
+| **Hậu điều kiện**  | Khách hàng đăng nhập thành công và có phiên làm việc                                                                                                                                                         |
+| **Luồng chính**      | 1. Truy cập trang đăng nhập<br />2. Hiển thị form đăng nhập<br />3. Nhập email và mật khẩu<br />4. Hệ thống xác thực thông tin<br />5. Tạo phiên đăng nhập<br />6. Chuyển hướng về trang chủ |
+| **Luồng thay thế**   | - Sai thông tin đăng nhập → thông báo lỗi<br />- Tài khoản bị khóa → từ chối đăng nhập                                                                                                                 |
+
+---                                                                                           |
 
 #### 6. Quản lý thông tin cá nhân
 
 ![img](public/assets/images/sequence2.png)
 
+##### Đặc tả
+
+---
+
+## Sequence Diagram: Quản lý thông tin cá nhân
+
+### Bảng đặc tả Sequence Diagram – Quản lý thông tin cá nhân
+
+| Thuộc tính                 | Mô tả                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên kịch bản**    | Quản lý thông tin cá nhân                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Tác nhân chính**  | Khách hàng                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Tác nhân phụ**    | Hệ thống Website, Cơ sở dữ liệu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Mô tả**            | Khách hàng xem và cập nhật thông tin cá nhân của mình như tên, số điện thoại, địa chỉ giao hàng.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Tiền điều kiện** | Khách hàng đã đăng nhập thành công vào hệ thống.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Hậu điều kiện**  | Thông tin cá nhân được cập nhật và lưu trữ chính xác trong cơ sở dữ liệu.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Luồng chính**      | 1. Khách hàng truy cập chức năng Quản lý thông tin cá nhân.<br />2. Hệ thống gửi yêu cầu lấy thông tin cá nhân của khách hàng.<br />3. Cơ sở dữ liệu trả về thông tin hiện tại của khách hàng.<br />4. Hệ thống hiển thị thông tin cá nhân lên giao diện.<br />5. Khách hàng chỉnh sửa thông tin (tên, số điện thoại, địa chỉ).<br />6. Khách hàng nhấn **Lưu cập nhật**.<br />7. Hệ thống kiểm tra tính hợp lệ của dữ liệu.<br />8. Hệ thống cập nhật thông tin mới vào cơ sở dữ liệu.<br />9. Cơ sở dữ liệu phản hồi cập nhật thành công.<br />10. Hệ thống hiển thị thông báo cập nhật thành công cho khách hàng. |
+| **Luồng thay thế**   | Dữ liệu nhập không hợp lệ (thiếu thông tin, sai định dạng) → Hệ thống hiển thị thông báo lỗi và yêu cầu nhập lại.<br />Cập nhật thất bại do lỗi hệ thống → Hệ thống hiển thị thông báo *“Cập nhật không thành công”*.                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+
 #### 7. Xem lịch sử đơn hàng
 
 ![img](public/assets/images/sequence3.png)
+
+##### Đặc tả
+
+| Thuộc tính                 | Mô tả                                                                                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên kịch bản**    | Xem lịch sử đơn hàng                                                                                                                                                                                   |
+| **Tác nhân**         | Khách hàng                                                                                                                                                                                                |
+| **Mô tả**            | Mô tả trình tự các bước khi khách hàng xem các đơn hàng đã đặt                                                                                                                             |
+| **Tiền điều kiện** | Khách hàng đã đăng nhập                                                                                                                                                                              |
+| **Hậu điều kiện**  | Danh sách đơn hàng của khách hàng được hiển thị                                                                                                                                                 |
+| **Luồng chính**      | 1. Truy cập chức năng lịch sử đơn hàng<br />2. Hệ thống kiểm tra đăng nhập<br />3. Truy vấn đơn hàng từ CSDL<br />4. Hiển thị danh sách đơn hàng<br />5. Xem chi tiết đơn hàng |
+| **Luồng thay thế**   | - Chưa đăng nhập → yêu cầu đăng nhập<br />- Không có đơn hàng → hiển thị thông báo                                                                                                      |
+
+---
 
 #### A) Quản trị viên
 #### 8. Quản lý danh mục món ăn
@@ -1018,10 +1077,10 @@ sequenceDiagram
     alt Hợp lệ
         BE->>ST: Lưu file ảnh vào thư mục
         ST-->>BE: Trả về đường dẫn ảnh (Image Path)
-    
+  
         BE->>DB: Lưu thông tin + Path ảnh vào DB
         DB-->>BE: Xác nhận lưu thành công
-    
+  
         BE-->>FE: Phản hồi Thành công
         FE-->>U: Hiển thị thông báo thành công
         FE->>FE: Chuyển hướng về Trang quản lý
@@ -1126,10 +1185,10 @@ sequenceDiagram
     alt Dữ liệu hợp lệ
         BE->>ST: Lưu file ảnh vào server
         ST-->>BE: Trả về tên file/đường dẫn
-    
+  
         BE->>DB: INSERT dữ liệu (kèm ID danh mục & Path ảnh)
         DB-->>BE: Xác nhận thành công
-    
+  
         BE-->>FE: Trả về mã thành công (200 OK)
         FE-->>U: Hiển thị Popup thông báo
         FE->>FE: Chuyển hướng đến /quan-ly
@@ -1700,7 +1759,7 @@ sequenceDiagram
     S->>G: Gửi lệnh hoàn tiền qua API
     G-->>S: Xác nhận hoàn tiền thành công
     S->>S: Cập nhật trạng thái: Refunded
-                 
+             
 ```
 
 ---
@@ -1739,7 +1798,7 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 * full_name, username, password
 * email, phone, address
 * status: Trạng thái tài khoản
-* created_at: Thời điểm tạo 
+* created_at: Thời điểm tạo
   1.3. Category
   Vai trò: Phân loại món ăn.
   Thuộc tính chính:
