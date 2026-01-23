@@ -392,7 +392,7 @@ Chức năng cho phép khách hàng xác nhận đơn hàng và thực hiện th
 
 #### 7. Xem lịch sử đơn hàng
 
-![img](public/assets/images/sequence3.png)
+![img](public/assets/images/Sequence3.png)
 
 ##### Đặc tả
 
@@ -413,7 +413,7 @@ Chức năng cho phép khách hàng xác nhận đơn hàng và thực hiện th
 #### 8. Quản lý danh mục món ăn
 ![img](public/assets/images/SE_QlyDanhMucMonAn.png)
 **ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
-Use case: Quản lý danh mục món ăn (Xóa danh mục)
+
 Actor:
   •	Quản trị viên
 
