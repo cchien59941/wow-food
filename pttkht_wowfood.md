@@ -211,96 +211,121 @@ Thể hiện các đối tượng tương tác với nhau như thế nào theo t
 
 ![img](public/assets/images/Sequence4.jpg)
 
-Tên chức năng
-  Xem danh sách món ăn
-Actor
-  Khách hàng
-Mô tả
-  Chức năng cho phép khách hàng truy cập trang danh sách món ăn và xem toàn bộ các món ăn hiện có trong hệ thống.
-Điều kiện tiên quyết
-  •	 Hệ thống hoạt động bình thường
-  •	 Database đã có dữ liệu món ăn
-Luồng chính
-  1.	Khách hàng truy cập trang danh sách món ăn.
-  2.	Giao diện Web gửi yêu cầu lấy danh sách món ăn đến Server/Backend.
-  3.	Server/Backend truy vấn Database để lấy toàn bộ món ăn.
-  4.	Database trả về danh sách món ăn cho Server/Backend.
-  5.	Server/Backend trả dữ liệu danh sách món ăn cho Giao diện Web.
-  6.	Giao diện Web hiển thị danh sách món ăn cho khách hàng.
-Hậu điều kiện
-  Danh sách món ăn được hiển thị thành công cho khách hàng.
+### Tên chức năng
+Xem danh sách món ăn
+
+### Actor
+Khách hàng
+
+### Mô tả
+Chức năng cho phép khách hàng truy cập trang danh sách món ăn và xem toàn bộ các món ăn hiện có trong hệ thống.
+
+### Điều kiện tiên quyết
+- Hệ thống hoạt động bình thường
+- Database đã có dữ liệu món ăn
+
+### Luồng chính
+1. Khách hàng truy cập trang danh sách món ăn.
+2. Giao diện Web gửi yêu cầu lấy danh sách món ăn đến Server/Backend.
+3. Server/Backend truy vấn Database để lấy toàn bộ món ăn.
+4. Database trả về danh sách món ăn cho Server/Backend.
+5. Server/Backend trả dữ liệu danh sách món ăn cho Giao diện Web.
+6. Giao diện Web hiển thị danh sách món ăn cho khách hàng.
+
+### Hậu điều kiện
+- Danh sách món ăn được hiển thị thành công cho khách hàng.
+
+
 
 #### 2. Tìm kiếm và lọc món ăn
 
-![img](public/assets/images/sequence5.jpg)
+![img](public/assets/images/Sequence5.jpg)
 
-Tên chức năng
-  Tìm kiếm và lọc món ăn
-Actor
-  Khách hàng
-Mô tả
-  Chức năng cho phép khách hàng tìm kiếm món ăn theo từ khóa hoặc lọc theo các tiêu chí như loại món, giá, trạng thái.
-Điều kiện tiên quyết
-  •	Danh sách món ăn đã được tải
-  •	Hệ thống có dữ liệu món ăn
-Luồng chính
-  1.	Khách hàng nhập từ khóa tìm kiếm hoặc chọn bộ lọc.
-  2.	Giao diện Web gửi yêu cầu tìm kiếm và lọc đến Server/Backend.
-  3.	Server/Backend xử lý yêu cầu và truy vấn Database theo điều kiện.
-  4.	Database trả về kết quả tìm kiếm cho Server/Backend.
-  5.	Server/Backend trả danh sách món ăn đã lọc cho Giao diện Web.
-  6.	Giao diện Web hiển thị kết quả tìm kiếm cho khách hàng.
-Hậu điều kiện
-  Kết quả tìm kiếm và lọc được hiển thị đúng theo yêu cầu.
+### Tên chức năng
+Tìm kiếm và lọc món ăn
+
+### Actor
+Khách hàng
+
+### Mô tả
+Chức năng cho phép khách hàng tìm kiếm món ăn theo từ khóa hoặc lọc theo các tiêu chí như loại món, giá, trạng thái.
+
+### Điều kiện tiên quyết
+- Danh sách món ăn đã được tải
+- Hệ thống có dữ liệu món ăn
+
+### Luồng chính
+1. Khách hàng nhập từ khóa tìm kiếm hoặc chọn bộ lọc.
+2. Giao diện Web gửi yêu cầu tìm kiếm và lọc đến Server/Backend.
+3. Server/Backend xử lý yêu cầu và truy vấn Database theo điều kiện.
+4. Database trả về kết quả tìm kiếm cho Server/Backend.
+5. Server/Backend trả danh sách món ăn đã lọc cho Giao diện Web.
+6. Giao diện Web hiển thị kết quả tìm kiếm cho khách hàng.
+
+### Hậu điều kiện
+- Kết quả tìm kiếm và lọc được hiển thị đúng theo yêu cầu.
+
 
 #### 3. quản lý giỏ hàng
 
-![img](public/assets/images/sequence6.png)
+![img](public/assets/images/Sequence6.png)
 
-Tên chức năng
-  Quản lý giỏ hàng
-Actor
-  Khách hàng
-Mô tả
-  Chức năng cho phép khách hàng thêm, xóa hoặc cập nhật số lượng món ăn trong giỏ hàng.
-Điều kiện tiên quyết
-  •	Khách hàng đã chọn món ăn
-  •	Hệ thống đang hoạt động
-Luồng chính
-  1.	Khách hàng thực hiện thao tác thêm / xóa / cập nhật món ăn trong giỏ hàng.
-  2.	Giao diện Web gửi yêu cầu cập nhật giỏ hàng đến Server/Backend.
-  3.	Server/Backend cập nhật dữ liệu giỏ hàng trong Database.
-  4.	Database xác nhận cập nhật thành công.
-  5.	Server/Backend trả thông tin giỏ hàng mới cho Giao diện Web.
-  6.	Giao diện Web hiển thị giỏ hàng đã cập nhật cho khách hàng.
-Hậu điều kiện
-  Giỏ hàng được cập nhật đúng theo thao tác của khách hàng.
+### Tên chức năng
+Quản lý giỏ hàng
+
+### Actor
+Khách hàng
+
+### Mô tả
+Chức năng cho phép khách hàng thêm, xóa hoặc cập nhật số lượng món ăn trong giỏ hàng.
+
+### Điều kiện tiên quyết
+- Khách hàng đã chọn món ăn
+- Hệ thống đang hoạt động
+
+### Luồng chính
+1. Khách hàng thực hiện thao tác thêm, xóa hoặc cập nhật món ăn trong giỏ hàng.
+2. Giao diện Web gửi yêu cầu cập nhật giỏ hàng đến Server/Backend.
+3. Server/Backend cập nhật dữ liệu giỏ hàng trong Database.
+4. Database xác nhận cập nhật thành công.
+5. Server/Backend trả thông tin giỏ hàng mới cho Giao diện Web.
+6. Giao diện Web hiển thị giỏ hàng đã cập nhật cho khách hàng.
+
+### Hậu điều kiện
+- Giỏ hàng được cập nhật đúng theo thao tác của khách hàng.
+
 
 #### 4.đặt hàng và thanh toán
 
-![img](public/assets/images/sequence7.png)
+![img](public/assets/images/Sequence7.png)
 
-Tên chức năng
-  Đặt hàng và thanh toán
-Actor
-   hàng
-Mô tả
-   năng cho phép khách hàng xác nhận đơn hàng và thực hiện thanh toán thông qua cổng thanh toán.
-Điều kiện tiên quyết
-  •	Giỏ hàng không rỗng
-  •	Khách hàng đã nhập đầy đủ thông tin đơn hàng
-Luồng chính
-  1.	Khách hàng xác nhận đặt hàng.
-  2.	Giao diện Web gửi thông tin đơn hàng đến Server/Backend.
-  3.	Server/Backend gửi yêu cầu thanh toán đến Cổng thanh toán.
-  4.	Cổng thanh toán xử lý và trả kết quả thanh toán cho Server/Backend.
-  5.	Server/Backend lưu thông tin đơn hàng vào Database.
-  6.	Database xác nhận lưu đơn hàng thành công.
-  7.	Server/Backend gửi thông báo thanh toán thành công về Giao diện Web.
-  8.	Giao diện Web hiển thị kết quả cho khách hàng.
-Hậu điều kiện
-  •	Đơn hàng được lưu thành công
-  •	Thanh toán hoàn tất
+### Tên chức năng
+Đặt hàng và thanh toán
+
+### Actor
+Khách hàng
+
+### Mô tả
+Chức năng cho phép khách hàng xác nhận đơn hàng và thực hiện thanh toán thông qua cổng thanh toán.
+
+### Điều kiện tiên quyết
+- Giỏ hàng không rỗng
+- Khách hàng đã nhập đầy đủ thông tin đơn hàng
+
+### Luồng chính
+1. Khách hàng xác nhận đặt hàng.
+2. Giao diện Web gửi thông tin đơn hàng đến Server/Backend.
+3. Server/Backend gửi yêu cầu thanh toán đến Cổng thanh toán.
+4. Cổng thanh toán xử lý và trả kết quả thanh toán cho Server/Backend.
+5. Server/Backend lưu thông tin đơn hàng vào Database.
+6. Database xác nhận lưu đơn hàng thành công.
+7. Server/Backend gửi thông báo thanh toán thành công về Giao diện Web.
+8. Giao diện Web hiển thị kết quả cho khách hàng.
+
+### Hậu điều kiện
+- Đơn hàng được lưu thành công
+- Thanh toán hoàn tất
+
 
 #### 5. Đăng ký, đăng nhập
 
