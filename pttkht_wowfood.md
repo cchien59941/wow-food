@@ -430,14 +430,118 @@ Hậu điều kiện
 ---
 
 #### A) Quản trị viên
+
 #### 8. Quản lý danh mục món ăn
 ![img](public/assets/images/SE_QlyDanhMucMonAn.png)
+**ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
+Use case: Quản lý danh mục món ăn (Xóa danh mục)
+🔹 Actor
+•	Quản trị viên
+🔹 Các đối tượng tham gia
+•	Giao diện (UI)
+•	Hệ thống
+•	Cơ sở dữ liệu (CSDL)
+🔹 Luồng chính
+1.	Quản trị viên chọn chức năng Xóa danh mục món ăn.
+2.	Giao diện gửi ID danh mục cần xóa đến Hệ thống.
+3.	Hệ thống kiểm tra trong CSDL xem danh mục có chứa món ăn hay không.
+4.	Nếu danh mục không chứa món ăn, Hệ thống thực hiện xóa danh mục trong CSDL.
+5.	CSDL xác nhận xóa thành công.
+6.	Hệ thống thông báo kết quả thành công cho quản trị viên.
+🔹 Luồng phụ
+•	Luồng phụ 1 – Danh mục có món ăn
+o	Tại bước 3, nếu danh mục còn tồn tại món ăn, Hệ thống không cho phép xóa và gửi thông báo lỗi.
+🔹 Thứ tự message
+1.	Admin → UI: Chọn xóa danh mục
+2.	UI → System: Gửi ID danh mục
+3.	System → DB: Kiểm tra ràng buộc
+4.	DB → System: Kết quả kiểm tra
+5.	System → DB: Xóa danh mục
+6.	System → UI: Thông báo kết quả
 #### 9. Quản lý tài khoản người dùng
 ![img](public/assets/images/SE_QlyTaiKhoanNguoiDung.png)
+**ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
+🔹 Actor
+•	Quản trị viên
+🔹 Các đối tượng tham gia
+•	Giao diện (UI): Tiếp nhận thao tác từ quản trị viên
+•	Hệ thống: Xử lý nghiệp vụ quản lý tài khoản
+•	Cơ sở dữ liệu (CSDL): Lưu trữ thông tin tài khoản người dùng
+🔹 Luồng chính
+1.	Quản trị viên chọn chức năng Quản lý tài khoản người dùng trên giao diện.
+2.	Giao diện gửi yêu cầu lấy danh sách tài khoản đến Hệ thống.
+3.	Hệ thống truy vấn CSDL để lấy thông tin tài khoản.
+4.	CSDL trả về danh sách tài khoản cho Hệ thống.
+5.	Hệ thống hiển thị danh sách tài khoản trên giao diện.
+6.	Quản trị viên chọn một tài khoản và thực hiện chỉnh sửa thông tin.
+7.	Giao diện gửi dữ liệu cập nhật đến Hệ thống.
+8.	Hệ thống kiểm tra tính hợp lệ của dữ liệu.
+9.	Hệ thống cập nhật thông tin tài khoản vào CSDL.
+10.	Hệ thống thông báo cập nhật thành công cho quản trị viên.
+🔹 Luồng phụ
+•	Luồng phụ 1 – Dữ liệu không hợp lệ
+o	Tại bước 8, nếu dữ liệu không hợp lệ, Hệ thống không cập nhật CSDL và gửi thông báo lỗi về giao diện.
+🔹 Thứ tự message
+1.	Admin → UI: Chọn quản lý tài khoản
+2.	UI → System: Yêu cầu danh sách tài khoản
+3.	System → DB: Truy vấn tài khoản
+4.	DB → System: Trả về danh sách
+5.	System → UI: Hiển thị danh sách
+6.	Admin → UI: Chỉnh sửa tài khoản
+7.	UI → System: Gửi dữ liệu cập nhật
+8.	System → DB: Cập nhật tài khoản
+9.	System → UI: Thông báo kết quả
 #### 10. Quản lý đơn hàng
 ![img](public/assets/images/SE_QlyDonHang.png)
+**ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
+🔹 Actor
+•	Quản trị viên
+🔹 Các đối tượng tham gia
+•	Giao diện (UI)
+•	Hệ thống
+•	Cơ sở dữ liệu (CSDL)
+🔹 Luồng chính
+1.	Quản trị viên chọn chức năng Cập nhật trạng thái đơn hàng.
+2.	Giao diện gửi trạng thái mới của đơn hàng đến Hệ thống.
+3.	Hệ thống kiểm tra trạng thái đơn hàng có hợp lệ hay không.
+4.	Hệ thống cập nhật trạng thái đơn hàng trong CSDL.
+5.	CSDL xác nhận cập nhật thành công.
+6.	Hệ thống thông báo kết quả cho quản trị viên.
+🔹 Luồng phụ
+•	Luồng phụ 1 – Trạng thái không hợp lệ
+o	Tại bước 3, nếu trạng thái không hợp lệ, Hệ thống không cập nhật CSDL và hiển thị thông báo lỗi.
+🔹 Thứ tự message
+1.	Admin → UI: Chọn cập nhật trạng thái
+2.	UI → System: Gửi trạng thái mới
+3.	System → DB: Cập nhật trạng thái
+4.	DB → System: Xác nhận
+5.	System → UI: Thông báo kết quả
 #### 11. Quản lý món ăn
 ![img](public/assets/images/SE_QlyMonAn.png)
+🔹 Actor
+•	Quản trị viên
+🔹 Các đối tượng tham gia
+•	Giao diện (UI)
+•	Hệ thống
+•	Cơ sở dữ liệu (CSDL)
+🔹 Luồng chính
+1.	Quản trị viên chọn chức năng Thêm món ăn.
+2.	Giao diện hiển thị form nhập thông tin món ăn.
+3.	Quản trị viên nhập thông tin và gửi yêu cầu thêm món ăn.
+4.	Hệ thống kiểm tra tính hợp lệ của dữ liệu món ăn.
+5.	Hệ thống lưu thông tin món ăn vào CSDL.
+6.	CSDL xác nhận lưu thành công.
+7.	Hệ thống thông báo kết quả cho quản trị viên.
+🔹 Luồng phụ
+•	Luồng phụ 1 – Dữ liệu không hợp lệ
+o	Tại bước 4, nếu dữ liệu không hợp lệ, Hệ thống không lưu CSDL và hiển thị thông báo lỗi.
+🔹 Thứ tự message
+1.	Admin → UI: Chọn thêm món ăn
+2.	UI → System: Gửi thông tin món ăn
+3.	System → System: Kiểm tra dữ liệu
+4.	System → DB: Lưu món ăn
+5.	DB → System: Xác nhận
+6.	System → UI: Thông báo kết quả
 #### 12. Quản lý thanh toán
 
 ![img](public/assets/images/SE_QuanLyThanhToan.png)
@@ -1846,147 +1950,97 @@ Các nhóm dữ liệu chính trong hệ thống bao gồm:
 Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận hành ổn định, dễ bảo trì và thuận tiện cho việc mở rộng trong tương lai.
 
 ### 6.1 Phân tích dữ liệu hệ thống
+tbl_category (Danh mục)
+├── id (PK)
+├── title (Tên danh mục)
+├── image_name
+├── featured (Nổi bật)
+└── active (Trạng thái)
 
-1. Các đối tượng dữ liệu chính
-   1.1. Admin
-   Vai trò: Quản trị hệ thống, xử lý đơn hàng, hỗ trợ người dùng qua chat.
-   Thuộc tính chính:
+tbl_food (Món ăn)
+├── id (PK)
+├── title (Tên món)
+├── description (Mô tả)
+├── price (Giá)
+├── image_name
+├── category_id (FK → tbl_category.id)
+├── featured
+└── active
 
-* id: Khóa chính
-* full_name: Họ tên quản trị viên
-* email: Email
-* username: Tên đăng nhập
-* password: Mật khẩu (đã/hoặc chưa mã hóa)
-  1.2. User
-  Vai trò: Khách hàng sử dụng hệ thống để đặt món và chat hỗ trợ.
-  Thuộc tính chính:
-* id: Khóa chính
-* full_name, username, password
-* email, phone, address
-* status: Trạng thái tài khoản
-* created_at: Thời điểm tạo
-  1.3. Category
-  Vai trò: Phân loại món ăn.
-  Thuộc tính chính:
-* id: Khóa chính
-* title: Tên danh mục (Pizza, Burger, …)
-* featured: Hiển thị nổi bật
-* active: Trạng thái hoạt động
-* image_name: Ảnh minh họa
-  1.4. Food
-  Vai trò: Lưu thông tin chi tiết món ăn.
-  Thuộc tính chính:
-* id: Khóa chính
-* title, description
-* price: Giá bán
-* image_name
-* category_id: Danh mục món ăn
-* featured, active
-  1.5. Order (tbl_order)
-  Vai trò: Lưu thông tin đơn đặt hàng của người dùng.
-  Thuộc tính chính:
-* id: Khóa chính
-* order_code: Mã đơn hàng (duy nhất)
-* user_id: Người đặt hàng
-* food: Tên món (lưu dạng text)
-* price, qty, total
-* order_date
-* status: Trạng thái đơn
-* Thông tin khách hàng: tên, SĐT, email, địa chỉ
-  1.6. Chat (tbl_chat)
-  Vai trò: Lưu lịch sử trao đổi giữa người dùng và admin.
-  Thuộc tính chính:
-* id: Khóa chính
-* user_id: Người dùng
-* admin_id: Admin trả lời
-* sender_type: user / admin
-* message: Nội dung tin nhắn
-* is_read: Trạng thái đã đọc
-* created_at: Thời gian gửi
+tbl_cart (Giỏ hàng tạm thời)
+├── id (PK)
+├── user_id (FK → tbl_user.id)
+├── food_id (FK → tbl_food.id)
+├── food_name
+├── price
+└── quantity
 
-2. Mối quan hệ giữa các đối tượng dữ liệu
-   2.1. User – Order
-   Quan hệ: 1 – N
-   Một user có thể đặt nhiều đơn hàng
-   Mỗi đơn hàng thuộc về một user
-   2.2. Category – Food
-   Quan hệ: 1 – N
-   Một danh mục có nhiều món ăn
-   Một món ăn chỉ thuộc một danh mục
-   2.3. User – Chat
-   Quan hệ: 1 – N
-   Một user có thể gửi nhiều tin nhắn
-   Mỗi tin nhắn gắn với một user
-   2.4. Admin – Chat
-   Quan hệ: 1 – N
-   Một admin có thể trả lời nhiều tin nhắn
-   Một tin nhắn admin gắn với một admin
+tbl_order (Đơn hàng)
+├── id (PK)
+├── order_code (Mã đơn hàng duy nhất)
+├── user_id (FK → tbl_user.id)
+├── food (Tên món ăn)
+├── price / qty / total
+├── order_date
+├── status (Ordered, On Delivery, Delivered, Cancelled)
+└── customer_info (Name, Contact, Email, Address)
 
-### 6.2 Biểu đồ ER (Entity – Relationship)
+tbl_payment (Thanh toán)
+├── id (PK)
+├── order_code (FK → tbl_order.order_code)
+├── user_id (FK → tbl_user.id)
+├── payment_method (vnpay, momo, cash)
+├── amount
+├── transaction_id
+└── payment_status
 
-Dựa trên cơ sở dữ liệu hiện tại, hệ thống bao gồm các thực thể chính sau:
+tbl_verification (Xác thực)
+├── id (PK)
+├── email / phone
+├── verification_code (OTP)
+├── verification_type (email/phone)
+└── expires_at
 
-1. **Quản trị viên (tbl_admin)**
-   * id (khóa chính)
-   * full_name
-   * email
-   * username
-   * password
-2. **Người dùng (tbl_user)**
-   * id (khóa chính)
-   * full_name
-   * username (duy nhất)
-   * password
-   * email (duy nhất)
-   * phone
-   * address
-   * status
-   * created_at
-3. **Danh mục (tbl_category)**
-   * id (khóa chính)
-   * title
-   * featured
-   * active
-   * image_name
-4. **Món ăn (tbl_food)**
-   * id (khóa chính)
-   * title
-   * description
-   * price
-   * image_name
-   * category_id (khóa ngoại)
-   * featured
-   * active
-5. **Đơn hàng (tbl_order)**
-   * id (khóa chính)
-   * order_code (duy nhất)
-   * user_id (khóa ngoại)
-   * food
-   * price
-   * qty
-   * total
-   * order_date
-   * status
-   * customer_name
-   * customer_contact
-   * customer_email
-   * customer_address
-6. **Trò chuyện (tbl_chat)**
-   * id (khóa chính)
-   * user_id (khóa ngoại)
-   * admin_id (khóa ngoại)
-   * sender_type
-   * message
-   * is_read
-   * created_at
+tbl_chat (Hỗ trợ trực tuyến)
+├── id (PK)
+├── user_id (FK → tbl_user.id)
+├── admin_id (FK → tbl_admin.id)
+├── message
+└── sender_type (user/admin)
 
-**Các mối quan hệ giữa các thực thể:**
+tbl_user (Khách hàng)
+├── id (PK)
+├── full_name (Họ và tên)
+├── username (Tên đăng nhập)
+├── password (Mật khẩu mã hóa)
+├── email
+├── phone (Số điện thoại)
+├── address (Địa chỉ giao hàng)
+├── status (Trạng thái tài khoản: Active,...)
+└── created_at
 
-* Một người dùng có thể phát sinh nhiều đơn hàng.
-* Người dùng và quản trị viên có thể trao đổi nhiều tin nhắn thông qua chức năng chat.
-* Mỗi danh mục có thể chứa nhiều món ăn khác nhau.
+tbl_refund (Hoàn tiền)
+├── id (PK)
+├── order_code (FK → tbl_order.order_code)
+├── payment_id (FK → tbl_payment.id)
+├── user_id (FK → tbl_user.id)
+├── refund_amount (Số tiền hoàn)
+├── refund_reason (Lý do hoàn tiền)
+├── refund_status (Trạng thái: pending, processing, completed, failed)
+├── refund_method (Phương thức: original, bank_transfer, cash)
+├── refund_transaction_id (Mã giao dịch hoàn tiền)
+├── processed_by (Admin xử lý - FK → tbl_admin.id)
+├── processed_at / created_at / updated_at
 
-### 6.3 Thiết kế dữ liệu (Lược đồ quan hệ)
+tbl_admin (Quản trị viên)
+├── id (PK)
+├── full_name
+├── username
+├── password
+├── email
+└── phone
+
+### 6.2 Thiết kế dữ liệu (Lược đồ quan hệ)
 
 Các bảng dữ liệu trong hệ thống được thiết kế như sau:
 * **TBL_ADMIN** (id PK, full_name, email, username, password)
@@ -2005,7 +2059,7 @@ Các bảng dữ liệu trong hệ thống được thiết kế như sau:
 
 Các ràng buộc khóa ngoại được thiết lập nhằm đảm bảo tính toàn vẹn dữ liệu, đồng thời hỗ trợ kiểm soát mối quan hệ giữa các bảng.
 
-### 6.4 Sơ đồ ERD
+### 6.3 Sơ đồ ERD
 ![img](public/assets/images/ERD_wowfood.png)
 Sơ đồ ERD thể hiện rõ cấu trúc tổng thể của cơ sở dữ liệu và mối liên hệ giữa các bảng. Người dùng liên kết với bảng đơn hàng và bảng trò chuyện; quản trị viên tham gia vào quá trình trao đổi hỗ trợ; danh mục đóng vai trò phân loại cho các món ăn.
 
