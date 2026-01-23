@@ -441,14 +441,80 @@ Hậu điều kiện
 #### 12. Quản lý thanh toán
 
 ![img](public/assets/images/SE_QuanLyThanhToan.png)
+**Mô tả:**  
+Cho phép Admin xem danh sách giao dịch, xác nhận trạng thái thanh toán và thực hiện hoàn tiền.
 
+**Tiền điều kiện:**  
+Admin đã đăng nhập hệ thống và có quyền quản lý thanh toán.
+
+**Hậu điều kiện:**  
+Trạng thái giao dịch được cập nhật (thành công/thất bại/hoàn tiền) hoặc hệ thống thông báo lỗi.
+
+| From | To | Message |
+|------|----|---------|
+| Admin | UI | Chọn chức năng quản lý thanh toán |
+| UI | System | Yêu cầu danh sách giao dịch |
+| System | DB | Lấy danh sách giao dịch |
+| DB | System | Trả danh sách giao dịch |
+| System | UI | Hiển thị danh sách giao dịch |
+| Admin | UI | Chọn một giao dịch |
+| UI | System | Yêu cầu chi tiết giao dịch |
+| System | DB | Lấy chi tiết giao dịch |
+| DB | System | Trả chi tiết giao dịch |
+| Admin | UI | Xác nhận thanh toán / thất bại / hoàn tiền |
+| UI | System | Gửi yêu cầu cập nhật trạng thái |
+| System | DB | Cập nhật trạng thái giao dịch |
+| DB | System | Trả kết quả cập nhật |
+| System | UI | Trả thông báo |
+| UI | Admin | Hiển thị kết quả |
 #### 13. Thống kê & báo cáo
 
 ![img](public/assets/images/SE_ThongKeBaoCao.png)
+**Mô tả:**  
+Cho phép Admin xem thống kê doanh thu, đơn hàng, món bán chạy và xuất báo cáo.
+
+**Tiền điều kiện:**  
+Admin đã đăng nhập và hệ thống có dữ liệu giao dịch.
+
+**Hậu điều kiện:**  
+Báo cáo được hiển thị hoặc xuất file theo yêu cầu.
+
+| From | To | Message |
+|------|----|---------|
+| Admin | UI | Chọn chức năng thống kê & báo cáo |
+| UI | Admin | Hiển thị các loại báo cáo |
+| Admin | UI | Chọn loại báo cáo |
+| UI | System | Gửi yêu cầu thống kê |
+| System | System | Kiểm tra tiêu chí |
+| System | DB | Tổng hợp dữ liệu thống kê |
+| DB | System | Trả dữ liệu |
+| System | UI | Trả kết quả thống kê |
+| UI | Admin | Hiển thị báo cáo |
+| Admin | UI | Xuất báo cáo hoặc kết thúc |
 #### 14. Quản lý nội dung website
 
 ![img](public/assets/images/SE_QuanLyNoiDung.png)
+**Mô tả:**  
+Cho phép Admin cập nhật thông tin website và quản lý banner.
 
+**Tiền điều kiện:**  
+Admin đã đăng nhập và có quyền quản lý nội dung.
+
+**Hậu điều kiện:**  
+Nội dung hoặc banner được cập nhật thành công hoặc hiển thị thông báo lỗi.
+
+| From | To | Message |
+|------|----|---------|
+| Admin | UI | Chọn chức năng quản lý nội dung |
+| UI | Admin | Hiển thị giao diện quản lý nội dung |
+| Admin | UI | Chỉnh sửa thông tin / banner |
+| UI | System | Gửi yêu cầu cập nhật |
+| System | System | Kiểm tra dữ liệu |
+| System | DB | Lưu dữ liệu nội dung |
+| DB | System | Trả kết quả |
+| System | UI | Trả thông báo |
+| UI | Admin | Hiển thị kết quả |
+| Admin | UI | Kết thúc |
 ---
 
 ## 5. Thiết Kế Phần Mềm
@@ -1923,18 +1989,24 @@ Dựa trên cơ sở dữ liệu hiện tại, hệ thống bao gồm các thự
 ### 6.3 Thiết kế dữ liệu (Lược đồ quan hệ)
 
 Các bảng dữ liệu trong hệ thống được thiết kế như sau:
-
 * **TBL_ADMIN** (id PK, full_name, email, username, password)
-* **TBL_USER** (id PK, full_name, username UQ, password, email UQ, phone, address, status, created_at)
-* **TBL_CATEGORY** (id PK, title, featured, active, image_name)
-* **TBL_FOOD** (id PK, title, description, price, image_name, category_id FK, featured, active)
-* **TBL_ORDER** (id PK, order_code UQ, user_id FK, food, price, qty, total, order_date, status, customer_name, customer_contact, customer_email, customer_address)
-* **TBL_CHAT** (id PK, user_id FK, admin_id FK, sender_type, message, is_read, created_at)
+* **tbl_category** (id PK, title, image_name, featured, active)
+* **tbl_food** (id PK, title, description, price, image_name, category_id FK, featured, active)
+* **tbl_user / tbl_admin** (id PK, full_name, username, password, email, phone)
+* **tbl_cart** (id PK, user_id FK, food_id FK, food_name, price, quantity)
+* **tbl_order** (id PK, order_code, user_id FK, food, price, qty, total, order_date, status, customer_info)
+* **tbl_payment** (id PK, order_code FK, user_id FK, payment_method, amount, transaction_id, payment_status)
+* **tbl_verification** (id PK, email / phone, verification_code, verification_type, expires_at)
+* **tbl_chat** (id PK, user_id FK, admin_id FK, message, sender_type)
+* **tbl_user** (id PK, full_name, username, password, email, phone, address, status, created_at)
+* **tbl_refund** (id PK, order_code FK, payment_id FK, user_id FK, refund_amount, refund_reason, refund_status, refund_method, refund_transaction_id, processed_by FK, processed_at / created_at / updated_at)
+* **tbl_admin** (id PK, full_name, username, password, email, phone)
+
 
 Các ràng buộc khóa ngoại được thiết lập nhằm đảm bảo tính toàn vẹn dữ liệu, đồng thời hỗ trợ kiểm soát mối quan hệ giữa các bảng.
 
 ### 6.4 Sơ đồ ERD
-
+![img](public/assets/images/ERD_wowfood.png)
 Sơ đồ ERD thể hiện rõ cấu trúc tổng thể của cơ sở dữ liệu và mối liên hệ giữa các bảng. Người dùng liên kết với bảng đơn hàng và bảng trò chuyện; quản trị viên tham gia vào quá trình trao đổi hỗ trợ; danh mục đóng vai trò phân loại cho các món ăn.
 
 Mặc dù thiết kế hiện tại đáp ứng tốt nhu cầu của hệ thống, tuy nhiên bảng đơn hàng vẫn lưu trực tiếp tên món ăn thay vì liên kết khóa ngoại tới bảng món ăn. Điều này có thể gây khó khăn trong việc mở rộng và chuẩn hóa dữ liệu khi hệ thống phát triển lớn hơn.
