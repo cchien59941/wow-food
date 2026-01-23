@@ -52,37 +52,33 @@ Theo dõi hoạt động hệ thống và hỗ trợ khách hàng.
 
 ### 3.1 Mô tả màn hình
 
-| STT   | Màn hình                  | Mô tả                                                                                                                                          |
-| ----- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1     | Trang chủ                  | Người dùng xem các món ăn hiển thị trên màn hình, tìm kiếm món ăn, nhập email liên hệ và điều hướng sang các trang khác |
-| 2     | Danh sách món ăn         | Hiển thị các món ăn theo danh mục; bộ lọc theo loại món, giá, mức độ phổ biến                                                    |
-| 3     | Chi tiết món ăn          | Hiển thị tên món, mã món, giá, hình ảnh, mô tả, thành phần, số lượng còn lại                                                   |
-| 4     | Giỏ hàng                  | Danh sách món ăn đã chọn, số lượng, tổng tiền, thông tin khách hàng, phương thức thanh toán                                    |
-| 5     | Theo dõi đơn             | Hiển thị tình trạng đơn hàng đang được xử lý (đang chuẩn bị, đang giao, hoàn thành)                                           |
-| 6     | Liên hệ                   | Thông tin admin/cửa hàng: số điện thoại, email, địa chỉ                                                                                |
-| 7     | Đăng nhập                | Nhân viên và admin đăng nhập vào hệ thống                                                                                               |
-| 8     | Đăng ký                  | Nhân viên đăng ký tài khoản                                                                                                               |
-| 9     | Quên mật khẩu            | Nhập email để nhận mã xác thực                                                                                                            |
-| 10    | OTP                         | Nhập mã OTP để xác thực                                                                                                                    |
-| 11    | Đổi mật khẩu            | Nhập thông tin cần thiết để đổi mật khẩu                                                                                               |
-| 12    | Quản lý danh mục         | Xem trạng thái, người tạo, tìm kiếm; thao tác thêm, sửa, xóa danh mục món ăn                                                       |
-| 13    | Tổng quan                  | Thống kê người dùng, doanh thu, số đơn hàng, biểu đồ doanh thu, đơn hàng mới                                                     |
-| 14    | Tạo danh mục              | Tạo danh mục món ăn mới: tên, danh mục cha, vị trí, trạng thái, ảnh, mô tả                                                         |
-| 15    | Chỉnh sửa danh mục       | Cập nhật thông tin danh mục món ăn                                                                                                         |
-| 16    | Thông tin liên hệ        | Danh sách email khách hàng và ngày tạo                                                                                                     |
-| 17    | Quản lý đơn hàng       | Tìm kiếm, xem thông tin đơn hàng: mã đơn, khách hàng, món ăn, thanh toán, trạng thái                                             |
-| 18    | Chỉnh sửa đơn hàng     | Sửa tên khách, số điện thoại, ghi chú, phương thức thanh toán, trạng thái đơn                                                    |
-| 19    | Quản lý món ăn          | Tìm kiếm, tạo mới, sửa, xóa món ăn; xem người tạo/cập nhật, giá, trạng thái                                                      |
-| 20    | Tạo mới món ăn          | Nhập thông tin món ăn: tên, danh mục, giá, số lượng, hình ảnh, mô tả                                                               |
-| phục |                             |                                                                                                                                                  |
-| 22    | Cài đặt chung            | Quản lý thông tin website, tài khoản và nhóm quyền                                                                                       |
-| 23    | Thông tin website          | Chỉnh sửa tên website, số điện thoại, email, địa chỉ, logo, favicon                                                                    |
-| 24    | Quản trị tài khoản      | Danh sách nhân viên: số điện thoại, nhóm quyền, chức vụ                                                                               |
-| 25    | Tạo tài khoản quản trị | Nhập họ tên, email, số điện thoại, nhóm quyền, chức vụ, trạng thái, mật khẩu                                                      |
-| 26    | Nhóm quyền                | Danh sách nhóm quyền và mô tả                                                                                                              |
-| 27    | Tạo nhóm quyền           | Thêm nhóm quyền mới                                                                                                                          |
-| 28    | Chỉnh sửa nhóm quyền    | Chỉnh sửa tên nhóm quyền, mô tả và phân quyền                                                                                          |
-| 29    | Thông tin cá nhân        | Quản lý thông tin cá nhân nhân viên                                                                                                       |
+| STT | Màn hình                  | Mô tả                                                                                                                                          |
+| --- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Trang chủ                  | Người dùng xem các món ăn hiển thị trên màn hình, tìm kiếm món ăn, nhập email liên hệ và điều hướng sang các trang khác |
+| 2   | Danh sách món ăn         | Hiển thị các món ăn theo danh mục; bộ lọc theo loại món, giá, mức độ phổ biến                                                    |
+| 3   | Chi tiết món ăn          | Hiển thị tên món, mã món, giá, hình ảnh, mô tả, thành phần, số lượng còn lại                                                   |
+| 4   | Giỏ hàng                  | Danh sách món ăn đã chọn, số lượng, tổng tiền, thông tin khách hàng, phương thức thanh toán                                    |
+| 5   | Theo dõi đơn             | Hiển thị tình trạng đơn hàng đang được xử lý (đang chuẩn bị, đang giao, hoàn thành)                                           |
+| 6   | Liên hệ                   | Thông tin admin/cửa hàng: số điện thoại, email, địa chỉ                                                                                |
+| 7   | Đăng nhập                | Nhân viên và admin đăng nhập vào hệ thống                                                                                               |
+| 8   | Đăng ký                  | Nhân viên đăng ký tài khoản                                                                                                               |
+| 9   | Quên mật khẩu            | Nhập email để nhận mã xác thực                                                                                                            |
+| 10  | OTP                         | Nhập mã OTP để xác thực                                                                                                                    |
+| 11  | Đổi mật khẩu            | Nhập thông tin cần thiết để đổi mật khẩu                                                                                               |
+| 12  | Quản lý danh mục         | Xem trạng thái, người tạo, tìm kiếm; thao tác thêm, sửa, xóa danh mục món ăn                                                       |
+| 13  | Tổng quan                  | Thống kê người dùng, doanh thu, số đơn hàng, biểu đồ doanh thu, đơn hàng mới                                                     |
+| 14  | Tạo danh mục              | Tạo danh mục món ăn mới: tên, danh mục cha, vị trí, trạng thái, ảnh, mô tả                                                         |
+| 15  | Chỉnh sửa danh mục       | Cập nhật thông tin danh mục món ăn                                                                                                         |
+| 16  | Thông tin liên hệ        | Danh sách email khách hàng và ngày tạo                                                                                                     |
+| 17  | Quản lý đơn hàng       | Tìm kiếm, xem thông tin đơn hàng: mã đơn, khách hàng, món ăn, thanh toán, trạng thái                                             |
+| 18  | Chỉnh sửa đơn hàng     | Sửa tên khách, số điện thoại, ghi chú, phương thức thanh toán, trạng thái đơn                                                    |
+| 19  | Quản lý món ăn          | Tìm kiếm, tạo mới, sửa, xóa món ăn; xem người tạo/cập nhật, giá, trạng thái                                                      |
+| 20  | Tạo mới món ăn          | Nhập thông tin món ăn: tên, danh mục, giá, số lượng, hình ảnh, mô tả                                                               |
+| 21  | Cài đặt chung            | Quản lý thông tin website, tài khoản và nhóm quyền                                                                                       |
+| 22  | Thông tin website          | Chỉnh sửa tên website, số điện thoại, email, địa chỉ, logo, favicon                                                                    |
+| 23  | Quản trị tài khoản      | Danh sách nhân viên: số điện thoại, nhóm quyền, chức vụ                                                                               |
+| 24  | Tạo tài khoản quản trị | Nhập họ tên, email, số điện thoại, nhóm quyền, chức vụ, trạng thái, mật khẩu                                                      |                                                                                       |
+| 25  | Thông tin cá nhân        | Quản lý thông tin cá nhân nhân viên                                                                                                       |
 
 ---
 
@@ -127,7 +123,6 @@ Các quyền cơ bản bao gồm: **Xem, Thêm, Sửa, Xóa, Tìm kiếm và cá
 | Thông tin website          |  x  |      |  x  |      |            |       |
 | Quản trị tài khoản      |  x  |      |      |      |            |       |
 | Tạo tài khoản quản trị |    |   x   |      |      |            |       |
-| Nhóm quyền                |  x  |   x   |  x  |  x  |     x     |       |
 | Thông tin cá nhân        |  x  |      |  x  |      |            |       |
 | Đổi mật khẩu cá nhân  |  x  |      |  x  |      |            |       |
 
@@ -148,69 +143,28 @@ Hệ thống phân quyền giúp đảm bảo dữ liệu được quản lý ch
 
 ### 4.1 Chức năng phía khách hàng
 
-Khách hàng là người trực tiếp sử dụng website để xem và đặt món ăn. Hệ thống cung cấp các chức năng sau:
-
-### 4.1.1 Xem danh sách món ăn
-
-Hiển thị các món ăn kèm hình ảnh, tên món, giá bán, mô tả và trạng thái còn/hết món.
-
-### 4.1.2 Tìm kiếm và lọc món ăn
-
-Cho phép người dùng tìm kiếm món ăn theo tên, loại món (đồ ăn nhanh, đồ uống, combo, …), khoảng giá.
-
-### 4.1.3 Quản lý giỏ hàng
-
-Thêm, sửa số lượng, xóa món ăn trong giỏ hàng và xem tổng tiền tạm tính.
-
-### 4.1.4 Đặt hàng và thanh toán
-
-Cho phép khách hàng nhập thông tin giao hàng, lựa chọn phương thức thanh toán (tiền mặt, chuyển khoản, ví điện tử, …) và xác nhận đơn hàng.
-
-### 4.1.5 Đăng ký, đăng nhập tài khoản
-
-Khách hàng có thể tạo tài khoản để lưu thông tin cá nhân và lịch sử mua hàng.
-
-### 4.1.6 Quản lý thông tin cá nhân
-
-Cập nhật thông tin cá nhân như tên, số điện thoại, địa chỉ giao hàng.
-
-### 4.1.7 Xem lịch sử đơn hàng
-
-Cho phép khách hàng theo dõi trạng thái và xem lại các đơn hàng đã đặt.
-
----
+| STT | Chức năng                          | Mô tả                                                                                                                                   |
+| --- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Xem danh sách món ăn              | Hiển thị các món ăn kèm hình ảnh, tên món, giá bán, mô tả và trạng thái còn/hết món                                   |
+| 2   | Tìm kiếm và lọc món ăn         | Tìm kiếm theo tên món, loại món (đồ ăn nhanh, đồ uống, combo, …), khoảng giá                                               |
+| 3   | Quản lý giỏ hàng                 | Thêm, sửa số lượng, xóa món ăn trong giỏ hàng và xem tổng tiền tạm tính                                                    |
+| 4   | Đặt hàng và thanh toán          | Nhập thông tin giao hàng, chọn phương thức thanh toán (tiền mặt, chuyển khoản, ví điện tử, …) và xác nhận đơn hàng |
+| 5   | Đăng ký, đăng nhập tài khoản | Khách hàng tạo tài khoản để lưu thông tin cá nhân và lịch sử mua hàng                                                      |
+| 6   | Quản lý thông tin cá nhân       | Cập nhật tên, số điện thoại, địa chỉ giao hàng                                                                                 |
+| 7   | Xem lịch sử đơn hàng            | Theo dõi trạng thái và xem lại các đơn hàng đã đặt                                                                           |
 
 ### 4.2 Chức năng phía quản trị viên
 
-Quản trị viên là người quản lý toàn bộ hoạt động của hệ thống. Các chức năng chính bao gồm:
-
-### 4.2.1 Quản lý tài khoản người dùng
-
-Xem, thêm, sửa, khóa hoặc xóa tài khoản khách hàng.
-
-### 4.2.2 Quản lý danh mục món ăn
-
-Thêm, chỉnh sửa, xóa các danh mục món ăn (đồ ăn, đồ uống, combo, …).
-
-### 4.2.3 Quản lý món ăn
-
-Thêm mới, cập nhật thông tin, giá bán, hình ảnh và trạng thái của món ăn.
-
-### 4.2.3 Quản lý đơn hàng
-
-Xem danh sách đơn hàng, cập nhật trạng thái đơn hàng (chờ xác nhận, đang giao, đã giao, hủy).
-
-### 4.2.4 Quản lý thanh toán
-
-Theo dõi tình trạng thanh toán của các đơn hàng.
-
-### 4.2.5 Thống kê và báo cáo
-
-Thống kê doanh thu theo ngày, tháng, năm; số lượng đơn hàng; các món ăn bán chạy.
-
-### 4.2.6 Quản lý nội dung website
-
-Cập nhật banner, thông tin giới thiệu, chính sách bán hàn
+| STT | Chức năng                         | Mô tả                                                                                            |
+| --- | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 1   | Quản lý tài khoản người dùng | Xem, thêm, sửa, khóa hoặc xóa tài khoản khách hàng                                        |
+| 2   | Quản lý danh mục món ăn        | Thêm, chỉnh sửa, xóa các danh mục món ăn (đồ ăn, đồ uống, combo, …)                 |
+| 3   | Quản lý món ăn                  | Thêm mới, cập nhật thông tin, giá bán, hình ảnh và trạng thái món ăn                 |
+| 4   | Quản lý đơn hàng               | Xem danh sách đơn hàng, cập nhật trạng thái (chờ xác nhận, đang giao, đã giao, hủy) |
+| 5   | Quản lý thanh toán               | Theo dõi tình trạng thanh toán của các đơn hàng                                           |
+| 6   | Thống kê và báo cáo            | Thống kê doanh thu theo ngày/tháng/năm, số lượng đơn hàng, món ăn bán chạy          |
+| 7   | Quản lý nội dung website         | Cập nhật banner, thông tin giới thiệu, chính sách bán hàng                                |
+| 8   | Phân quyền quản trị             | Phân quyền cho các tài khoản quản trị (admin, nhân viên)                                  |
 
 ### 4.3 Biểu đồ mô tả hệ thống
 
@@ -647,35 +601,7 @@ Nội dung hoặc banner được cập nhật thành công hoặc hiển thị 
 - Kiểm tra email đã tồn tại trong hệ thống
 
 **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant S as Hệ thống (Server)
-    participant DB as Database/Session
-    participant M as Mail Server
-
-    U->>S: Nhập thông tin & Gửi
-    S->>S: Validate dữ liệu
-    S->>DB: Kiểm tra Email tồn tại?
-    DB-->>S: Kết quả (Chưa tồn tại)
-  
-    S->>S: Tạo mã OTP
-    S->>M: Gửi Email chứa OTP
-    S->>DB: Lưu thông tin tạm & OTP vào Session
-    S-->>U: Chuyển hướng đến trang xác minh
-  
-    U->>S: Nhập mã OTP
-    S->>DB: Lấy OTP từ Session để so khớp
-  
-    alt OTP đúng
-        S->>DB: Tạo tài khoản (Insert Database)
-        S->>S: Khởi tạo Session đăng nhập
-        S-->>U: Đăng nhập tự động thành công
-    else OTP sai
-        S-->>U: Thông báo mã lỗi, yêu cầu nhập lại
-    end
-```
+![img](public/assets/images/image.png)
 
 #### 2. Đăng nhập
 
@@ -711,35 +637,7 @@ sequenceDiagram
 - Hash mật khẩu mới trước khi cập nhật
 
 **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant FE as Frontend
-    participant BE as Backend
-    participant DB as Database
-
-    U->>FE: Nhập Email
-    FE->>BE: Yêu cầu gửi OTP
-    BE-->>U: Gửi mã OTP về Email
-  
-    U->>FE: Nhập mã OTP
-    FE->>BE: Gửi mã xác minh
-    BE->>BE: Kiểm tra mã khớp?
-  
-    alt Mã OTP hợp lệ
-        BE-->>FE: Chuyển hướng trang Đặt mật khẩu
-        U->>FE: Nhập mật khẩu mới
-        FE->>BE: Gửi mật khẩu mới
-        BE->>DB: Cập nhật Hash mật khẩu
-        DB-->>BE: Xác nhận cập nhật
-        BE-->>FE: Phản hồi thành công
-        FE-->>U: Hiển thị "Thông báo thành công"
-    else Mã OTP không hợp lệ
-        BE-->>FE: Thông báo lỗi
-        FE-->>U: Yêu cầu nhập lại mã
-    end
-```
+![img](public/assets/images/image2.png)
 
 #### 4. Đăng xuất
 
@@ -779,7 +677,7 @@ sequenceDiagram
 - Nút thêm vào giỏ hàng (yêu cầu đăng nhập)
 - Responsive design cho mobile
 
-#### 3. Xem món ăn theo danh mục
+#### 3. theo danh mục
 
 **Mô tả:** Lọc và hiển thị món ăn theo từng danh mục.
 
@@ -800,19 +698,8 @@ sequenceDiagram
 - Hiển thị kết quả tìm kiếm với đầy đủ thông tin món ăn
 - Hiển thị thông báo nếu không tìm thấy kết quả
 
-**Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant F as Form Giao diện
-    participant DB as Cơ sở dữ liệu
-
-    U->>F: Nhập từ khóa bấm Submit
-    F->>DB: Gửi truy vấn (Query)
-    DB-->>F: Trả về dữ liệu
-    F-->>U: Hiển thị kết quả tìm kiếm
-```
+  **Luồng xử lý:**
+  ![img](public/assets/images/image3.png)
 
 ---
 
@@ -838,6 +725,7 @@ sequenceDiagram
 **Chức năng:**
 
 - Hiển thị danh sách món ăn trong giỏ hàng:
+
   - Hình ảnh món ăn
   - Tên món ăn
   - Giá đơn vị
@@ -851,28 +739,8 @@ sequenceDiagram
 - Nút "Thanh toán" để chuyển đến trang checkout
 - Hiển thị thông báo nếu giỏ hàng trống
 
-**Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant B as Trình duyệt (Frontend)
-    participant S as Server (get-cart.php)
-    participant DB as Database
-
-    U->>B: Truy cập trang Giỏ hàng
-    B->>S: Gửi request lấy dữ liệu giỏ hàng
-    S->>DB: Truy vấn danh sách sản phẩm
-    DB-->>S: Trả về dữ liệu sản phẩm
-    S-->>B: Trả về JSON (List items)
-  
-    Note over B: Xử lý hiển thị danh sách
-    B->>B: Render danh sách món
-    B->>B: Tính toán Tổng tiền (Subtotal)
-  
-    B-->>U: Hiển thị giao diện & Nút thanh toán
-
-```
+  **Luồng xử lý:**
+  ![img](public/assets/images/image4.png)
 
 ---
 
@@ -906,35 +774,7 @@ sequenceDiagram
   - Nếu thanh toán tiền mặt → chuyển đến trang lịch sử đơn hàng
 
 **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant FE as Frontend (Giao diện)
-    participant BE as Backend (Server)
-    participant DB as Database
-
-    U->>FE: Click "Thanh toán"
-    FE->>U: Hiển thị Form thông tin & PTTT
-    U->>FE: Điền thông tin & Click "Xác nhận"
-  
-    FE->>BE: Gửi yêu cầu đặt hàng (Order Request)
-  
-    activate BE
-    BE->>BE: Tạo mã đơn hàng (Order ID)
-    BE->>DB: Lưu thông tin đơn hàng & Chi tiết món
-    BE->>DB: Xóa dữ liệu giỏ hàng (Clear Cart)
-    deactivate BE
-  
-    alt Thanh toán Online
-        BE-->>FE: Trả về URL thanh toán
-        FE-->>U: Chuyển hướng đến Cổng thanh toán
-    else Thanh toán khi nhận hàng (COD)
-        BE-->>FE: Trả về trạng thái Thành công
-        FE-->>U: Chuyển đến trang "Cảm ơn/Hoàn tất"
-    end
-
-```
+![img](public/assets/images/image5.png)
 
 #### 2. Lịch sử đặt hàng
 
@@ -985,34 +825,7 @@ sequenceDiagram
 - Badge thông báo số tin nhắn chưa đọc (trong menu)
 
 **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as User (Frontend)
-    participant S as Server/DB
-    participant A as Admin (Dashboard)
-
-    U->>S: Load trang & Lấy tin nhắn cũ
-    S-->>U: Trả về danh sách tin nhắn
-  
-    Note over U: Bắt đầu vòng lặp Polling (mỗi 3-5s)
-  
-    U->>S: [POST] Gửi tin nhắn mới
-    S->>S: Lưu vào Database
-    S-->>U: Xác nhận thành công
-    Note right of U: Hiển thị tin nhắn vừa gửi lên giao diện
-  
-    A->>S: [POST] Admin trả lời tin nhắn
-    S->>S: Lưu tin nhắn của Admin
-  
-    loop Định kỳ (Polling)
-        U->>S: [GET] Kiểm tra tin nhắn mới?
-        S-->>U: Trả về tin nhắn mới của Admin
-    end
-  
-    U->>U: Render tin nhắn của Admin lên màn hình
-
-```
+![img](public/assets/images/image6.png)
 
 ### 5.1.6 Trang Thanh Toán
 
@@ -1043,41 +856,7 @@ sequenceDiagram
    - Redirect đến lịch sử đơn hàng sau khi thành công
 
 **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant B as Browser
-    participant S as Server (PHP)
-    participant DB as Database
-
-    U->>B: Truy cập payment.php
-    B->>S: Gửi order_code
-    S->>S: Kiểm tra Session User
-    S->>DB: Query Order + Payment info
-    DB-->>S: Trả về dữ liệu
-  
-    alt Kiểm tra thất bại
-        S-->>B: Hiển thị lỗi (Đơn không tồn tại/Đã thanh toán)
-    else Kiểm tra hợp lệ
-        S-->>B: Trả về Form thanh toán & Timer
-    end
-  
-    U->>B: Chọn phương thức & Xác nhận
-    B->>S: POST payment_method
-  
-    Note over S,DB: Bắt đầu giao dịch (Transaction)
-    S->>DB: Lưu Payment Record (Status: pending)
-    S->>S: Xử lý mô phỏng Gateway
-    S->>DB: Update Payment: success
-    S->>DB: Update Order: paid / status: Ordered
-    Note over S,DB: Kết thúc giao dịch
-  
-    S-->>B: Redirect order-history.php
-    B-->>U: Hiển thị thông báo thành công
-
-```
-
+![img](public/assets/images/image7.png)
 **Tính năng bảo mật:**
 
 - Session validation - chỉ user sở hữu đơn hàng mới thanh toán được
@@ -1120,9 +899,9 @@ sequenceDiagram
 
 #### 1.1 Đăng nhập Admin
 
-  **Mô tả:** Admin đăng nhập vào hệ thống quản trị.
+**Mô tả:** Admin đăng nhập vào hệ thống quản trị.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Form đăng nhập với Username và Password
 - Xác thực thông tin đăng nhập
@@ -1132,9 +911,9 @@ sequenceDiagram
 
 #### 1.2 Quản lý Admin
 
-  **Mô tả:** Quản lý danh sách quản trị viên trong hệ thống.
+**Mô tả:** Quản lý danh sách quản trị viên trong hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Xem danh sách tất cả admin:
   - STT
@@ -1156,9 +935,9 @@ sequenceDiagram
 
 #### 2.1 Dashboard tổng quan
 
-  **Mô tả:** Hiển thị thông tin tổng quan về hệ thống.
+**Mô tả:** Hiển thị thông tin tổng quan về hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Thống kê số liệu:
 
@@ -1173,20 +952,7 @@ sequenceDiagram
 - Hiển thị thông báo khi đăng nhập thành công
 
   **Sơ đồ Dashboard:**
-
-```mermaid
-  graph TD
-      A[Dashboard] --> B[Thống kê số liệu]
-      A --> C[Biểu đồ thống kê]
-  
-      B --> B1[Tổng số danh mục]
-      B --> B2[Tổng số món ăn]
-      B --> B3[Tổng số đơn hàng]
-      B --> B4[Tổng doanh thu]
-  
-      C --> C1[Biểu đồ cột: So sánh số liệu]
-      C --> C2[Biểu đồ đường: Doanh thu theo thời gian]
-```
+  ![img](public/assets/images/image8.png)
 
 ---
 
@@ -1194,9 +960,9 @@ sequenceDiagram
 
 #### 3.1 Xem danh sách danh mục
 
-  **Mô tả:** Hiển thị danh sách tất cả danh mục món ăn.
+**Mô tả:** Hiển thị danh sách tất cả danh mục món ăn.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Hiển thị bảng danh sách danh mục:
   - STT
@@ -1208,9 +974,9 @@ sequenceDiagram
 
 #### 3.2 Thêm danh mục
 
-  **Mô tả:** Tạo danh mục món ăn mới.
+**Mô tả:** Tạo danh mục món ăn mới.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Form nhập thông tin:
 
@@ -1230,42 +996,13 @@ sequenceDiagram
 - Hiển thị thông báo thành công/thất bại
 
   **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant FE as Frontend (Browser)
-    participant BE as Backend (Server)
-    participant ST as Storage (Thư mục/Cloud)
-    participant DB as Database
-
-    U->>FE: Nhập liệu & Chọn file ảnh
-    FE->>BE: Gửi Form Data (Thông tin + File)
-  
-    BE->>BE: Validate (Định dạng ảnh, dung lượng...)
-  
-    alt Hợp lệ
-        BE->>ST: Lưu file ảnh vào thư mục
-        ST-->>BE: Trả về đường dẫn ảnh (Image Path)
-  
-        BE->>DB: Lưu thông tin + Path ảnh vào DB
-        DB-->>BE: Xác nhận lưu thành công
-  
-        BE-->>FE: Phản hồi Thành công
-        FE-->>U: Hiển thị thông báo thành công
-        FE->>FE: Chuyển hướng về Trang quản lý
-    else Không hợp lệ
-        BE-->>FE: Trả về lỗi Validation
-        FE-->>U: Hiển thị thông báo lỗi
-    end
-  
-```
+  ![img](public/assets/images/image9.png)
 
 #### 3.3 Cập nhật danh mục
 
-  **Mô tả:** Sửa thông tin danh mục món ăn.
+**Mô tả:** Sửa thông tin danh mục món ăn.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Form sửa thông tin (tương tự form thêm)
 - Hiển thị thông tin hiện tại của danh mục
@@ -1279,9 +1016,9 @@ sequenceDiagram
 
 #### 3.4 Xóa danh mục
 
-  **Mô tả:** Xóa danh mục món ăn khỏi hệ thống.
+**Mô tả:** Xóa danh mục món ăn khỏi hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Xác nhận trước khi xóa
 - Xóa hình ảnh danh mục khỏi server
@@ -1295,9 +1032,9 @@ sequenceDiagram
 
 #### 4.1 Xem danh sách món ăn
 
-  **Mô tả:** Hiển thị danh sách tất cả món ăn trong hệ thống.
+**Mô tả:** Hiển thị danh sách tất cả món ăn trong hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Hiển thị bảng danh sách món ăn:
   - STT
@@ -1311,9 +1048,9 @@ sequenceDiagram
 
 #### 4.2 Thêm món ăn
 
-  **Mô tả:** Tạo món ăn mới trong hệ thống.
+**Mô tả:** Tạo món ăn mới trong hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Form nhập thông tin:
 
@@ -1338,42 +1075,13 @@ sequenceDiagram
 - Hiển thị thông báo thành công/thất bại
 
   **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant U as Người dùng
-    participant FE as Frontend
-    participant BE as Backend
-    participant ST as Storage (Thư mục ảnh)
-    participant DB as Database
-
-    U->>FE: Điền form & Chọn ảnh
-    FE->>BE: Gửi Request (FormData)
-  
-    Note over BE: Kiểm tra tính hợp lệ (Validate)
-  
-    alt Dữ liệu hợp lệ
-        BE->>ST: Lưu file ảnh vào server
-        ST-->>BE: Trả về tên file/đường dẫn
-  
-        BE->>DB: INSERT dữ liệu (kèm ID danh mục & Path ảnh)
-        DB-->>BE: Xác nhận thành công
-  
-        BE-->>FE: Trả về mã thành công (200 OK)
-        FE-->>U: Hiển thị Popup thông báo
-        FE->>FE: Chuyển hướng đến /quan-ly
-    else Dữ liệu không hợp lệ
-        BE-->>FE: Trả về thông báo lỗi
-        FE-->>U: Hiển thị lỗi cho người dùng
-    end
-  
-```
+  ![img](public/assets/images/image10.png)
 
 #### 4.3 Cập nhật món ăn
 
-  **Mô tả:** Sửa thông tin món ăn.
+**Mô tả:** Sửa thông tin món ăn.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Form sửa thông tin (tương tự form thêm)
 - Hiển thị thông tin hiện tại của món ăn
@@ -1390,9 +1098,9 @@ sequenceDiagram
 
 #### 4.4 Xóa món ăn
 
-  **Mô tả:** Xóa món ăn khỏi hệ thống.
+**Mô tả:** Xóa món ăn khỏi hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Xác nhận trước khi xóa
 - Xóa hình ảnh món ăn khỏi server
@@ -1406,9 +1114,9 @@ sequenceDiagram
 
 #### 5.1 Xem danh sách đơn hàng
 
-  **Mô tả:** Hiển thị tất cả đơn hàng trong hệ thống.
+**Mô tả:** Hiển thị tất cả đơn hàng trong hệ thống.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Hiển thị bảng danh sách đơn hàng:
   - STT
@@ -1433,9 +1141,9 @@ sequenceDiagram
 
 #### 5.2 Cập nhật trạng thái đơn hàng
 
-  **Mô tả:** Thay đổi trạng thái đơn hàng.
+**Mô tả:** Thay đổi trạng thái đơn hàng.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Form cập nhật trạng thái:
 
@@ -1451,43 +1159,9 @@ sequenceDiagram
 - Lưu ý: Khi đơn hàng chuyển sang "Delivered", tính vào doanh thu
 
   **Luồng xử lý:**
-
-```mermaid
-sequenceDiagram
-    participant Admin as Quản trị viên
-    participant FE as Frontend (UI)
-    participant BE as Backend (API)
-    participant DB as Database
-
-    Admin->>FE: Click "Cập nhật" đơn hàng
-    FE-->>Admin: Hiển thị danh sách Trạng thái (Dropdown)
-    Admin->>FE: Chọn trạng thái mới & Xác nhận
-  
-    FE->>BE: Gửi Request (Order ID + New Status)
-    activate BE
-    BE->>DB: Thực thi UPDATE đơn hàng
-    DB-->>BE: Xác nhận cập nhật thành công
-  
-    BE-->>FE: Phản hồi Thành công (JSON)
-    deactivate BE
-  
-    FE-->>Admin: Hiển thị thông báo (Toast/Alert)
-    FE->>FE: Cập nhật lại UI (Refresh List)
-  
-```
-
+  ![img](public/assets/images/image11.png)
   **Sơ đồ luồng trạng thái đơn hàng:**
-
-```mermaid
-  stateDiagram-v2
-      [*] --> Ordered: Đặt hàng
-      Ordered --> OnDelivery: Xác nhận đơn
-      Ordered --> Cancelled: Hủy đơn
-      OnDelivery --> Delivered: Giao hàng thành công
-      OnDelivery --> Cancelled: Hủy đơn
-      Delivered --> [*]
-      Cancelled --> [*]
-```
+  ![img](public/assets/images/image12.png)
 
 ---
 
@@ -1495,9 +1169,9 @@ sequenceDiagram
 
 #### 6.1 Xem danh sách chat
 
-  **Mô tả:** Hiển thị danh sách các cuộc trò chuyện với người dùng.
+**Mô tả:** Hiển thị danh sách các cuộc trò chuyện với người dùng.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Hiển thị danh sách người dùng đã chat:
   - Tên người dùng
@@ -1510,9 +1184,9 @@ sequenceDiagram
 
 #### 6.2 Chat với người dùng
 
-  **Mô tả:** Admin trả lời tin nhắn từ người dùng.
+**Mô tả:** Admin trả lời tin nhắn từ người dùng.
 
-  **Chức năng:**
+**Chức năng:**
 
 - Giao diện chat:
 
@@ -1533,42 +1207,9 @@ sequenceDiagram
   - Đánh dấu tin nhắn đã đọc khi admin xem
 - Cập nhật badge số tin nhắn chưa đọc sau khi đọc
 
-  **Luồng xử lý:**
+**Luồng xử lý:**
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as Admin (Dashboard)
-    participant S as Server/API
-    participant DB as Database
-    participant U as Người dùng (App/Web)
-
-    A->>S: Chọn User & Yêu cầu load tin nhắn
-    S->>DB: Query tin nhắn theo conversation_id
-    DB-->>S: Trả về mảng messages
-    S-->>A: Hiển thị lịch sử chat
-  
-    Note over A, S: Admin gửi phản hồi
-    A->>S: Gửi tin nhắn mới
-    S->>DB: INSERT INTO messages (content, sender=admin)
-    S-->>A: Thành công (Hiển thị ngay)
-  
-    Note over U, S: User trả lời (vài giây sau)
-    U->>S: Gửi tin nhắn trả lời
-    S->>DB: Lưu tin nhắn của User
-  
-    loop Polling mỗi 3 giây
-        A->>S: [GET] check_new_messages
-        S->>DB: Query messages WHERE is_read=0
-        DB-->>S: Trả về tin nhắn mới của User
-        S-->>A: Hiển thị tin mới của User trên màn hình
-    end
-  
-    A->>S: [POST] mark_as_read (ID tin nhắn)
-    S->>DB: UPDATE messages SET is_read=1
-    DB-->>S: Xác nhận đã đọc
-  
-```
+![img](public/assets/images/image13.png)
 
 ### 7. Quản Lý Hoàn Tiền
 
@@ -1610,54 +1251,10 @@ sequenceDiagram
    - Cập nhật `order.status` = 'Cancelled'
    - Ghi nhận `processed_by` (admin_id) và `processed_at`
 
-**Luồng xử lý hoàn tiền:**
-
-```mermaid
-sequenceDiagram
-    participant A as Admin
-    participant S as Server (PHP)
-    participant DB as Database
-
-    Note over A, DB: Giai đoạn 1: Tạo yêu cầu hoàn tiền
-    A->>S: Gửi thông tin hoàn tiền (order_code, amount,...)
-    S->>DB: Kiểm tra (Order tồn tại, Đã thanh toán, Đã hoàn tiền chưa?)
-    DB-->>S: Trả về kết quả
-  
-    alt Hợp lệ
-        S->>DB: Tạo Refund Record (pending)
-        S->>DB: Update Status (Payment & Order -> refunded)
-        S-->>A: Thông báo thành công
-    else Thất bại
-        S-->>A: Hiển thị lỗi tương ứng
-    end
-
-    Note over A, DB: Giai đoạn 2: Xử lý hoàn tiền
-    A->>S: Cập nhật trạng thái (Completed) + Transaction ID
-    S->>DB: Update Refund Record (status, transaction_id, admin_id, time)
-    DB-->>S: Xác nhận lưu
-    S-->>A: Hoàn tất quy trình
-```
-
+**Luồng xử lý :**
+![img](public/assets/images/image14.png)
 5. **Status Workflow**
-
-```mermaid
-stateDiagram-v2
-    [*] --> Pending
-
-    Pending: Yêu cầu mới tạo\nChờ xử lý
-
-    Pending --> Processing: Bắt đầu xử lý hoàn tiền
-
-    Processing: Đang xử lý hoàn tiền
-
-    Processing --> Completed: Hoàn tiền thành công
-    Processing --> Failed: Hoàn tiền không thành công
-
-    Completed: Hoàn tất
-    Failed: Thất bại
-
-```
-
+![img](public/assets/images/image15.png)
 **Mô tả trạng thái:**
 
 - **pending**: Yêu cầu mới tạo, đang chờ admin xử lý
@@ -1720,217 +1317,48 @@ stateDiagram-v2
 
 ### 5.3.1 Sơ đồ luồng người dùng
 
-```mermaid
-  sequenceDiagram
-    autonumber
-    participant U as Người dùng
-    participant S as Hệ thống (Frontend/Server)
-    participant DB as Database / Admin
-
-    U->>S: Truy cập Trang chủ
-    S->>S: Kiểm tra trạng thái đăng nhập
-
-    alt Chưa đăng nhập
-        S-->>U: Hiển thị trang Đăng ký/Đăng nhập
-        U->>S: Gửi thông tin đăng ký
-        S->>DB: Lưu User & Gửi OTP/Email
-        DB-->>S: Xác nhận xác minh email
-        S-->>U: Yêu cầu Đăng nhập
-        U->>S: Nhập tài khoản/mật khẩu
-        S->>DB: Kiểm tra thông tin
-        DB-->>S: Trả về Session/Token
-    else Đã đăng nhập
-        S-->>U: Hiển thị trang Duyệt món ăn
-    end
-
-    Note over U, S: Giai đoạn Mua sắm
-    U->>S: Tìm kiếm / Xem danh mục
-    S->>DB: Query danh sách món ăn
-    DB-->>S: Trả về kết quả
-    U->>S: Thêm món vào Giỏ hàng
-    S->>DB: Lưu item vào giỏ hàng
-  
-    U->>S: Truy cập xem Giỏ hàng & Click Thanh toán
-    S->>DB: Kiểm tra tồn kho & Tính tổng tiền
-    DB-->>S: Trả về thông tin thanh toán
-    U->>S: Xác nhận đặt hàng
-    S->>DB: Tạo đơn hàng & Xóa giỏ hàng
-  
-    Note over S, DB: Giai đoạn Xử lý & Theo dõi
-    S-->>U: Đặt hàng thành công!
-    U->>S: Theo dõi trạng thái đơn hàng
-    S->>DB: Lấy status (Đang xử lý/Đang giao)
-    U->>S: Xem Lịch sử đơn hàng
-    U->>DB: Chat với Admin (Khi cần hỗ trợ)
-    DB-->>U: Admin phản hồi tin nhắn
-```
+![img](public/assets/images/image16.png)
 
 ### 5.3.2 Sơ đồ luồng quản trị viên
 
-```mermaid
-  sequenceDiagram
-    autonumber
-    participant A as Admin
-    participant S as Server/Backend
-    participant DB as Database
-    participant U as Người dùng (Client)
-
-    A->>S: Đăng nhập Admin
-    S->>DB: Kiểm tra quyền (Role)
-    DB-->>S: Hợp lệ
-    S-->>A: Hiển thị Dashboard
-  
-    Note over A, DB: Quản lý Món ăn
-    A->>S: Cập nhật thông tin món ăn
-    S->>DB: Lưu thay đổi (UPDATE)
-    DB-->>S: Thành công
-    S-->>A: Hiển thị thông báo thành công
-
-    Note over A, U: Quản lý Chat & Đơn hàng
-    A->>S: Xem danh sách Chat
-    S->>DB: Lấy tin nhắn mới
-    DB-->>S: Trả về dữ liệu
-    A->>S: Gửi tin nhắn trả lời
-    S-->>U: Hiển thị tin nhắn cho User
-  
-    A->>S: Cập nhật trạng thái Đơn hàng (E2)
-    S->>DB: Update status='Shipping'
-    S-->>U: Gửi thông báo: Đơn hàng đang giao
-```
+![img](public/assets/images/image17.png)
 
 ### 5.3.4 Sơ đồ tương tác User - Admin
 
-```mermaid
-  sequenceDiagram
-      participant U as User
-      participant S as System
-      participant A as Admin
-  
-      U->>S: Đăng ký tài khoản
-      S->>U: Gửi mã xác minh email
-      U->>S: Xác minh mã
-      S->>U: Tạo tài khoản thành công
-  
-      U->>S: Đăng nhập
-      S->>U: Xác thực thành công
-  
-      U->>S: Duyệt món ăn
-      U->>S: Thêm vào giỏ hàng
-      U->>S: Thanh toán
-      S->>U: Tạo đơn hàng
-  
-      A->>S: Xem danh sách đơn hàng
-      A->>S: Cập nhật trạng thái đơn hàng
-      S->>U: Thông báo trạng thái mới (nếu có)
-  
-      U->>S: Gửi tin nhắn chat
-      S->>A: Thông báo tin nhắn mới
-      A->>S: Trả lời tin nhắn
-      S->>U: Hiển thị tin nhắn mới
-```
+![img](public/assets/images/image18.png)
 
 ### 5.3.5 Sơ Đồ Luồng Thanh Toán
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as Người dùng
-    participant FE as Frontend (UI)
-    participant BE as Backend (Server)
-    participant DB as Database
-
-    U->>FE: Mở trang thanh toán
-    FE->>BE: Gửi order_code & session_id
-  
-    activate BE
-    BE->>BE: Kiểm tra đăng nhập (Session)
-    BE->>DB: Truy vấn thông tin đơn hàng
-    DB-->>BE: Trả về dữ liệu đơn hàng
-    BE-->>FE: Hiển thị thông tin đơn hàng
-    deactivate BE
-
-    U->>FE: Chọn PTTT & Nhấn "Xác nhận"
-    FE->>BE: Gửi yêu cầu thanh toán (POST)
-  
-    activate BE
-    BE->>DB: Ghi nhận thanh toán (Payment Record)
-    BE->>DB: Cập nhật trạng thái đơn hàng (Status: Paid)
-    DB-->>BE: Xác nhận lưu thành công
-    BE-->>FE: Phản hồi kết quả (Redirect URL)
-    deactivate BE
-
-    FE->>U: Chuyển hướng đến Lịch sử đơn hàng
-    FE-->>U: Hiển thị thông báo "Thành công"
-
-
-```
+![img](public/assets/images/image19.png)
 
 ### 5.3.6 Sơ Đồ Luồng Hoàn Tiền
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant A as Admin
-    participant S as Hệ thống (Backend)
-    participant DB as Database
-
-    A->>S: Truy cập Trang hoàn tiền
-    S->>DB: Lấy danh sách yêu cầu & đơn hàng
-    DB-->>S: Trả về dữ liệu
-    S-->>A: Hiển thị Form & Danh sách yêu cầu
-
-    A->>S: Gửi yêu cầu hoàn tiền (order_code, amount,...)
-  
-    activate S
-    S->>DB: Kiểm tra (Tồn tại, Đã thanh toán, Đã hoàn chưa?)
-    DB-->>S: Kết quả hợp lệ
-  
-    S->>DB: Tạo Refund Record (status: pending)
-    S->>DB: Cập nhật status (Payment & Order -> refunded)
-    DB-->>S: Xác nhận lưu thành công
-    S-->>A: Thông báo tạo yêu cầu thành công
-    deactivate S
-
-    Note over A, DB: Quản trị viên xử lý theo luồng
-    A->>S: Cập nhật trạng thái xử lý (Pending -> Completed)
-    S->>DB: Ghi nhận admin_id, time, transaction_id
-    DB-->>S: Hoàn tất cập nhật
-    S-->>A: Hiển thị trạng thái mới
-```
+![img](public/assets/images/image20.png)
 
 ### 5.3.7 Sơ Đồ Trạng Thái Thanh Toán
+![img](public/assets/images/image21.png)
+## 5.4 Tổng kết
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as Người dùng
-    participant S as Hệ thống (System)
-    participant G as Cổng thanh toán (Gateway)
-    participant A as Quản trị viên (Admin)
+### 5.4.1 Chức năng người dùng
 
-    U->>S: Khởi tạo thanh toán
-    S->>S: Tạo bản ghi (Trạng thái: Pending)
-  
-    alt Thanh toán thành công
-        G-->>S: Gửi tín hiệu thành công (IPN/Webhook)
-        S->>S: Cập nhật trạng thái: Success
-        S-->>U: Thông báo: Thành công
-    else Thanh toán thất bại
-        G-->>S: Gửi tín hiệu lỗi
-        S->>S: Cập nhật trạng thái: Failed
-        S-->>U: Thông báo: Thất bại (Mời thử lại)
-    else Hết thời gian (Timeout)
-        S->>S: Cronjob quét đơn quá hạn
-        S->>S: Cập nhật trạng thái: Cancelled
-    end
+- Quản lý tài khoản (Đăng ký, Đăng nhập, Quên mật khẩu)
+- Duyệt và tìm kiếm món ăn
+- Quản lý giỏ hàng
+- Đặt hàng và thanh toán
+- Cho phép thanh toán đơn hàng online
+- Hỗ trợ nhiều phương thức thanh toán
+- Xem lịch sử đơn hàng
+- Chat với admin
 
-    Note over A, S: Quy trình hậu mãi
-    A->>S: Yêu cầu hoàn tiền (Refund request)
-    S->>G: Gửi lệnh hoàn tiền qua API
-    G-->>S: Xác nhận hoàn tiền thành công
-    S->>S: Cập nhật trạng thái: Refunded
-             
-```
+### 5.4.2 Chức năng quản trị viên
+
+- Quản lý tài khoản admin
+- Dashboard tổng quan với thống kê
+- Quản lý danh mục món ăn
+- Quản lý món ăn
+- Quản lý đơn hàng
+- Quản lý chat với người dùng
+- Quản lý tất cả giao dịch thanh toán
 
 ---
 
