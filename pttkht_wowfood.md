@@ -414,39 +414,45 @@ Chức năng cho phép khách hàng xác nhận đơn hàng và thực hiện th
 ![img](public/assets/images/SE_QlyDanhMucMonAn.png)
 **ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
 Use case: Quản lý danh mục món ăn (Xóa danh mục)
-🔹 Actor
-•	Quản trị viên
-🔹 Các đối tượng tham gia
-•	Giao diện (UI)
-•	Hệ thống
-•	Cơ sở dữ liệu (CSDL)
-🔹 Luồng chính
-1.	Quản trị viên chọn chức năng Xóa danh mục món ăn.
-2.	Giao diện gửi ID danh mục cần xóa đến Hệ thống.
-3.	Hệ thống kiểm tra trong CSDL xem danh mục có chứa món ăn hay không.
-4.	Nếu danh mục không chứa món ăn, Hệ thống thực hiện xóa danh mục trong CSDL.
-5.	CSDL xác nhận xóa thành công.
-6.	Hệ thống thông báo kết quả thành công cho quản trị viên.
-🔹 Luồng phụ
-•	Luồng phụ 1 – Danh mục có món ăn
-o	Tại bước 3, nếu danh mục còn tồn tại món ăn, Hệ thống không cho phép xóa và gửi thông báo lỗi.
-🔹 Thứ tự message
-1.	Admin → UI: Chọn xóa danh mục
-2.	UI → System: Gửi ID danh mục
-3.	System → DB: Kiểm tra ràng buộc
-4.	DB → System: Kết quả kiểm tra
-5.	System → DB: Xóa danh mục
-6.	System → UI: Thông báo kết quả
+Actor:
+  •	Quản trị viên
+
+Các đối tượng tham gia:
+  •	Giao diện (UI)
+  •	Hệ thống
+  •	Cơ sở dữ liệu (CSDL)
+
+Luồng chính
+  1.	Quản trị viên chọn chức năng Xóa danh mục món ăn.
+  2.	Giao diện gửi ID danh mục cần xóa đến Hệ thống.
+  3.	Hệ thống kiểm tra trong CSDL xem danh mục có chứa món ăn hay không.
+  4.	Nếu danh mục không chứa món ăn, Hệ thống thực hiện xóa danh mục trong CSDL.
+  5.	CSDL xác nhận xóa thành công.
+  6.	Hệ thống thông báo kết quả thành công cho quản trị viên.
+
+Luồng phụ
+  •	Luồng phụ 1 – Danh mục có món ăn
+    o	Tại bước 3, nếu danh mục còn tồn tại món ăn, Hệ thống không cho phép xóa và gửi thông báo lỗi.
+
+Thứ tự message
+  1.	Admin → UI: Chọn xóa danh mục
+  2.	UI → System: Gửi ID danh mục
+  3.	System → DB: Kiểm tra ràng buộc
+  4.	DB → System: Kết quả kiểm tra
+  5.	System → DB: Xóa danh mục
+  6.	System → UI: Thông báo kết quả
 #### 9. Quản lý tài khoản người dùng
 ![img](public/assets/images/SE_QlyTaiKhoanNguoiDung.png)
 **ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
-🔹 Actor
-•	Quản trị viên
-🔹 Các đối tượng tham gia
-•	Giao diện (UI): Tiếp nhận thao tác từ quản trị viên
-•	Hệ thống: Xử lý nghiệp vụ quản lý tài khoản
-•	Cơ sở dữ liệu (CSDL): Lưu trữ thông tin tài khoản người dùng
-🔹 Luồng chính
+Actor
+  •	Quản trị viên
+
+Các đối tượng tham gia
+  •	Giao diện (UI): Tiếp nhận thao tác từ quản trị viên
+  •	Hệ thống: Xử lý nghiệp vụ quản lý tài khoản
+  •	Cơ sở dữ liệu (CSDL): Lưu trữ thông tin tài khoản người dùng
+
+Luồng chính
 1.	Quản trị viên chọn chức năng Quản lý tài khoản người dùng trên giao diện.
 2.	Giao diện gửi yêu cầu lấy danh sách tài khoản đến Hệ thống.
 3.	Hệ thống truy vấn CSDL để lấy thông tin tài khoản.
@@ -457,10 +463,12 @@ o	Tại bước 3, nếu danh mục còn tồn tại món ăn, Hệ thống khô
 8.	Hệ thống kiểm tra tính hợp lệ của dữ liệu.
 9.	Hệ thống cập nhật thông tin tài khoản vào CSDL.
 10.	Hệ thống thông báo cập nhật thành công cho quản trị viên.
-🔹 Luồng phụ
-•	Luồng phụ 1 – Dữ liệu không hợp lệ
-o	Tại bước 8, nếu dữ liệu không hợp lệ, Hệ thống không cập nhật CSDL và gửi thông báo lỗi về giao diện.
-🔹 Thứ tự message
+
+Luồng phụ
+  •	Luồng phụ 1 – Dữ liệu không hợp lệ
+    o	Tại bước 8, nếu dữ liệu không hợp lệ, Hệ thống không cập nhật CSDL và gửi thông báo lỗi về giao diện.
+
+Thứ tự message
 1.	Admin → UI: Chọn quản lý tài khoản
 2.	UI → System: Yêu cầu danh sách tài khoản
 3.	System → DB: Truy vấn tài khoản
@@ -473,23 +481,26 @@ o	Tại bước 8, nếu dữ liệu không hợp lệ, Hệ thống không cậ
 #### 10. Quản lý đơn hàng
 ![img](public/assets/images/SE_QlyDonHang.png)
 **ĐẶC TẢ SƠ ĐỒ TUẦN TỰ**
-🔹 Actor
-•	Quản trị viên
-🔹 Các đối tượng tham gia
-•	Giao diện (UI)
-•	Hệ thống
-•	Cơ sở dữ liệu (CSDL)
-🔹 Luồng chính
+Actor
+  •	Quản trị viên
+
+Các đối tượng tham gia
+  •	Giao diện (UI)
+  •	Hệ thống
+  •	Cơ sở dữ liệu (CSDL)
+Luồng chính
 1.	Quản trị viên chọn chức năng Cập nhật trạng thái đơn hàng.
 2.	Giao diện gửi trạng thái mới của đơn hàng đến Hệ thống.
 3.	Hệ thống kiểm tra trạng thái đơn hàng có hợp lệ hay không.
 4.	Hệ thống cập nhật trạng thái đơn hàng trong CSDL.
 5.	CSDL xác nhận cập nhật thành công.
 6.	Hệ thống thông báo kết quả cho quản trị viên.
-🔹 Luồng phụ
-•	Luồng phụ 1 – Trạng thái không hợp lệ
-o	Tại bước 3, nếu trạng thái không hợp lệ, Hệ thống không cập nhật CSDL và hiển thị thông báo lỗi.
-🔹 Thứ tự message
+
+Luồng phụ
+  •	Luồng phụ 1 – Trạng thái không hợp lệ
+    o	Tại bước 3, nếu trạng thái không hợp lệ, Hệ thống không cập nhật CSDL và hiển thị thông báo lỗi.
+
+Thứ tự message
 1.	Admin → UI: Chọn cập nhật trạng thái
 2.	UI → System: Gửi trạng thái mới
 3.	System → DB: Cập nhật trạng thái
@@ -497,13 +508,15 @@ o	Tại bước 3, nếu trạng thái không hợp lệ, Hệ thống không c�
 5.	System → UI: Thông báo kết quả
 #### 11. Quản lý món ăn
 ![img](public/assets/images/SE_QlyMonAn.png)
-🔹 Actor
-•	Quản trị viên
-🔹 Các đối tượng tham gia
-•	Giao diện (UI)
-•	Hệ thống
-•	Cơ sở dữ liệu (CSDL)
-🔹 Luồng chính
+Actor
+  •	Quản trị viên
+
+Các đối tượng tham gia
+  •	Giao diện (UI)
+  •	Hệ thống
+  •	Cơ sở dữ liệu (CSDL)
+
+Luồng chính
 1.	Quản trị viên chọn chức năng Thêm món ăn.
 2.	Giao diện hiển thị form nhập thông tin món ăn.
 3.	Quản trị viên nhập thông tin và gửi yêu cầu thêm món ăn.
@@ -511,10 +524,12 @@ o	Tại bước 3, nếu trạng thái không hợp lệ, Hệ thống không c�
 5.	Hệ thống lưu thông tin món ăn vào CSDL.
 6.	CSDL xác nhận lưu thành công.
 7.	Hệ thống thông báo kết quả cho quản trị viên.
-🔹 Luồng phụ
-•	Luồng phụ 1 – Dữ liệu không hợp lệ
-o	Tại bước 4, nếu dữ liệu không hợp lệ, Hệ thống không lưu CSDL và hiển thị thông báo lỗi.
-🔹 Thứ tự message
+
+Luồng phụ
+  •	Luồng phụ 1 – Dữ liệu không hợp lệ
+    o	Tại bước 4, nếu dữ liệu không hợp lệ, Hệ thống không lưu CSDL và hiển thị thông báo lỗi.
+
+Thứ tự message
 1.	Admin → UI: Chọn thêm món ăn
 2.	UI → System: Gửi thông tin món ăn
 3.	System → System: Kiểm tra dữ liệu
@@ -1404,94 +1419,102 @@ Cách tổ chức dữ liệu theo mô hình quan hệ giúp hệ thống vận 
 
 ### 6.1 Phân tích dữ liệu hệ thống
 tbl_category (Danh mục)
-├── id (PK)
-├── title (Tên danh mục)
-├── image_name
-├── featured (Nổi bật)
-└── active (Trạng thái)
+•	id (PK)
+•	title: Tên danh mục
+•	image_name
+•	featured: Nổi bật
+•	active: Trạng thái
 
 tbl_food (Món ăn)
-├── id (PK)
-├── title (Tên món)
-├── description (Mô tả)
-├── price (Giá)
-├── image_name
-├── category_id (FK → tbl_category.id)
-├── featured
-└── active
+•	id (PK)
+•	title: Tên món
+•	description: Mô tả
+•	price: Giá
+•	image_name
+•	category_id (FK → tbl_category.id)
+•	featured
+•	active
+
+tbl_user / tbl_admin (Người dùng & Quản trị)
+•	id (PK)
+•	full_name
+•	username
+•	password (Hashed)
+•	email
+•	phone
 
 tbl_cart (Giỏ hàng tạm thời)
-├── id (PK)
-├── user_id (FK → tbl_user.id)
-├── food_id (FK → tbl_food.id)
-├── food_name
-├── price
-└── quantity
+•	id (PK)
+•	user_id (FK → tbl_user.id)
+•	food_id (FK → tbl_food.id)
+•	food_name
+•	price
+•	quantity
 
 tbl_order (Đơn hàng)
-├── id (PK)
-├── order_code (Mã đơn hàng duy nhất)
-├── user_id (FK → tbl_user.id)
-├── food (Tên món ăn)
-├── price / qty / total
-├── order_date
-├── status (Ordered, On Delivery, Delivered, Cancelled)
-└── customer_info (Name, Contact, Email, Address)
+•	id (PK)
+•	order_code: Mã đơn hàng duy nhất
+•	user_id (FK → tbl_user.id)
+•	food: Tên món ăn
+•	price / qty / total
+•	order_date
+•	status: Ordered, On Delivery, Delivered, Cancelled
+•	customer_info: Name, Contact, Email, Address
 
 tbl_payment (Thanh toán)
-├── id (PK)
-├── order_code (FK → tbl_order.order_code)
-├── user_id (FK → tbl_user.id)
-├── payment_method (vnpay, momo, cash)
-├── amount
-├── transaction_id
-└── payment_status
+•	id (PK)
+•	order_code (FK → tbl_order.order_code)
+•	user_id (FK → tbl_user.id)
+•	payment_method: vnpay, momo, cash
+•	amount
+•	transaction_id
+•	payment_status
 
 tbl_verification (Xác thực)
-├── id (PK)
-├── email / phone
-├── verification_code (OTP)
-├── verification_type (email/phone)
-└── expires_at
+•	id (PK)
+•	email / phone
+•	verification_code: OTP
+•	verification_type: email / phone
+•	expires_at
 
 tbl_chat (Hỗ trợ trực tuyến)
-├── id (PK)
-├── user_id (FK → tbl_user.id)
-├── admin_id (FK → tbl_admin.id)
-├── message
-└── sender_type (user/admin)
+•	id (PK)
+•	user_id (FK → tbl_user.id)
+•	admin_id (FK → tbl_admin.id)
+•	message
+•	sender_type: user / admin
 
 tbl_user (Khách hàng)
-├── id (PK)
-├── full_name (Họ và tên)
-├── username (Tên đăng nhập)
-├── password (Mật khẩu mã hóa)
-├── email
-├── phone (Số điện thoại)
-├── address (Địa chỉ giao hàng)
-├── status (Trạng thái tài khoản: Active,...)
-└── created_at
+•	id (PK)
+•	full_name: Họ và tên
+•	username: Tên đăng nhập
+•	password: Mật khẩu mã hóa
+•	email
+•	phone: Số điện thoại
+•	address: Địa chỉ giao hàng
+•	status: Trạng thái tài khoản (Active, …)
+•	created_at
 
 tbl_refund (Hoàn tiền)
-├── id (PK)
-├── order_code (FK → tbl_order.order_code)
-├── payment_id (FK → tbl_payment.id)
-├── user_id (FK → tbl_user.id)
-├── refund_amount (Số tiền hoàn)
-├── refund_reason (Lý do hoàn tiền)
-├── refund_status (Trạng thái: pending, processing, completed, failed)
-├── refund_method (Phương thức: original, bank_transfer, cash)
-├── refund_transaction_id (Mã giao dịch hoàn tiền)
-├── processed_by (Admin xử lý - FK → tbl_admin.id)
-├── processed_at / created_at / updated_at
+•	id (PK)
+•	order_code (FK → tbl_order.order_code)
+•	payment_id (FK → tbl_payment.id)
+•	user_id (FK → tbl_user.id)
+•	refund_amount: Số tiền hoàn
+•	refund_reason: Lý do hoàn tiền
+•	refund_status: pending, processing, completed, failed
+•	refund_method: original, bank_transfer, cash
+•	refund_transaction_id: Mã giao dịch hoàn tiền
+•	processed_by (Admin xử lý - FK → tbl_admin.id)
+•	processed_at / created_at / updated_at
 
 tbl_admin (Quản trị viên)
-├── id (PK)
-├── full_name
-├── username
-├── password
-├── email
-└── phone
+•	id (PK)
+•	full_name
+•	username
+•	password
+•	email
+•	phone
 
 ### 6.2 Thiết kế dữ liệu (Lược đồ quan hệ)
 
