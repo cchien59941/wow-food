@@ -8,6 +8,10 @@ if (!defined('SITEURL')) {
 }
 
 $host = "localhost";
+<<<<<<< Updated upstream
+=======
+$port = 3306; // Port MySQL (mặc định là 3306, nếu dùng 3307 thì thay đổi)
+>>>>>>> Stashed changes
 $username = "root";
 $password = "";
 $dbname = "food-oder";
