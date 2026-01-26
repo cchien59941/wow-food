@@ -408,6 +408,20 @@ Chức năng cho phép khách hàng xác nhận đơn hàng và thực hiện th
 
 ---
 
+##### Đặc tả
+
+| Thuộc tính                 | Mô tả                                                                                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tên kịch bản**    | Xem lịch sử đơn hàng                                                                                                                                                                                   |
+| **Tác nhân**         | Khách hàng                                                                                                                                                                                                |
+| **Mô tả**            | Mô tả trình tự các bước khi khách hàng xem các đơn hàng đã đặt                                                                                                                             |
+| **Tiền điều kiện** | Khách hàng đã đăng nhập                                                                                                                                                                              |
+| **Hậu điều kiện**  | Danh sách đơn hàng của khách hàng được hiển thị                                                                                                                                                 |
+| **Luồng chính**      | 1. Truy cập chức năng lịch sử đơn hàng<br />2. Hệ thống kiểm tra đăng nhập<br />3. Truy vấn đơn hàng từ CSDL<br />4. Hiển thị danh sách đơn hàng<br />5. Xem chi tiết đơn hàng |
+| **Luồng thay thế**   | - Chưa đăng nhập → yêu cầu đăng nhập<br />- Không có đơn hàng → hiển thị thông báo                                                                                                      |
+
+---
+
 #### A) Quản trị viên
 
 #### 8. Quản lý danh mục món ăn
