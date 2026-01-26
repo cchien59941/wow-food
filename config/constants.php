@@ -12,7 +12,14 @@ define('SITEURL', 'http://localhost/wow-food/');
 // Nếu MySQL của bạn chạy trên port khác (ví dụ: 3307), 
 // hãy thay đổi giá trị $port bên dưới
 $host = "localhost";
+<<<<<<< HEAD
+<<<<<<< Updated upstream
+=======
 $port = 3306; // Port MySQL (mặc định là 3306, nếu dùng 3307 thì thay đổi)
+>>>>>>> Stashed changes
+=======
+$port = 3306; // Port MySQL (mặc định là 3306, nếu dùng 3307 thì thay đổi)
+>>>>>>> 921298e4a84d895c131984a0d3d82f5a269cc64a
 $username = "root";
 $password = ""; // Nhập mật khẩu MySQL nếu có
 $dbname = "food-oder";
