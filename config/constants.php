@@ -3,21 +3,29 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!defined('SITEURL')) {
-    define('SITEURL', 'http://localhost/wow-food/');
-}
+// Site URL - Thay đổi theo domain của bạn
+define('SITEURL', 'http://localhost/wow-food/');
 
+// ============================================
+// CẤU HÌNH DATABASE
+// ============================================
+// Nếu MySQL của bạn chạy trên port khác (ví dụ: 3307), 
+// hãy thay đổi giá trị $port bên dưới
 $host = "localhost";
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 =======
 $port = 3306; // Port MySQL (mặc định là 3306, nếu dùng 3307 thì thay đổi)
 >>>>>>> Stashed changes
+=======
+$port = 3306; // Port MySQL (mặc định là 3306, nếu dùng 3307 thì thay đổi)
+>>>>>>> 921298e4a84d895c131984a0d3d82f5a269cc64a
 $username = "root";
-$password = "";
+$password = ""; // Nhập mật khẩu MySQL nếu có
 $dbname = "food-oder";
 
-
-$conn = new mysqli($host, $username, $password, $dbname);
+// Kết nối với port
+$conn = new mysqli($host, $username, $password, $dbname, $port);
 
 if ($conn->connect_error) {
     die("Kết nối thất bại: " . $conn->connect_error);
