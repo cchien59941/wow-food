@@ -42,17 +42,17 @@
                     <li>
                         <a href="<?php echo SITEURL ;?>food.php">Món ăn</a>
                     </li>
+                    <li>
+                        <a href="<?php echo SITEURL; ?>user/cart.php" style="position: relative;">
+                            Giỏ hàng  
+                            <span id="cartBadge" class="chat-badge" style="display: none;">0</span>
+                        </a>
+                    </li>
                     <?php
                     if(isset($_SESSION['user'])){
                         $display_name = isset($_SESSION['user_full_name']) ? $_SESSION['user_full_name'] : $_SESSION['user'];
                         ?>
                         <?php if(isset($_SESSION['user_id'])): ?>
-                        <li>
-                            <a href="<?php echo SITEURL; ?>user/cart.php" style="position: relative;">
-                                🛒 Giỏ hàng
-                                <span id="cartBadge" class="chat-badge" style="display: none;">0</span>
-                            </a>
-                        </li>
                         <li>
                             <a href="<?php echo SITEURL; ?>user/order-history.php">Đơn hàng</a>
                         </li>
@@ -311,6 +311,7 @@
             const badge = document.getElementById('cartBadge');
             if(!badge) return;
             
+            <?php if(isset($_SESSION['user_id'])): ?>
             fetch('<?php echo SITEURL; ?>api/get-cart-count.php')
                 .then(response => response.json())
                 .then(data => {
@@ -321,12 +322,19 @@
                         badge.style.display = 'none';
                     }
                 })
-                .catch(error => console.error('Error loading cart count:', error));
+                .catch(error => {
+                    console.error('Error loading cart count:', error);
+                    badge.style.display = 'none';
+                });
+            <?php else: ?>
+            // Chưa đăng nhập, ẩn badge
+            badge.style.display = 'none';
+            <?php endif; ?>
         }
 
         // Load badge khi trang load
-        <?php if(isset($_SESSION['user_id'])): ?>
         updateCartBadge();
+        <?php if(isset($_SESSION['user_id'])): ?>
         setInterval(updateCartBadge, 3000);
         <?php endif; ?>
     </script>
