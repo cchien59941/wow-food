@@ -1,26 +1,24 @@
-
-
 <?php include("partials-front/menu.php");?>
-    <!-- fOOD sEARCH Section Starts Here -->
-    <section class="food-search text-center">
-        <div class="container">
-            
-            <form action="<?php echo SITEURL ;?>food-search.php" method="POST">
-                <input type="search" name="search" placeholder="Tìm kiếm món ăn.." required>
-                <input type="submit" name="submit" value="Tìm kiếm" class="btn btn-primary">
-            </form>
 
-        </div>
-    </section>
-    <!-- fOOD sEARCH Section Ends Here -->
+<section class="food-search text-center">
+    <div class="container">
+
+        <form action="<?php echo SITEURL ;?>food-search.php" method="POST">
+            <input type="search" name="search" placeholder="Tìm kiếm món ăn.." required>
+            <input type="submit" name="submit" value="Tìm kiếm" class="btn btn-primary">
+        </form>
+
+    </div>
+</section>
 
 
-    <!-- CAtegories Section Starts Here -->
-    <section class="categories">
-        <div class="container">
-            <h2 class="text-center">Khám phá món ăn</h2>
 
-            <?php 
+
+<section class="categories">
+    <div class="container">
+        <h2 class="text-center">Khám phá món ăn</h2>
+
+        <?php 
             $sql = "SELECT * FROM tbl_category LIMIT 3";
 
             $res = mysqli_query($conn,$sql);
@@ -40,7 +38,7 @@
                     $image_name = $row['image_name'];
                 ?>
 
-                    <a href="<?php echo SITEURL; ?>category-food.php?category_id=<?php echo $id; ?> ">
+        <a href="<?php echo SITEURL; ?>category-food.php?category_id=<?php echo $id; ?> ">
             <div class="box-3 float-container">
                 <?php
 
@@ -52,17 +50,18 @@
                 }
                 else{
                     ?>
-                    <img src="<?php echo SITEURL;?>image/category/<?php echo $image_name;?>" alt="Pizza" class="img-responsive img-curve">
-                    <?php
+                <img src="<?php echo SITEURL;?>image/category/<?php echo $image_name;?>" alt="Pizza"
+                    class="img-responsive img-curve">
+                <?php
                 }
                 ?>
-                
+
 
                 <h3 class="float-text text-white"><?php echo $title; ?></h3>
             </div>
-            </a>
+        </a>
 
-                <?php
+        <?php
 
 
 
@@ -75,23 +74,23 @@
             }
              ?>
 
-           
-
-        
-
-            <div class="clearfix"></div>
-        </div>
-    </section>
-    <!-- Categories Section Ends Here -->
 
 
 
 
-    <!-- fOOD MEnu Section Starts Here -->
-    <section class="food-menu">
-        <div class="container">
-            <h2 class="text-center">Thực đơn</h2>
-            <?php
+        <div class="clearfix"></div>
+    </div>
+</section>
+
+
+
+
+
+
+<section class="food-menu">
+    <div class="container">
+        <h2 class="text-center">Thực đơn</h2>
+        <?php
           $sql2 = "SELECT * FROM tbl_food LIMIT 6";
 
           $res2 = mysqli_query($conn,$sql2);
@@ -112,8 +111,8 @@
                 $description=$row['description'];
                 $image_name = $row['image_name']; 
             ?>
-                <div class="food-menu-box">
-                <div class="food-menu-img">
+        <div class="food-menu-box">
+            <div class="food-menu-img">
 
                 <?php 
                 if($image_name=="")
@@ -123,32 +122,33 @@
                 else
                 {
                     ?>
-                    <img src="<?php echo SITEURL;?>image/food/<?php echo $image_name; ?>" alt="Chicke Hawain Pizza" class="img-responsive img-curve">
-                    <?php
+                <img src="<?php echo SITEURL;?>image/food/<?php echo $image_name; ?>" alt="Chicke Hawain Pizza"
+                    class="img-responsive img-curve">
+                <?php
 
                 }
                 ?>
-                    
-                </div>
 
-                <div class="food-menu-desc">
-                    <h4><?php echo $title ;?></h4>
-                    <p class="food-price"><?php echo $price ;?></p>
-                    <p class="food-detail">
-                        <?php echo  $description ;?>
-                    </p>
-                    <br>
+            </div>
 
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                        <button onclick="addToCart(<?php echo $id; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
-                    <?php else: ?>
-                        <a href="<?php echo SITEURL; ?>user/login.php" class="btn btn-primary">Đặt ngay</a>
-                    <?php endif; ?>
-                </div>
-                </div>
+            <div class="food-menu-desc">
+                <h4><?php echo $title ;?></h4>
+                <p class="food-price"><?php echo $price ;?></p>
+                <p class="food-detail">
+                    <?php echo  $description ;?>
+                </p>
+                <br>
+
+                <?php if(isset($_SESSION['user_id'])): ?>
+                <button onclick="addToCart(<?php echo $id; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
+                <?php else: ?>
+                <a href="<?php echo SITEURL; ?>user/login.php" class="btn btn-primary">Đặt ngay</a>
+                <?php endif; ?>
+            </div>
+        </div>
 
 
-            <?php
+        <?php
             }
 
           }
@@ -163,28 +163,28 @@
 
 
 
-            
 
 
 
 
-            <div class="clearfix"></div>
 
-            
+        <div class="clearfix"></div>
 
-        </div>
 
-        <p class="text-center">
-            <a href="<?php echo SITEURL; ?>food.php">Xem tất cả món ăn</a>
-        </p>
-    </section>
-    <!-- fOOD Menu Section Ends Here -->
-    <?php include("partials-front/footer.php"); ?>
-    
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        <?php
+
+    </div>
+
+    <p class="text-center">
+        <a href="<?php echo SITEURL; ?>food.php">Xem tất cả món ăn</a>
+    </p>
+</section>
+<!-- fOOD Menu Section Ends Here -->
+<?php include("partials-front/footer.php"); ?>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+<?php
         function extractMessage($html) {
             $html = strip_tags($html);
             return trim($html);
@@ -229,5 +229,4 @@
             }
         }
         ?>
-    </script>
-    
+</script>
