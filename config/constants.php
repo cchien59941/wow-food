@@ -8,6 +8,7 @@ define('SITEURL', 'http://localhost/wow-food/');
 
 
 $host = "localhost";
+$username = "root";
 $port = 3307; 
 $password = ""; 
 $dbname = "food-oder";
