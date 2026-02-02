@@ -1,5 +1,5 @@
 <?php 
-include('config/constants.php');
+include('../config/constants.php');
 // Xử lý đăng ký trước khi output HTML
 if(isset($_POST['submit'])){
     $full_name = mysqli_real_escape_string($conn, $_POST['full_name']);
@@ -8,7 +8,7 @@ if(isset($_POST['submit'])){
     $confirm_password = $_POST['confirm_password'];
     $phone = isset($_POST['phone']) ? mysqli_real_escape_string($conn, $_POST['phone']) : '';
     $address = isset($_POST['address']) ? mysqli_real_escape_string($conn, $_POST['address']) : '';
-    
+    $verification_type = isset($_POST['verification_type']) ? $_POST['verification_type'] : 'email';
     // Validate password match
     if($password !== $confirm_password){
         $_SESSION['register'] = "Passwords do not match!";
@@ -22,7 +22,13 @@ if(isset($_POST['submit'])){
         header('location:'.SITEURL.'user/register.php');
         exit();
     }
-    
+
+    $email_domain = substr(strrchr($email, "@"), 1);
+    if(strtolower($email_domain) !== 'gmail.com'){
+        $_SESSION['register'] = "Chỉ chấp nhận đăng ký bằng Gmail!";
+        header('location:'.SITEURL.'user/register.php');
+        exit();
+    }
     // Check if email already exists
     $check_sql = "SELECT * FROM tbl_user WHERE email=?";
     $stmt = mysqli_prepare($conn, $check_sql);
@@ -38,53 +44,14 @@ if(isset($_POST['submit'])){
     }
     mysqli_stmt_close($stmt);
     
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    
-    // Generate username from email
-    $username = explode('@', $email)[0];
-    $username = preg_replace('/[^a-zA-Z0-9_]/', '', $username);
-    
-    // Make sure username is unique
-    $check_username = $username;
-    $counter = 1;
-    while(true){
-        $check_sql = "SELECT * FROM tbl_user WHERE username='$check_username'";
-        $check_res = mysqli_query($conn, $check_sql);
-        if(mysqli_num_rows($check_res) == 0){
-            break;
-        }
-        $check_username = $username . $counter;
-        $counter++;
-    }
-    $username = $check_username;
-    
-    // Insert new user
-    $sql = "INSERT INTO tbl_user SET
-        full_name=?,
-        username=?,
-        password=?,
-        email=?,
-        phone=?,
-        address=?,
-        status='Active'
-    ";
-    
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssssss", $full_name, $username, $hashed_password, $email, $phone, $address);
-    $res = mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
-    
-    if($res){
-        $_SESSION['register-success'] = "Đăng ký thành công! Vui lòng đăng nhập.";
-        header('location:'.SITEURL.'user/login.php');
-        exit();
-    }
-    else{
-        $_SESSION['register'] = "Đăng ký thất bại! Vui lòng thử lại.";
-        header('location:'.SITEURL.'user/register.php');
-        exit();
-    }
+    $_SESSION['pending_registration'] = [
+        'full_name' => $full_name,
+        'email' => $email,
+        'password' => $password, // Lưu password gốc để hash sau khi xác minh
+        'phone' => $phone,
+        'address' => $address,
+        'verification_type' => 'email' // Chỉ dùng email
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -177,6 +144,9 @@ if(isset($_POST['submit'])){
             <input type="password" name="confirm_password" placeholder="Xác nhận mật khẩu" required>
             <input type="tel" name="phone" placeholder="Số điện thoại (Tùy chọn)">
             <textarea name="address" placeholder="Địa chỉ (Tùy chọn)"></textarea>
+            <div style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border-radius: 5px; font-size: 0.9em; color: #1976d2;">
+                <strong>📧 Lưu ý:</strong> Mã xác minh sẽ được gửi đến email Gmail của bạn.
+            </div>
             <input type="submit" name="submit" value="Đăng ký" class="btn-primary">
         </form>
         
@@ -186,54 +156,6 @@ if(isset($_POST['submit'])){
     </div>
     
     <?php include('../partials-front/footer.php'); ?>
-    
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        <?php
-        function extractMessage($html) {
-            $html = strip_tags($html);
-            return trim($html);
-        }
-        
-        $sessionMessages = ['register-success', 'register'];
-        
-        foreach($sessionMessages as $key) {
-            if(isset($_SESSION[$key]) && !empty($_SESSION[$key])) {
-                $message = extractMessage($_SESSION[$key]);
-                if(!empty($message)) {
-                    $icon = 'info';
-                    $title = 'Thông báo';
-                    
-                    if(strpos(strtolower($_SESSION[$key]), 'success') !== false || 
-                       strpos(strtolower($message), 'thành công') !== false ||
-                       strpos(strtolower($message), 'successfully') !== false) {
-                        $icon = 'success';
-                        $title = 'Thành công!';
-                    } elseif(strpos(strtolower($_SESSION[$key]), 'error') !== false || 
-                             strpos(strtolower($message), 'lỗi') !== false ||
-                             strpos(strtolower($message), 'failed') !== false ||
-                             strpos(strtolower($message), 'không khớp') !== false ||
-                             strpos(strtolower($message), 'đã tồn tại') !== false) {
-                        $icon = 'error';
-                        $title = 'Lỗi!';
-                    } elseif(strpos(strtolower($message), 'warning') !== false) {
-                        $icon = 'warning';
-                        $title = 'Cảnh báo!';
-                    }
-                    
-                    echo "Swal.fire({
-                        icon: '" . $icon . "',
-                        title: '" . $title . "',
-                        text: '" . addslashes($message) . "',
-                        showConfirmButton: true,
-                        timer: 3000
-                    });";
-                }
-                unset($_SESSION[$key]);
-            }
-        }
-        ?>
-    </script>
+
 </body>
 </html>
