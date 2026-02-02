@@ -1,7 +1,55 @@
 <?php 
-include('config/constants.php'); 
+include('../config/constants.php'); 
 
-
+// Xử lý đăng nhập (chỉ user, tạm thời chưa phân quyền admin)
+if(isset($_POST['submit'])){
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    
+    $login_success = false;
+    
+    // Kiểm tra trong bảng user
+    $user_sql = "SELECT * FROM tbl_user WHERE email=? AND status='Active'";
+    $user_stmt = mysqli_prepare($conn, $user_sql);
+    
+    if($user_stmt){
+        mysqli_stmt_bind_param($user_stmt, "s", $email);
+        mysqli_stmt_execute($user_stmt);
+        $user_result = mysqli_stmt_get_result($user_stmt);
+        $user_count = mysqli_num_rows($user_result);
+        
+        if($user_count == 1){
+            $user_row = mysqli_fetch_assoc($user_result);
+            
+            if(password_verify($password, $user_row['password'])){
+                $_SESSION['user'] = $user_row['username'];
+                $_SESSION['user_id'] = $user_row['id'];
+                $_SESSION['user_full_name'] = $user_row['full_name'];
+                $_SESSION['login-success'] = "Đăng nhập thành công!";
+                $login_success = true;
+            }
+        }
+        mysqli_stmt_close($user_stmt);
+    }
+    
+    if($login_success){
+        unset($_SESSION['login_email']);
+        if(isset($_SESSION['redirect_food_id'])) {
+            $food_id = $_SESSION['redirect_food_id'];
+            unset($_SESSION['redirect_food_id']);
+            header('location:'.SITEURL.'order.php?food_id='.$food_id);
+        } else {
+            header('location:'.SITEURL.'index.php');
+        }
+        exit();
+    } else {
+        
+        $_SESSION['login'] = "Email hoặc mật khẩu không đúng!";
+        $_SESSION['login_email'] = htmlspecialchars(trim($email), ENT_QUOTES, 'UTF-8');
+        header('location:'.SITEURL.'user/login.php');
+        exit();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,13 +121,13 @@ include('config/constants.php');
     </style>
 </head>
 <body>
-    <?php include('partials-front/menu.php'); ?>
+    <?php include('../partials-front/menu.php'); ?>
     
     <div class="login-container">
         <h1>Đăng nhập</h1>
         
         <form action="" method="POST" class="login-form">
-            <input type="email" name="email" placeholder="Email" required>
+            <input type="email" name="email" placeholder="Email" value="<?php echo isset($_SESSION['login_email']) ? $_SESSION['login_email'] : ''; ?>" required>
             <input type="password" name="password" placeholder="Mật khẩu" required>
             <input type="submit" name="submit" value="Đăng nhập" class="btn-primary">
         </form>
@@ -90,8 +138,8 @@ include('config/constants.php');
         </div>
     </div>
     
-    <?php include('partials-front/footer.php'); ?>
+    <?php include('../partials-front/footer.php'); ?>
     
-    
+ 
 </body>
 </html>
