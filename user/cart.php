@@ -1,6 +1,81 @@
 <?php
 include('../config/constants.php');
 include('../partials-front/menu.php');
+
+// Load sizes & side dishes
+$sizes = [];
+$side_dishes = [];
+$res = @$conn->query("SELECT id, name, price_add FROM tbl_size ORDER BY sort_order ASC, id ASC");
+if ($res && $res->num_rows > 0) {
+    while ($row = $res->fetch_assoc()) $sizes[$row['id']] = ['name' => $row['name'], 'price_add' => (float) $row['price_add']];
+}
+if (empty($sizes)) {
+    $sizes = [1 => ['name' => 'Nhỏ', 'price_add' => 0], 2 => ['name' => 'Vừa', 'price_add' => 5], 3 => ['name' => 'Lớn', 'price_add' => 10]];
+}
+$res = @$conn->query("SELECT id, name, price FROM tbl_side_dish ORDER BY sort_order ASC, id ASC");
+if ($res && $res->num_rows > 0) {
+    while ($row = $res->fetch_assoc()) $side_dishes[$row['id']] = ['name' => $row['name'], 'price' => (float) $row['price']];
+}
+if (empty($side_dishes)) {
+    $side_dishes = [1 => ['name' => 'Trứng ốp la', 'price' => 8], 2 => ['name' => 'Nem rán', 'price' => 10], 3 => ['name' => 'Khoai tây chiên', 'price' => 12], 4 => ['name' => 'Salad', 'price' => 6], 5 => ['name' => 'Nước ngọt', 'price' => 5], 6 => ['name' => 'Trà đá', 'price' => 3]];
+}
+
+$cart_items = [];
+$cart_total = 0;
+$cart_count = 0;
+
+if (isset($_SESSION['cart']) && is_array($_SESSION['cart']) && count($_SESSION['cart']) > 0) {
+    foreach ($_SESSION['cart'] as $idx => $cart_row) {
+        $food_id = (int) ($cart_row['food_id'] ?? 0);
+        if (empty($cart_row['cart_id'])) {
+            $_SESSION['cart'][$idx]['cart_id'] = uniqid('c');
+        }
+        $cart_id = $_SESSION['cart'][$idx]['cart_id'];
+        $qty = max(1, (int) (isset($cart_row['qty']) ? $cart_row['qty'] : 1));
+        $note = isset($cart_row['note']) ? trim($cart_row['note']) : '';
+        $size_id = (int) (isset($cart_row['size_id']) ? $cart_row['size_id'] : 1);
+        $side_dish_ids = (isset($cart_row['side_dish_ids']) && is_array($cart_row['side_dish_ids'])) ? $cart_row['side_dish_ids'] : [];
+
+        $stmt = $conn->prepare("SELECT id, title, price, image_name FROM tbl_food WHERE id = ? AND active = 'Yes'");
+        $stmt->bind_param("i", $food_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $food = $result->fetch_assoc();
+        $stmt->close();
+
+        if ($food) {
+            $base_price = (float) $food['price'];
+            $size_add = isset($sizes[$size_id]) ? $sizes[$size_id]['price_add'] : 0;
+            $side_total = 0;
+            foreach ((array) $side_dish_ids as $sid) {
+                $side_total += isset($side_dishes[$sid]) ? $side_dishes[$sid]['price'] : 0;
+            }
+            $unit_price = $base_price + $size_add + $side_total;
+            $subtotal = $unit_price * $qty;
+            $cart_total += $subtotal;
+            $cart_count += $qty;
+            $cart_items[] = [
+                'cart_id' => $cart_id,
+                'food_id' => $food['id'],
+                'title' => $food['title'],
+                'image_name' => $food['image_name'],
+                'base_price' => $base_price,
+                'size_id' => $size_id,
+                'size_name' => isset($sizes[$size_id]) ? $sizes[$size_id]['name'] : 'Nhỏ',
+                'side_dish_ids' => $side_dish_ids,
+                'side_names' => array_map(function($id) use ($side_dishes) { return isset($side_dishes[$id]) ? $side_dishes[$id]['name'] : ''; }, (array) $side_dish_ids),
+                'unit_price' => $unit_price,
+                'qty' => $qty,
+                'note' => $note,
+                'subtotal' => $subtotal
+            ];
+        }
+    }
+}
+
+function formatPrice($num) {
+    return number_format($num, 0, ',', '.') . ' đ';
+}
 ?>
 
 <!DOCTYPE html>
@@ -10,460 +85,224 @@ include('../partials-front/menu.php');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giỏ hàng - WowFood</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        .cart-container {
-            max-width: 800px;
-            margin: 100px auto 50px;
-            padding: 20px;
-        }
-        .cart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ff6b81;
-        }
-        .cart-header h1 {
-            color: #2f3542;
-            margin: 0;
-        }
-        .cart-badge {
-            background: #ff6b81;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
-        }
-        .cart-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 15px;
-        }
-        .cart-item-image {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .cart-item-info {
-            flex: 1;
-        }
-        .cart-item-name {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #2f3542;
-            margin-bottom: 5px;
-        }
-        .cart-item-price {
-            color: #ff6b81;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .cart-item-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .quantity-btn {
-            width: 30px;
-            height: 30px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.2em;
-            transition: all 0.3s;
-        }
-        .quantity-btn:hover {
-            background: #f0f0f0;
-            border-color: #ff6b81;
-        }
-        .quantity-input {
-            width: 50px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 5px;
-        }
-        .note-input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        .note-input::placeholder {
-            color: #999;
-        }
-        .size-selection {
-            margin: 10px 0;
-        }
-        .size-selection label {
-            font-size: 0.9em;
-            color: #666;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        .size-options {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-            flex-wrap: wrap;
-        }
-        .size-option {
-            padding: 6px 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            background: white;
-            cursor: pointer;
-            font-size: 0.85em;
-            transition: all 0.3s;
-        }
-        .size-option:hover {
-            border-color: #ff6b81;
-        }
-        .size-option.selected {
-            background: #ff6b81;
-            color: white;
-            border-color: #ff6b81;
-        }
-        .side-dishes {
-            margin: 10px 0;
-        }
-        .side-dishes label {
-            font-size: 0.9em;
-            color: #666;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-        .side-dishes-list {
-            margin-top: 5px;
-        }
-        .side-dish-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            padding: 5px;
-        }
-        .side-dish-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .side-dish-item label {
-            font-size: 0.85em;
-            color: #333;
-            font-weight: normal;
-            cursor: pointer;
-            flex: 1;
-        }
-        .side-dish-price {
-            font-size: 0.85em;
-            color: #ff6b81;
-            font-weight: bold;
-        }
-        .remove-btn {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
-        }
-        .remove-btn:hover {
-            background: #ff3838;
-        }
-        .cart-summary {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: sticky;
-            bottom: 0;
-            margin-top: 20px;
-        }
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        .summary-total {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #ff6b81;
-            border-top: 2px solid #eee;
-            padding-top: 10px;
-        }
-        .checkout-btn {
-            width: 100%;
-            padding: 15px;
-            background: #ff6b81;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s;
-        }
-        .checkout-btn:hover {
-            background: #ff4757;
-        }
-        .checkout-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        .empty-cart {
-            text-align: center;
-            padding: 50px 20px;
-        }
-        .empty-cart-icon {
-            font-size: 5em;
-            margin-bottom: 20px;
-        }
-        .empty-cart h2 {
-            color: #666;
-            margin-bottom: 10px;
-        }
-        .empty-cart a {
-            color: #ff6b81;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        @media (max-width: 768px) {
-            .cart-container {
-                margin: 80px auto 20px;
-                padding: 10px;
-            }
-            .cart-item {
-                flex-direction: column;
-            }
-            .cart-item-image {
-                width: 100%;
-                height: 200px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../css/cart.css">
 </head>
 <body>
     <div class="cart-container">
         <div class="cart-header">
             <h1>Giỏ hàng</h1>
-            <span class="cart-badge" id="cartCount">3 món</span>
+            <span class="cart-badge" id="cartCount"><?php echo $cart_count; ?> món</span>
         </div>
         <div id="cartItems">
-            <!-- Dữ liệu mẫu để hiển thị UI -->
-            <div class="cart-item" data-cart-id="1">
-                <img src="<?php echo SITEURL; ?>image/category/Food_Category_88.avif" 
-                     alt="Phở Bò" class="cart-item-image">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">Cơm rang</div>
-                    <div class="cart-item-price">50,000 đ</div>
-                    
-                    <!-- Chọn size -->
-                    <div class="size-selection">
-                        <label>Kích thước:</label>
-                        <div class="size-options">
-                            <span class="size-option" data-size="small" onclick="selectSize(this, 1)">Nhỏ (+0đ)</span>
-                            <span class="size-option selected" data-size="medium" onclick="selectSize(this, 1)">Vừa (+10,000đ)</span>
-                            <span class="size-option" data-size="large" onclick="selectSize(this, 1)">Lớn (+20,000đ)</span>
-                        </div>
-                    </div>
-
-                    <!-- Món ăn kèm -->
-                    <div class="side-dishes">
-                        <label>Món ăn kèm:</label>
-                        <div class="side-dishes-list">
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side1-1" checked>
-                                <label for="side1-1">Trứng ốp la</label>
-                                <span class="side-dish-price">+15,000đ</span>
-                            </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side1-2">
-                                <label for="side1-2">Nem rán</label>
-                                <span class="side-dish-price">+20,000đ</span>
-                            </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side1-3">
-                                <label for="side1-3">Canh chua</label>
-                                <span class="side-dish-price">+25,000đ</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cart-item-controls">
-                        <button class="quantity-btn" onclick="alert('Chức năng đang phát triển')">-</button>
-                        <input type="number" class="quantity-input" value="2" min="1" readonly>
-                        <button class="quantity-btn" onclick="alert('Chức năng đang phát triển')">+</button>
-                        <button class="remove-btn" onclick="alert('Chức năng đang phát triển')">Xóa</button>
-                    </div>
-                    <input type="text" class="note-input" 
-                           placeholder="Ghi chú (VD: ăn cay, không cay, nhiều, ít...)" 
-                           value="Không cay">
+            <?php if (empty($cart_items)): ?>
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <h2>Giỏ hàng trống</h2>
+                    <p>Hãy thêm món ăn từ thực đơn nhé!</p>
+                    <a href="<?php echo SITEURL; ?>food.php">Xem thực đơn</a>
                 </div>
-            </div>
-
-            <div class="cart-item" data-cart-id="2">
-                <img src="<?php echo SITEURL; ?>image/category/Food_Category_65.jpg" 
-                     alt="Bánh Mì" class="cart-item-image">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">Bánh Mì</div>
-                    <div class="cart-item-price">25,000 đ</div>
-                    
-                    <!-- Chọn size -->
-                    <div class="size-selection">
-                        <label>Kích thước:</label>
-                        <div class="size-options">
-                            <span class="size-option selected" data-size="small" onclick="selectSize(this, 2)">Nhỏ (+0đ)</span>
-                            <span class="size-option" data-size="medium" onclick="selectSize(this, 2)">Vừa (+5,000đ)</span>
-                            <span class="size-option" data-size="large" onclick="selectSize(this, 2)">Lớn (+10,000đ)</span>
+            <?php else: ?>
+                <?php foreach ($cart_items as $item): ?>
+                <div class="cart-item" data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>" data-base-price="<?php echo $item['base_price']; ?>" data-item-name="<?php echo htmlspecialchars($item['title']); ?>">
+                    <?php if (!empty($item['image_name'])): ?>
+                        <img src="<?php echo SITEURL; ?>image/food/<?php echo htmlspecialchars($item['image_name']); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="cart-item-image">
+                    <?php else: ?>
+                        <div class="cart-item-image-placeholder">Chưa có ảnh</div>
+                    <?php endif; ?>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name"><?php echo htmlspecialchars($item['title']); ?></div>
+                        <div class="cart-item-price item-price" data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>">
+                            <?php echo formatPrice($item['unit_price']); ?> × <?php echo $item['qty']; ?> = <strong><?php echo formatPrice($item['subtotal']); ?></strong>
                         </div>
-                    </div>
-
-                    <!-- Món ăn kèm -->
-                    <div class="side-dishes">
-                        <label>Món ăn kèm:</label>
-                        <div class="side-dishes-list">
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side2-1">
-                                <label for="side2-1">Pate</label>
-                                <span class="side-dish-price">+5,000đ</span>
+                        <div class="cart-collapse open">
+                            <div class="cart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
+                                <span class="cart-collapse-icon">▼</span>
+                                <label>Kích thước</label>
                             </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side2-2" checked>
-                                <label for="side2-2">Chả lụa</label>
-                                <span class="side-dish-price">+10,000đ</span>
-                            </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side2-3">
-                                <label for="side2-3">Trứng</label>
-                                <span class="side-dish-price">+8,000đ</span>
-                            </div>
+                            <div class="cart-collapse-body"><div class="cart-size-select">
+                            <?php foreach ($sizes as $sid => $s): ?>
+                                <span class="cart-size-opt <?php echo $sid == $item['size_id'] ? 'selected' : ''; ?>" 
+                                      data-size-id="<?php echo $sid; ?>" data-size-name="<?php echo htmlspecialchars($s['name']); ?>" data-price-add="<?php echo $s['price_add']; ?>"
+                                      data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>"><?php echo htmlspecialchars($s['name']); ?> (+<?php echo formatPrice($s['price_add']); ?>)</span>
+                            <?php endforeach; ?>
+                            </div></div>
                         </div>
+                        <div class="cart-collapse">
+                            <div class="cart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
+                                <span class="cart-collapse-icon">▼</span>
+                                <label>Món/nước kèm</label>
+                            </div>
+                            <div class="cart-collapse-body"><div class="cart-sides-select">
+                                <?php foreach ($side_dishes as $sid => $sd): ?>
+                                <div class="cart-side-item">
+                                    <input type="checkbox" class="cart-side-cb" data-side-id="<?php echo $sid; ?>" data-side-name="<?php echo htmlspecialchars($sd['name']); ?>" data-price="<?php echo $sd['price']; ?>"
+                                           data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>"
+                                           <?php echo in_array($sid, $item['side_dish_ids']) ? 'checked' : ''; ?>>
+                                    <label><?php echo htmlspecialchars($sd['name']); ?> (+<?php echo formatPrice($sd['price']); ?>)</label>
+                                </div>
+                                <?php endforeach; ?>
+                            </div></div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button class="quantity-btn" onclick="changeQty('<?php echo $item['cart_id']; ?>', -1)">-</button>
+                            <input type="number" class="quantity-input item-qty" data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>" value="<?php echo $item['qty']; ?>" min="1" onchange="setQty('<?php echo $item['cart_id']; ?>', this.value)">
+                            <button class="quantity-btn" onclick="changeQty('<?php echo $item['cart_id']; ?>', 1)">+</button>
+                            <button class="remove-btn" onclick="removeItem('<?php echo $item['cart_id']; ?>')">Xóa</button>
+                        </div>
+                        <input type="text" class="note-input" placeholder="Ghi chú..." value="<?php echo htmlspecialchars($item['note']); ?>"
+                               data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>" onblur="updateNote('<?php echo $item['cart_id']; ?>', this.value)">
                     </div>
-
-                    <div class="cart-item-controls">
-                        <button class="quantity-btn" onclick="alert('Chức năng đang phát triển')">-</button>
-                        <input type="number" class="quantity-input" value="1" min="1" readonly>
-                        <button class="quantity-btn" onclick="alert('Chức năng đang phát triển')">+</button>
-                        <button class="remove-btn" onclick="alert('Chức năng đang phát triển')">Xóa</button>
-                    </div>
-                    <input type="text" class="note-input" 
-                           placeholder="Ghi chú (VD: ăn cay, không cay, nhiều, ít...)" 
-                           value="">
                 </div>
-            </div>
-
-            <div class="cart-item" data-cart-id="3">
-                <img src="<?php echo SITEURL; ?>image/category/Food_Category_356.jpg" 
-                     alt="Cơm Gà" class="cart-item-image">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">Gà rán</div>
-                    <div class="cart-item-price">45,000 đ</div>
-                    
-                    <!-- Chọn size -->
-                    <div class="size-selection">
-                        <label>Kích thước:</label>
-                        <div class="size-options">
-                            <span class="size-option" data-size="small" onclick="selectSize(this, 3)">Nhỏ (+0đ)</span>
-                            <span class="size-option" data-size="medium" onclick="selectSize(this, 3)">Vừa (+15,000đ)</span>
-                            <span class="size-option selected" data-size="large" onclick="selectSize(this, 3)">Lớn (+30,000đ)</span>
-                        </div>
-                    </div>
-
-                    <!-- Món ăn kèm -->
-                    <div class="side-dishes">
-                        <label>Món ăn kèm:</label>
-                        <div class="side-dishes-list">
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side3-1" checked>
-                                <label for="side3-1">Khoai tây chiên</label>
-                                <span class="side-dish-price">+20,000đ</span>
-                            </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side3-2" checked>
-                                <label for="side3-2">Salad</label>
-                                <span class="side-dish-price">+15,000đ</span>
-                            </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side3-3">
-                                <label for="side3-3">Nước ngọt</label>
-                                <span class="side-dish-price">+10,000đ</span>
-                            </div>
-                            <div class="side-dish-item">
-                                <input type="checkbox" id="side3-4">
-                                <label for="side3-4">Sốt chấm</label>
-                                <span class="side-dish-price">+5,000đ</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="cart-item-controls">
-                        <button class="quantity-btn" onclick="alert('Chức năng đang phát triển')">-</button>
-                        <input type="number" class="quantity-input" value="1" min="1" readonly>
-                        <button class="quantity-btn" onclick="alert('Chức năng đang phát triển')">+</button>
-                        <button class="remove-btn" onclick="alert('Chức năng đang phát triển')">Xóa</button>
-                    </div>
-                    <input type="text" class="note-input" 
-                           placeholder="Ghi chú (VD: ăn cay, không cay, nhiều, ít...)" 
-                           value="Nhiều thịt">
-                </div>
-            </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
+        <?php if (!empty($cart_items)): ?>
         <div class="cart-summary" id="cartSummary">
-            <div class="summary-row">
-                <span>Tổng cộng:</span>
-                <span id="cartTotal">170,000 đ</span>
+            <div class="summary-title">Chi tiết đơn hàng</div>
+            <div class="summary-details" id="summaryDetails">
+                <?php foreach ($cart_items as $item): 
+                    $extras = array_filter([$item['size_name']]);
+                    if (!empty($item['side_names'])) $extras = array_merge($extras, $item['side_names']);
+                    $extrasStr = !empty($extras) ? ' (' . implode(', ', $extras) . ')' : '';
+                ?>
+                <div class="summary-detail-item">
+                    <span class="summary-detail-name"><?php echo htmlspecialchars($item['title']); ?> <span class="summary-detail-qty">× <?php echo $item['qty']; ?></span><?php if ($extrasStr): ?><span class="summary-detail-extras"><?php echo htmlspecialchars($extrasStr); ?></span><?php endif; ?></span>
+                    <span class="summary-detail-price"><?php echo formatPrice($item['subtotal']); ?></span>
+                </div>
+                <?php endforeach; ?>
             </div>
-            <button class="checkout-btn" onclick="alert('Chức năng thanh toán đang phát triển')">Thanh toán</button>
+            <div class="summary-row summary-total">
+                <span>Tổng cộng:</span>
+                <span id="cartTotal"><?php echo formatPrice($cart_total); ?></span>
+            </div>
+            <button class="checkout-btn" onclick="Swal.fire('Thông báo', 'Chức năng thanh toán đang phát triển', 'info')">Thanh toán</button>
         </div>
+        <?php endif; ?>
     </div>
     <?php include('../partials-front/footer.php'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-       
-        function selectSize(element, cartId) {
-            
-            const cartItem = element.closest('.cart-item');
-            const sizeOptions = cartItem.querySelectorAll('.size-option');
-            sizeOptions.forEach(option => {
-                option.classList.remove('selected');
+        const SITEURL = '<?php echo SITEURL; ?>';
+
+        function getItemData(cartId) {
+            const item = document.querySelector('.cart-item[data-cart-id="' + cartId + '"]');
+            if (!item) return null;
+            const basePrice = parseFloat(item.dataset.basePrice) || 0;
+            let sizeAdd = 0;
+            const selSize = item.querySelector('.cart-size-opt.selected');
+            if (selSize) sizeAdd = parseFloat(selSize.dataset.priceAdd) || 0;
+            let sideTotal = 0;
+            item.querySelectorAll('.cart-side-cb:checked').forEach(cb => {
+                if (cb.dataset.cartId === cartId) sideTotal += parseFloat(cb.dataset.price) || 0;
             });
-            
-            
-            element.classList.add('selected');
-            
-           
-            console.log('Đã chọn size:', element.dataset.size, 'cho món', cartId);
+            const qty = parseInt(item.querySelector('.item-qty[data-cart-id="' + cartId + '"]')?.value) || 1;
+            const unitPrice = basePrice + sizeAdd + sideTotal;
+            const name = item.dataset.itemName || item.querySelector('.cart-item-name')?.textContent || 'Món';
+            return { name, unitPrice, qty, subtotal: unitPrice * qty };
         }
 
-       
-        function updateTotal() {
-           
-            console.log('Cập nhật tổng tiền');
+        function updateItemDisplay(cartId) {
+            const d = getItemData(cartId);
+            if (!d) return;
+            const priceEl = document.querySelector('.item-price[data-cart-id="' + cartId + '"]');
+            if (priceEl) priceEl.innerHTML = formatPrice(d.unitPrice) + ' × ' + d.qty + ' = <strong>' + formatPrice(d.subtotal) + '</strong>';
+            updateGrandTotal();
         }
 
-        
+        function updateGrandTotal() {
+            let total = 0;
+            const details = [];
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const cartId = item.dataset.cartId;
+                const d = getItemData(cartId);
+                if (d) {
+                    total += d.subtotal;
+                    details.push({ name: d.name, qty: d.qty, subtotal: d.subtotal, extras: d.extras || [] });
+                }
+            });
+            const totalEl = document.getElementById('cartTotal');
+            if (totalEl) totalEl.textContent = formatPrice(total);
+            const detailsEl = document.getElementById('summaryDetails');
+            if (detailsEl) {
+                detailsEl.innerHTML = details.map(d => {
+                const name = String(d.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                const extras = (d.extras || []).length ? ' <span class="summary-detail-extras">(' + (d.extras || []).map(e => String(e).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')).join(', ') + ')</span>' : '';
+                return '<div class="summary-detail-item"><span class="summary-detail-name">' + name + ' <span class="summary-detail-qty">× ' + d.qty + '</span>' + extras + '</span><span class="summary-detail-price">' + formatPrice(d.subtotal) + '</span></div>';
+            }).join('');
+            }
+        }
+
+        function formatPrice(n) { return new Intl.NumberFormat('vi-VN').format(Math.round(n)) + ' đ'; }
+
+        function changeQty(cartId, delta) {
+            const input = document.querySelector('.item-qty[data-cart-id="' + cartId + '"]');
+            if (!input) return;
+            let val = Math.max(1, (parseInt(input.value) || 1) + delta);
+            input.value = val;
+            updateItemDisplay(cartId);
+            saveCartItem(cartId);
+        }
+
+        function setQty(cartId, value) {
+            const val = Math.max(1, parseInt(value) || 1);
+            const input = document.querySelector('.item-qty[data-cart-id="' + cartId + '"]');
+            if (input) input.value = val;
+            updateItemDisplay(cartId);
+            saveCartItem(cartId);
+        }
+
+        function saveCartItem(cartId) {
+            const item = document.querySelector('.cart-item[data-cart-id="' + cartId + '"]');
+            if (!item) return;
+            const qty = parseInt(item.querySelector('.item-qty[data-cart-id="' + cartId + '"]')?.value) || 1;
+            const note = item.querySelector('.note-input[data-cart-id="' + cartId + '"]')?.value || '';
+            let sizeId = 1;
+            item.querySelectorAll('.cart-size-opt.selected').forEach(o => { if (o.dataset.cartId === cartId) sizeId = o.dataset.sizeId; });
+            const sideIds = Array.from(item.querySelectorAll('.cart-side-cb:checked')).filter(cb => cb.dataset.cartId === cartId).map(cb => cb.dataset.sideId);
+            const fd = new FormData();
+            fd.append('cart_id', cartId);
+            fd.append('quantity', qty);
+            fd.append('note', note);
+            fd.append('size_id', sizeId);
+            fd.append('side_dish_ids', sideIds.join(','));
+            fetch(SITEURL + 'api/update-cart.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => { if (data.success) updateItemDisplay(cartId); });
+        }
+
+        function updateNote(cartId, note) { saveCartItem(cartId); }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.side-dish-item input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    updateTotal();
+            document.querySelectorAll('.cart-size-opt').forEach(el => {
+                el.addEventListener('click', function() {
+                    const cartId = this.dataset.cartId;
+                    this.closest('.cart-item').querySelectorAll('.cart-size-opt').forEach(o => { o.classList.remove('selected'); });
+                    this.classList.add('selected');
+                    saveCartItem(cartId);
+                    updateItemDisplay(cartId);
+                });
+            });
+            document.querySelectorAll('.cart-side-cb').forEach(el => {
+                el.addEventListener('change', function() {
+                    const cartId = this.dataset.cartId;
+                    saveCartItem(cartId);
+                    updateItemDisplay(cartId);
                 });
             });
         });
+
+        function removeItem(cartId) {
+            Swal.fire({ title: 'Xác nhận xóa', text: 'Bạn có chắc muốn xóa món này?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff4757', cancelButtonColor: '#6c757d', confirmButtonText: 'Xóa' })
+                .then((r) => {
+                    if (r.isConfirmed) {
+                        const fd = new FormData();
+                        fd.append('cart_id', cartId);
+                        fetch(SITEURL + 'api/remove-from-cart.php', { method: 'POST', body: fd })
+                            .then(res => res.json())
+                            .then(data => { if (data.success) location.reload(); });
+                    }
+                });
+        }
     </script>
 </body>
 </html>
-

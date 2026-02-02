@@ -62,11 +62,7 @@
                     </p>
                     <br>
 
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                        <button onclick="addToCart(<?php echo $id; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
-                    <?php else: ?>
-                        <a href="<?php echo SITEURL; ?>user/login.php" class="btn btn-primary">Đặt ngay</a>
-                    <?php endif; ?>
+                    <button onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
                 </div>
                 </div>
 

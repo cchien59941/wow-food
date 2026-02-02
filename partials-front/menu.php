@@ -1,4 +1,4 @@
-<?php include('config/constants.php');?>
+<?php include(__DIR__ . '/../config/constants.php');?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -152,10 +152,33 @@
         }
     }
 
-    #chatLink {
-        position: relative;
-        display: inline-block;
-    }
+    #chatLink { position: relative; display: inline-block; }
+    .addcart-modal { text-align: left; }
+    .addcart-row { margin-bottom: 16px; }
+    .addcart-row label { display: block; margin-bottom: 6px; font-weight: bold; color: #2f3542; }
+    .addcart-qty { display: flex; align-items: center; gap: 8px; }
+    .addcart-qty button { width: 36px; height: 36px; border: 1px solid #ddd; background: #fff; border-radius: 6px; cursor: pointer; font-size: 1.1em; }
+    .addcart-qty input { width: 60px; text-align: center; padding: 8px; border: 1px solid #ddd; border-radius: 6px; }
+    .addcart-sizes { display: flex; flex-wrap: wrap; gap: 8px; }
+    .swal-size-opt { padding: 8px 14px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; font-size: 0.9em; transition: all 0.2s; }
+    .swal-size-opt:hover { border-color: #ff6b81; }
+    .swal-size-opt.selected { background: #ff6b81; color: white; border-color: #ff6b81; }
+    .addcart-sides { max-height: 140px; overflow-y: auto; }
+    .addcart-collapse { margin-bottom: 12px; border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+    .addcart-collapse-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; background: #f8f8f8; user-select: none; }
+    .addcart-collapse-head:hover { background: #f0f0f0; }
+    .addcart-collapse-head label { margin: 0; cursor: pointer; flex: 1; }
+    .addcart-collapse-icon { font-size: 0.7em; transition: transform 0.2s; display: inline-block; }
+    .addcart-collapse:not(.open) .addcart-collapse-icon { transform: rotate(-90deg); }
+    .addcart-collapse-body { max-height: 180px; overflow: hidden; transition: max-height 0.25s ease; }
+    .addcart-collapse-body > div { padding: 12px; }
+    .addcart-collapse:not(.open) .addcart-collapse-body { max-height: 0 !important; }
+    .addcart-collapse:not(.open) .addcart-collapse-body > div { padding-top: 0; padding-bottom: 0; }
+    .swal-side-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .swal-side-item input { width: 18px; height: 18px; cursor: pointer; }
+    .swal-side-item label { margin: 0; font-weight: normal; cursor: pointer; flex: 1; }
+    .addcart-total { margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; font-size: 1.1em; color: #ff6b81; }
+    .addcart-row input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
     </style>
     <script>
     function confirmLogout(logoutUrl) {
@@ -203,114 +226,125 @@
         setInterval(updateChatBadge, 5000);
     }
 
-    // Hàm thêm vào giỏ hàng
-    function addToCart(foodId, quantity = 1, note = '') {
-        <?php if(!isset($_SESSION['user_id'])): ?>
-        Swal.fire({
-            icon: 'warning',
-            title: 'Yêu cầu đăng nhập',
-            text: 'Vui lòng đăng nhập để thêm vào giỏ hàng!',
-            confirmButtonColor: '#ff6b81',
-            showCancelButton: true,
-            confirmButtonText: 'Đăng nhập',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '<?php echo SITEURL; ?>user/login.php';
+    // Hàm thêm vào giỏ hàng (foodId, foodPrice)
+    let cartOptionsCache = null;
+    async function addToCart(foodId, foodPrice = 0) {
+        if (!cartOptionsCache) {
+            try {
+                const r = await fetch('<?php echo SITEURL; ?>api/get-options.php');
+                const d = await r.json();
+                cartOptionsCache = d.sizes && d.side_dishes ? d : { sizes: [{id:1,name:'Nhỏ',price_add:0},{id:2,name:'Vừa',price_add:5},{id:3,name:'Lớn',price_add:10}], side_dishes: [{id:1,name:'Trứng ốp la',price:8},{id:2,name:'Nem rán',price:10},{id:3,name:'Khoai tây chiên',price:12},{id:4,name:'Salad',price:6},{id:5,name:'Nước ngọt',price:5},{id:6,name:'Trà đá',price:3}] };
+            } catch (e) {
+                cartOptionsCache = { sizes: [{id:1,name:'Nhỏ',price_add:0},{id:2,name:'Vừa',price_add:5},{id:3,name:'Lớn',price_add:10}], side_dishes: [{id:1,name:'Trứng ốp la',price:8},{id:2,name:'Nem rán',price:10},{id:3,name:'Khoai tây chiên',price:12},{id:4,name:'Salad',price:6},{id:5,name:'Nước ngọt',price:5},{id:6,name:'Trà đá',price:3}] };
             }
-        });
-        return;
-        <?php endif; ?>
+        }
+        const sizes = cartOptionsCache.sizes || [];
+        const sides = cartOptionsCache.side_dishes || [];
+        const fmt = (n) => new Intl.NumberFormat('vi-VN').format(n) + ' đ';
+        const defaultSizeId = sizes[0] ? sizes[0].id : 1;
+        let sizeId = defaultSizeId;
+        let sideIds = [];
+        const getSizePrice = () => (sizes.find(s=>s.id==sizeId)||{}).price_add || 0;
+        const getSidePrice = () => sideIds.reduce((sum,id)=> sum + ((sides.find(s=>s.id==id)||{}).price||0), 0);
+        const calcTotal = (qty) => (foodPrice + getSizePrice() + getSidePrice()) * (qty||1);
+
+        const sizesHtml = sizes.map(s=>`<span class="swal-size-opt ${s.id==defaultSizeId?'selected':''}" data-id="${s.id}" data-add="${s.price_add}">${s.name} (+${fmt(s.price_add)})</span>`).join('');
+        const sidesHtml = sides.map(s=>`<div class="swal-side-item"><input type="checkbox" class="swal-side-cb" data-id="${s.id}" data-price="${s.price}"><label>${s.name} (+${fmt(s.price)})</label></div>`).join('');
+
+        const html = `
+            <div class="addcart-modal">
+                <div class="addcart-row"><label>Số lượng:</label>
+                    <div class="addcart-qty"><button type="button" id="swal-dec">-</button>
+                    <input type="number" id="swal-quantity" value="1" min="1">
+                    <button type="button" id="swal-inc">+</button></div>
+                </div>
+                <div class="addcart-row addcart-collapse open">
+                    <div class="addcart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
+                        <span class="addcart-collapse-icon">▼</span>
+                        <label>Kích thước</label>
+                    </div>
+                    <div class="addcart-collapse-body"><div class="addcart-sizes">${sizesHtml}</div></div>
+                </div>
+                <div class="addcart-row addcart-collapse">
+                    <div class="addcart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
+                        <span class="addcart-collapse-icon">▼</span>
+                        <label>Món/nước kèm</label>
+                    </div>
+                    <div class="addcart-collapse-body"><div class="addcart-sides">${sidesHtml}</div></div>
+                </div>
+                <div class="addcart-row"><label>Ghi chú:</label>
+                    <input type="text" id="swal-note" placeholder="VD: ăn cay, không cay...">
+                </div>
+                <div class="addcart-total">Tạm tính: <strong id="swal-total">${fmt(calcTotal(1))}</strong></div>
+            </div>
+        `;
+
+        const updateTotal = () => {
+            const qty = parseInt(document.getElementById('swal-quantity').value) || 1;
+            document.getElementById('swal-total').textContent = fmt(calcTotal(qty));
+        };
 
         Swal.fire({
             title: '🛒 Thêm vào giỏ hàng',
-            html: `
-                    <div style="text-align: left; padding: 10px 0;">
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #2f3542;">Số lượng:</label>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <button type="button" onclick="decreaseQty()" style="width: 35px; height: 35px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer; font-size: 1.2em;">-</button>
-                                <input type="number" id="swal-quantity" value="${quantity}" min="1" style="width: 80px; text-align: center; border: 1px solid #ddd; border-radius: 5px; padding: 8px; font-size: 1em;">
-                                <button type="button" onclick="increaseQty()" style="width: 35px; height: 35px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer; font-size: 1.2em;">+</button>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #2f3542;">Ghi chú (tùy chọn):</label>
-                            <input type="text" id="swal-note" placeholder="VD: ăn cay, không cay, nhiều, ít..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.95em; box-sizing: border-box;">
-                        </div>
-                    </div>
-                `,
-            width: '450px',
+            html,
+            width: '480px',
             showCancelButton: true,
-            confirmButtonText: '✅ Thêm vào giỏ',
-            cancelButtonText: '❌ Hủy',
+            confirmButtonText: 'Thêm vào giỏ',
+            cancelButtonText: 'Hủy',
             confirmButtonColor: '#ff6b81',
             cancelButtonColor: '#6c757d',
-            customClass: {
-                popup: 'swal2-no-scroll',
-                htmlContainer: 'swal2-no-scroll'
-            },
+            customClass: { popup: 'swal2-no-scroll', htmlContainer: 'swal2-no-scroll' },
             didOpen: () => {
-                window.decreaseQty = function() {
-                    const input = document.getElementById('swal-quantity');
-                    if (parseInt(input.value) > 1) {
-                        input.value = parseInt(input.value) - 1;
-                    }
+                const c = Swal.getHtmlContainer();
+                c.querySelector('#swal-dec').onclick = () => {
+                    const i = c.querySelector('#swal-quantity');
+                    if (parseInt(i.value) > 1) { i.value = parseInt(i.value) - 1; updateTotal(); }
                 };
-                window.increaseQty = function() {
-                    const input = document.getElementById('swal-quantity');
-                    input.value = parseInt(input.value) + 1;
+                c.querySelector('#swal-inc').onclick = () => {
+                    const i = c.querySelector('#swal-quantity');
+                    i.value = (parseInt(i.value)||1) + 1; updateTotal();
                 };
+                c.querySelector('#swal-quantity').onchange = updateTotal;
+                c.querySelectorAll('.swal-size-opt').forEach(el => {
+                    el.onclick = () => {
+                        c.querySelectorAll('.swal-size-opt').forEach(x=>x.classList.remove('selected'));
+                        el.classList.add('selected');
+                        sizeId = parseInt(el.dataset.id);
+                        updateTotal();
+                    };
+                });
+                c.querySelectorAll('.swal-side-cb').forEach(el => {
+                    el.onchange = () => {
+                        sideIds = Array.from(c.querySelectorAll('.swal-side-cb:checked')).map(x=>parseInt(x.dataset.id));
+                        updateTotal();
+                    };
+                });
             },
             preConfirm: () => {
-                const qty = document.getElementById('swal-quantity').value;
-                const note = document.getElementById('swal-note').value;
-                if (!qty || qty < 1) {
-                    Swal.showValidationMessage('Số lượng phải lớn hơn 0!');
-                    return false;
-                }
-                return {
-                    quantity: parseInt(qty),
-                    note: note
-                };
+                const qty = parseInt(document.getElementById('swal-quantity').value) || 1;
+                if (qty < 1) { Swal.showValidationMessage('Số lượng phải lớn hơn 0!'); return false; }
+                return { quantity: qty, note: document.getElementById('swal-note').value, size_id: sizeId, side_dish_ids: sideIds };
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                const formData = new FormData();
-                formData.append('food_id', foodId);
-                formData.append('quantity', result.value.quantity);
-                formData.append('note', result.value.note);
-
-                fetch('<?php echo SITEURL; ?>api/add-to-cart.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
+                const v = result.value;
+                const fd = new FormData();
+                fd.append('food_id', foodId);
+                fd.append('quantity', v.quantity);
+                fd.append('note', v.note);
+                fd.append('size_id', v.size_id);
+                fd.append('side_dish_ids', v.side_dish_ids.join(','));
+                fetch('<?php echo SITEURL; ?>api/add-to-cart.php', { method: 'POST', body: fd })
+                    .then(r=>r.json())
                     .then(data => {
                         if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Thành công!',
-                                text: data.message,
-                                confirmButtonColor: '#ff6b81',
-                                showCancelButton: true,
-                                confirmButtonText: 'Xem giỏ hàng',
-                                cancelButtonText: 'Tiếp tục mua',
-                                timer: 3000
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.href = '<?php echo SITEURL; ?>user/cart.php';
-                                }
-                            });
+                            Swal.fire({ icon: 'success', title: 'Thành công!', text: data.message, confirmButtonColor: '#ff6b81',
+                                showCancelButton: true, confirmButtonText: 'Xem giỏ hàng', cancelButtonText: 'Tiếp tục mua', timer: 3000 })
+                                .then(r => { if (r.isConfirmed) window.location.href = '<?php echo SITEURL; ?>user/cart.php'; });
                             updateCartBadge();
-                        } else {
-                            Swal.fire('Lỗi!', data.message, 'error');
-                        }
+                        } else Swal.fire('Lỗi!', data.message, 'error');
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire('Lỗi!', 'Có lỗi xảy ra, vui lòng thử lại!', 'error');
-                    });
+                    .catch(e => Swal.fire('Lỗi!', 'Có lỗi xảy ra!', 'error'));
             }
         });
     }
@@ -333,42 +367,7 @@
             .catch(error => console.error('Error loading cart count:', error));
     }
 
-
-    // Cập nhật badge giỏ hàng
-    function updateCartBadge() {
-        const badge = document.getElementById('cartBadge');
-        if (!badge) return;
-
-        <?php if(isset($_SESSION['user_id'])): ?>
-        fetch('<?php echo SITEURL; ?>api/get-cart-count.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.count > 0) {
-                    badge.textContent = data.count > 99 ? '99+' : data.count;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error loading cart count:', error);
-                badge.style.display = 'none';
-            });
-        <?php else: ?>
-        // Chưa đăng nhập, ẩn badge
-        badge.style.display = 'none';
-        <?php endif; ?>
-    }
-
     // Load badge khi trang load
     updateCartBadge();
-    <?php if(isset($_SESSION['user_id'])): ?>
     setInterval(updateCartBadge, 3000);
-    <?php endif; ?>
-       
-        // Load badge khi trang load
-        <?php if(isset($_SESSION['user_id'])): ?>
-    updateCartBadge();
-    setInterval(updateCartBadge, 3000);
-    <?php endif; ?>
     </script>
