@@ -12,7 +12,7 @@ $host = "localhost";
 $username = "root";
 $port = 3306; 
 $password = ""; 
-$dbname = "food-oder";
+$dbname = "food-order";
 
 if (!isset($conn) || !($conn instanceof mysqli)) {
     $conn = new mysqli($host, $username, $password, $dbname, $port);
