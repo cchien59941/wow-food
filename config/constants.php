@@ -6,8 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!defined('SITEURL')) define('SITEURL', 'http://localhost/wow-food/');
 
 $host = "localhost";
-$port = 3306; 
 $username = "root";
+$port = 3307; 
 $password = ""; 
 $dbname = "food-oder";
 

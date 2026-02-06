@@ -114,6 +114,7 @@ table tr th{
     background-color: transparent;
     color: #2f3542;
     padding: 2% 0;
+    z-index: 10;
 }
 
 /* CSS for login */

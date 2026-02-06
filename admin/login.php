@@ -1,30 +1,32 @@
 <?php 
 require '../config/constants.php';
 
-
+// Xử lý đăng nhập trước khi output HTML
 if(isset($_POST['submit'])){
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    
+    // Use prepared statement to prevent SQL injection
     $sql = "SELECT * FROM tbl_admin WHERE email=?";
     $stmt = mysqli_prepare($conn, $sql);
 
     if($stmt){
-   
+        // Bind the parameters
         mysqli_stmt_bind_param($stmt, "s", $email);
 
+        // Execute the statement
         mysqli_stmt_execute($stmt);
 
-       
+        // Get the result
         $result = mysqli_stmt_get_result($stmt);
         $count = mysqli_num_rows($result);
 
         if($count == 1){
             $admin = mysqli_fetch_assoc($result);
             
+            // Check if password is hashed or plain text (for backward compatibility)
             if(password_verify($password, $admin['password']) || $admin['password'] === $password){
-               
+                // Login successful
                 $_SESSION['login'] = '';
                 $_SESSION['user'] = $admin['username'];
                 $_SESSION['admin_id'] = $admin['id'];
@@ -33,20 +35,20 @@ if(isset($_POST['submit'])){
                 exit();
             }
             else{
-               
+                // Password incorrect
                 $_SESSION['login'] = "<div class='error'>Email hoặc mật khẩu không đúng!</div>";
                 header('location:'.SITEURL.'admin/login.php');
                 exit();
             }
         }
         else{
-            
+            // Admin not found
             $_SESSION['login'] = "<div class='error'>Email hoặc mật khẩu không đúng!</div>";
             header('location:'.SITEURL.'admin/login.php');
             exit();
         }
 
-   
+        // Close the statement
         mysqli_stmt_close($stmt);
     }
     else{
@@ -63,19 +65,10 @@ if(isset($_POST['submit'])){
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-    .login-form {
-        width: 350px;
-        margin: 50px auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
     .login-form input[type="email"],
     .login-form input[type="password"] {
-        width: 100%;
-        padding: 12px;
+        width: 80%;
+        padding: 10px;
         margin-bottom: 15px;
         border: 1px solid #ddd;
         border-radius: 5px;
@@ -84,8 +77,8 @@ if(isset($_POST['submit'])){
     }
 
     .login-form input[type="submit"] {
-        width: 100%;
-        padding: 12px;
+        width: 80%;
+        padding: 10px;
         background-color: #ff6b81;
         color: white;
         border: none;
@@ -103,7 +96,7 @@ if(isset($_POST['submit'])){
 <body class="login-page">
     <?php include('../partials-front/menu.php'); ?>
 
-    <div class="login" style="margin-top: 100px;">
+    <div class="login" style="margin-top: 150px;">
         <h1 class="text-center">Đăng nhập Admin</h1>
         <br><br>
         <br><br>
@@ -166,5 +159,6 @@ if(isset($_POST['submit'])){
             ?>
     </script>
 </body>
+<?php include("partials/footer.php"); ?>
 
 </html>
