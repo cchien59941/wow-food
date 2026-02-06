@@ -22,7 +22,12 @@ if(isset($_POST['submit'])){
         header('location:'.SITEURL.'user/register.php');
         exit();
     }
-
+    // Validate email format
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        $_SESSION['register'] = "Email không hợp lệ!";
+        header('location:'.SITEURL.'user/register.php');
+        exit();
+    }
     $email_domain = substr(strrchr($email, "@"), 1);
     if(strtolower($email_domain) !== 'gmail.com'){
         $_SESSION['register'] = "Chỉ chấp nhận đăng ký bằng Gmail!";
@@ -52,6 +57,96 @@ if(isset($_POST['submit'])){
         'address' => $address,
         'verification_type' => 'email' // Chỉ dùng email
     ];
+    require_once(__DIR__ . '/../api/phpmailer-send.php');
+    
+    // Tạo mã xác minh và gửi email trực tiếp
+    $verification_code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+    $expires_at = date('Y-m-d H:i:s', time() + 600);
+    
+    // Xóa mã cũ
+    $delete_sql = "DELETE FROM tbl_verification WHERE 
+        email = ? AND 
+        is_verified = 0 AND 
+        expires_at < UTC_TIMESTAMP()";
+    $stmt = mysqli_prepare($conn, $delete_sql);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "s", $email);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    }
+    
+    // Lưu mã mới
+    $insert_sql = "INSERT INTO tbl_verification SET
+        email = ?,
+        phone = NULL,
+        verification_code = ?,
+        verification_type = 'email',
+        expires_at = ?,
+        is_verified = 0,
+        attempts = 0";
+    $stmt = mysqli_prepare($conn, $insert_sql);
+    if (!$stmt) {
+        $_SESSION['register'] = "Lỗi khi chuẩn bị lưu mã xác minh: " . mysqli_error($conn);
+        unset($_SESSION['pending_registration']);
+        header('location:'.SITEURL.'user/register.php');
+        exit();
+    }
+    
+    mysqli_stmt_bind_param($stmt, "sss", $email, $verification_code, $expires_at);
+    $result = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    
+    if (!$result) {
+        $_SESSION['register'] = "Lỗi khi lưu mã xác minh: " . mysqli_error($conn);
+        unset($_SESSION['pending_registration']);
+        header('location:'.SITEURL.'user/register.php');
+        exit();
+    }
+    
+    // Gửi email sử dụng function từ send-verification.php
+    $subject = "Mã xác minh đăng ký - WowFood";
+    $message = "
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .code { font-size: 32px; font-weight: bold; color: #ff6b81; text-align: center; padding: 20px; background: #f1f2f6; border-radius: 10px; margin: 20px 0; letter-spacing: 5px; }
+            .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 0.9em; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <h2>Xác minh đăng ký tài khoản WowFood</h2>
+            <p>Xin chào,</p>
+            <p>Cảm ơn bạn đã đăng ký tài khoản tại WowFood. Vui lòng sử dụng mã xác minh sau để hoàn tất đăng ký:</p>
+            <div class='code'>{$verification_code}</div>
+            <p><strong>Mã này có hiệu lực trong 10 phút.</strong></p>
+            <p>Nếu bạn không yêu cầu mã này, vui lòng bỏ qua email này.</p>
+            <div class='footer'>
+                <p>Trân trọng,<br>Đội ngũ WowFood</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    ";
+    
+    // Gửi email bằng PHPMailer
+    $sent = false;
+    if (function_exists('sendEmailWithPHPMailer')) {
+        $sent = sendEmailWithPHPMailer($email, $subject, $message);
+    }
+    
+    if ($sent) {
+        // Chuyển đến trang xác minh mã
+        header('location:'.SITEURL.'user/verify-code.php');
+        exit();
+    } else {
+        $_SESSION['register'] = "Không thể gửi mã xác minh. Vui lòng kiểm tra cấu hình email hoặc thử lại sau.";
+        unset($_SESSION['pending_registration']);
+        header('location:'.SITEURL.'user/register.php');
+        exit();
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -156,6 +251,65 @@ if(isset($_POST['submit'])){
     </div>
     
     <?php include('../partials-front/footer.php'); ?>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        <?php
+        function extractMessage($html) {
+            $html = strip_tags($html);
+            return trim($html);
+        }
+        
+        $sessionMessages = ['register-success', 'register'];
+        
+        foreach($sessionMessages as $key) {
+            if(isset($_SESSION[$key]) && !empty($_SESSION[$key])) {
+                $message = extractMessage($_SESSION[$key]);
+                if(!empty($message)) {
+                    $icon = 'info';
+                    $title = 'Thông báo';
+                    
+                    if(strpos(strtolower($_SESSION[$key]), 'success') !== false || 
+                       strpos(strtolower($message), 'thành công') !== false ||
+                       strpos(strtolower($message), 'successfully') !== false) {
+                        $icon = 'success';
+                        $title = 'Thành công!';
+                    } elseif(strpos(strtolower($_SESSION[$key]), 'error') !== false || 
+                             strpos(strtolower($message), 'lỗi') !== false ||
+                             strpos(strtolower($message), 'failed') !== false ||
+                             strpos(strtolower($message), 'không khớp') !== false ||
+                             strpos(strtolower($message), 'đã tồn tại') !== false ||
+                             strpos(strtolower($message), 'không hợp lệ') !== false ||
+                             strpos(strtolower($message), 'bắt buộc') !== false ||
+                             strpos(strtolower($message), 'already exists') !== false ||
+                             strpos(strtolower($message), 'do not match') !== false) {
+                        $icon = 'error';
+                        $title = 'Lỗi!';
+                    } elseif(strpos(strtolower($message), 'warning') !== false) {
+                        $icon = 'warning';
+                        $title = 'Cảnh báo!';
+                    } elseif($key === 'register-info') {
+                        $icon = 'info';
+                        $title = 'Thông tin test';
+                    }
+                    
+                    // Xử lý HTML trong message (cho register-info)
+                    $htmlContent = '';
+                    if($key === 'register-info' && strpos($_SESSION[$key], '<') !== false) {
+                        $htmlContent = ', html: `' . $_SESSION[$key] . '`';
+                    }
+                    
+                    echo "Swal.fire({
+                        icon: '" . $icon . "',
+                        title: '" . $title . "',
+                        " . ($htmlContent ? $htmlContent : "text: '" . addslashes($message) . "'") . ",
+                        showConfirmButton: true,
+                        timer: " . ($key === 'register-info' ? '5000' : '3000') . "
+                    });";
+                }
+                unset($_SESSION[$key]);
+            }
+        }
+        ?>
+    </script>
 </body>
 </html>
