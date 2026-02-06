@@ -17,13 +17,13 @@ require_once('login-check.php');
         <div class="wrapper">
             <ul>
                 <li><a href="index.php">Trang chủ</a></li>
-                <li><a href="#">Quản trị viên</a></li>
+                <li><a href="manage-admin.php">Quản trị viên</a></li>
                 <li><a href="#">Người dùng</a></li>
-                <li><a href="#">Danh mục</a></li>
+                <li><a href="manage-category.php">Danh mục</a></li>
                 <li><a href="#">Món ăn</a></li>
                 <li><a href="#">Đơn hàng</a></li>
-                <li><a href="#">Thanh toán</a></li>
-                <li><a href="#">Hoàn tiền</a></li>
+                <li><a href="manage-payment.php">Thanh toán</a></li>
+                <li><a href="refund.php">Hoàn tiền</a></li>
                 <li><a href="#" id="chatLinkAdmin" style="position: relative;">
                         Chat
                         <span id="chatBadgeAdmin" class="chat-badge" style="display: none;">0</span>
