@@ -18,13 +18,17 @@
 .remove-btn:hover { background: #ff3838; }
 .cart-summary { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 20px; }
 .summary-title { font-weight: bold; color: #2f3542; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
-.summary-details { max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
-.summary-detail-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 0.95em; color: #444; border-bottom: 1px dashed #eee; }
+.summary-details { max-height: 260px; overflow-y: auto; margin-bottom: 12px; padding-right: 6px; }
+.summary-details::-webkit-scrollbar { width: 8px; }
+.summary-details::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+.summary-details::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.summary-detail-item { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px 0; font-size: 0.95em; color: #444; border-bottom: 1px dashed #eee; }
 .summary-detail-item:last-child { border-bottom: none; }
-.summary-detail-name { flex: 1; }
+.summary-detail-name { min-width: 0; }
 .summary-detail-qty { color: #666; font-size: 0.9em; }
-.summary-detail-extras { color: #888; font-size: 0.85em; margin-top: 2px; }
-.summary-detail-price { color: #ff6b81; font-weight: bold; white-space: nowrap; }
+.summary-detail-extras { color: #64748b; font-size: 0.85em; margin-top: 2px; display: block; }
+.summary-extra-line { display: block; margin-top: 2px; }
+.summary-detail-price { color: #ff6b81; font-weight: bold; white-space: nowrap; text-align: right; margin-top: 2px; }
 .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
 .summary-total { font-size: 1.3em; font-weight: bold; color: #ff6b81; border-top: 2px solid #eee; padding-top: 12px; margin-top: 8px; }
 .checkout-btn { width: 100%; padding: 15px; background: #ff6b81; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 15px; }

@@ -1,5 +1,13 @@
 <?php
 include('../config/constants.php');
+
+// Chỉ cho phép dùng giỏ hàng khi đã đăng nhập
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    $_SESSION['redirect_after_login'] = SITEURL . 'user/cart.php';
+    header('location:' . SITEURL . 'user/login.php');
+    exit;
+}
+
 include('../partials-front/menu.php');
 
 // Load sizes & side dishes
@@ -54,6 +62,13 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart']) && count($_SESSION['
             $subtotal = $unit_price * $qty;
             $cart_total += $subtotal;
             $cart_count += $qty;
+            $size_price_add = isset($sizes[$size_id]) ? $sizes[$size_id]['price_add'] : 0;
+            $side_with_prices = [];
+            foreach ((array) $side_dish_ids as $sid) {
+                if (isset($side_dishes[$sid])) {
+                    $side_with_prices[] = ['name' => $side_dishes[$sid]['name'], 'price' => $side_dishes[$sid]['price']];
+                }
+            }
             $cart_items[] = [
                 'cart_id' => $cart_id,
                 'food_id' => $food['id'],
@@ -62,8 +77,10 @@ if (isset($_SESSION['cart']) && is_array($_SESSION['cart']) && count($_SESSION['
                 'base_price' => $base_price,
                 'size_id' => $size_id,
                 'size_name' => isset($sizes[$size_id]) ? $sizes[$size_id]['name'] : 'Nhỏ',
+                'size_price_add' => $size_price_add,
                 'side_dish_ids' => $side_dish_ids,
                 'side_names' => array_map(function($id) use ($side_dishes) { return isset($side_dishes[$id]) ? $side_dishes[$id]['name'] : ''; }, (array) $side_dish_ids),
+                'side_with_prices' => $side_with_prices,
                 'unit_price' => $unit_price,
                 'qty' => $qty,
                 'note' => $note,
@@ -161,12 +178,22 @@ function formatPrice($num) {
             <div class="summary-title">Chi tiết đơn hàng</div>
             <div class="summary-details" id="summaryDetails">
                 <?php foreach ($cart_items as $item): 
-                    $extras = array_filter([$item['size_name']]);
-                    if (!empty($item['side_names'])) $extras = array_merge($extras, $item['side_names']);
-                    $extrasStr = !empty($extras) ? ' (' . implode(', ', $extras) . ')' : '';
+                    $extrasParts = [];
+                    $extrasParts[] = $item['size_name'] . ' (+' . formatPrice($item['size_price_add']) . ')';
+                    foreach ($item['side_with_prices'] as $swp) {
+                        $extrasParts[] = $swp['name'] . ' (+' . formatPrice($swp['price']) . ')';
+                    }
+                    $extrasHtml = '';
+                    if (!empty($extrasParts)) {
+                        $extrasHtml = '<span class="summary-detail-extras">';
+                        foreach ($extrasParts as $p) {
+                            $extrasHtml .= '<span class="summary-extra-line">' . htmlspecialchars($p) . '</span>';
+                        }
+                        $extrasHtml .= '</span>';
+                    }
                 ?>
                 <div class="summary-detail-item">
-                    <span class="summary-detail-name"><?php echo htmlspecialchars($item['title']); ?> <span class="summary-detail-qty">× <?php echo $item['qty']; ?></span><?php if ($extrasStr): ?><span class="summary-detail-extras"><?php echo htmlspecialchars($extrasStr); ?></span><?php endif; ?></span>
+                    <span class="summary-detail-name"><?php echo htmlspecialchars($item['title']); ?> <span class="summary-detail-qty">× <?php echo $item['qty']; ?></span><?php echo $extrasHtml; ?></span>
                     <span class="summary-detail-price"><?php echo formatPrice($item['subtotal']); ?></span>
                 </div>
                 <?php endforeach; ?>
@@ -175,7 +202,7 @@ function formatPrice($num) {
                 <span>Tổng cộng:</span>
                 <span id="cartTotal"><?php echo formatPrice($cart_total); ?></span>
             </div>
-            <button class="checkout-btn" onclick="Swal.fire('Thông báo', 'Chức năng thanh toán đang phát triển', 'info')">Thanh toán</button>
+            <button type="button" class="checkout-btn" onclick="window.location.href='<?php echo SITEURL; ?>user/checkout.php'">Thanh toán</button>
         </div>
         <?php endif; ?>
     </div>
@@ -209,6 +236,25 @@ function formatPrice($num) {
             updateGrandTotal();
         }
 
+        function getItemExtrasWithPrices(cartId) {
+            const item = document.querySelector('.cart-item[data-cart-id="' + cartId + '"]');
+            if (!item) return [];
+            const parts = [];
+            const selSize = item.querySelector('.cart-size-opt.selected');
+            if (selSize && selSize.dataset.cartId === cartId) {
+                const name = (selSize.dataset.sizeName || '').trim();
+                const price = parseFloat(selSize.dataset.priceAdd) || 0;
+                if (name) parts.push(name + ' (+' + formatPrice(price) + ')');
+            }
+            item.querySelectorAll('.cart-side-cb:checked').forEach(cb => {
+                if (cb.dataset.cartId === cartId && cb.dataset.sideName) {
+                    const price = parseFloat(cb.dataset.price) || 0;
+                    parts.push(cb.dataset.sideName + ' (+' + formatPrice(price) + ')');
+                }
+            });
+            return parts;
+        }
+
         function updateGrandTotal() {
             let total = 0;
             const details = [];
@@ -217,7 +263,8 @@ function formatPrice($num) {
                 const d = getItemData(cartId);
                 if (d) {
                     total += d.subtotal;
-                    details.push({ name: d.name, qty: d.qty, subtotal: d.subtotal, extras: d.extras || [] });
+                    const extras = getItemExtrasWithPrices(cartId);
+                    details.push({ name: d.name, qty: d.qty, subtotal: d.subtotal, extras });
                 }
             });
             const totalEl = document.getElementById('cartTotal');
@@ -225,10 +272,22 @@ function formatPrice($num) {
             const detailsEl = document.getElementById('summaryDetails');
             if (detailsEl) {
                 detailsEl.innerHTML = details.map(d => {
-                const name = String(d.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-                const extras = (d.extras || []).length ? ' <span class="summary-detail-extras">(' + (d.extras || []).map(e => String(e).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')).join(', ') + ')</span>' : '';
-                return '<div class="summary-detail-item"><span class="summary-detail-name">' + name + ' <span class="summary-detail-qty">× ' + d.qty + '</span>' + extras + '</span><span class="summary-detail-price">' + formatPrice(d.subtotal) + '</span></div>';
-            }).join('');
+                    const name = String(d.name).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                    const extrasHtml = (d.extras || []).length
+                        ? ' <span class="summary-detail-extras">' +
+                            (d.extras || []).map(e =>
+                                '<span class="summary-extra-line">' +
+                                String(e)
+                                    .replace(/&/g,'&amp;')
+                                    .replace(/</g,'&lt;')
+                                    .replace(/>/g,'&gt;')
+                                    .replace(/"/g,'&quot;') +
+                                '</span>'
+                            ).join('') +
+                          '</span>'
+                        : '';
+                    return '<div class="summary-detail-item"><span class="summary-detail-name">' + name + ' <span class="summary-detail-qty">× ' + d.qty + '</span>' + extrasHtml + '</span><span class="summary-detail-price">' + formatPrice(d.subtotal) + '</span></div>';
+                }).join('');
             }
         }
 

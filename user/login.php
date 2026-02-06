@@ -1,6 +1,11 @@
 <?php 
 include('../config/constants.php'); 
 
+// Nếu vào trang login với ?redirect=cart thì sau khi đăng nhập sẽ quay về giỏ hàng
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['redirect']) && $_GET['redirect'] === 'cart') {
+    $_SESSION['redirect_after_login'] = SITEURL . 'user/cart.php';
+}
+
 // Xử lý đăng nhập (chỉ user, tạm thời chưa phân quyền admin)
 if(isset($_POST['submit'])){
     $email = $_POST['email'];
@@ -38,6 +43,10 @@ if(isset($_POST['submit'])){
             $food_id = $_SESSION['redirect_food_id'];
             unset($_SESSION['redirect_food_id']);
             header('location:'.SITEURL.'order.php?food_id='.$food_id);
+        } elseif(isset($_SESSION['redirect_after_login'])) {
+            $url = $_SESSION['redirect_after_login'];
+            unset($_SESSION['redirect_after_login']);
+            header('location:'.$url);
         } else {
             header('location:'.SITEURL.'index.php');
         }

@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để sử dụng giỏ hàng']);
+    exit;
+}
+
 $cart_id = isset($_POST['cart_id']) ? trim($_POST['cart_id']) : '';
 
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart'])) {

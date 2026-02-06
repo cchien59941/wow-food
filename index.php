@@ -113,7 +113,6 @@
             ?>
         <div class="food-menu-box">
             <div class="food-menu-img">
-
                 <?php 
                 if($image_name=="")
                 {
@@ -122,18 +121,22 @@
                 else
                 {
                     ?>
-                <img src="<?php echo SITEURL;?>image/food/<?php echo $image_name; ?>" alt="Chicke Hawain Pizza"
+                <img src="<?php echo SITEURL;?>image/food/<?php echo $image_name; ?>" alt="<?php echo htmlspecialchars($title); ?>"
                     class="img-responsive img-curve">
                 <?php
-
                 }
                 ?>
-
             </div>
 
-                    <button onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
-                </div>
-                </div>
+            <div class="food-menu-desc">
+                <h4><?php echo htmlspecialchars($title); ?></h4>
+                <p class="food-price"><?php echo number_format((float)$price, 0, ',', '.'); ?> đ</p>
+                <p class="food-detail"><?php echo htmlspecialchars($description); ?></p>
+                <br>
+                <button onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
 
 
         <?php
