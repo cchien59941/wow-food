@@ -20,18 +20,42 @@
     background-position: center;
     padding: 7% 0;
 }
+
+/* Mobile menu styles */
+.mobile-menu-btn { display: none; border: 0; background: transparent; font-size: 28px; cursor: pointer; padding: 8px; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); z-index: 1101; }
+.mobile-menu-panel { position: fixed; left: 0; right: 0; top: 79px; bottom: 0; background: #fff; z-index: 1200; transform: translateX(100%); transition: transform 280ms ease; overflow-y: auto; -webkit-overflow-scrolling: touch; box-shadow: -2px 0 8px rgba(0,0,0,0.12); }
+.mobile-menu-panel.open { transform: translateX(0); }
+.mobile-menu-panel .panel-inner { padding: 16px; }
+.mobile-menu-panel .panel-close { display: none; }
+.mobile-menu-panel .panel-search { margin-bottom: 16px; }
+.mobile-menu-panel .panel-search input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+.mobile-menu-panel .panel-search button { width: 100%; padding: 10px 12px; margin-top: 8px; border-radius: 6px; background: #ff6b81; color: #fff; border: 0; cursor: pointer; }
+.mobile-menu-panel ul { list-style: none; padding: 0; margin: 0; }
+.mobile-menu-panel li { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; }
+.mobile-menu-panel a { color: #333; text-decoration: none; display: block; }
+/* Chỉ mobile: nền bg.jpg, ẩn logo, icon trắng */
+@media (max-width: 500px) {
+    .menu { display: none; }
+    .mobile-menu-btn { display: inline-block; }
+    .food-search form { display: none !important; }
+    .navbar { background-color: transparent !important; border: none !important; box-shadow: none !important; background-image: url('<?php echo SITEURL; ?>image/bg.jpg') !important; background-size: cover !important; background-position: center !important; }
+    .navbar .logo { display: none; }
+    .navbar .mobile-menu-btn { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+}
 </style>
 
 <body>
     <!-- Navbar Section Starts Here -->
     <section class="navbar"
-        style="position: fixed;top: 0;left: 0;width: 100%;background-color: white;z-index: 1000;border-bottom: 1px solid; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);height: 79px;">
+        style="position: fixed;top: 0;left: 0;width: 100%;background-color: white;z-index: 1000;border-bottom: 1px solid #eee; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);height: 79px;">
         <div class="container">
             <div class="logo">
                 <a href="<?php echo SITEURL; ?>" title="WowFood - Food Delivery">
                     <img src="<?php echo SITEURL; ?>image/logo.png" alt="WowFood Logo" class="img-responsive">
                 </a>
             </div>
+            <!-- Mobile menu toggle -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu">☰</button>
 
             <div class="menu text-right">
                 <ul>
@@ -96,6 +120,37 @@
                     }
                     ?>
                 </ul>
+            </div>
+
+            <!-- Mobile scroll-in panel -->
+            <div id="mobileMenuPanel" class="mobile-menu-panel" aria-hidden="true">
+                <div class="panel-inner">
+                    <div class="panel-search">
+                        <form action="<?php echo SITEURL; ?>food-search.php" method="GET">
+                            <input type="search" name="search" placeholder="Tìm món, danh mục...">
+                            <button type="submit">Tìm kiếm</button>
+                        </form>
+                    </div>
+                    <ul>
+                        <li><a href="<?php echo SITEURL ;?>">Trang chủ</a></li>
+                        <li><a href="<?php echo SITEURL ;?>categories.php">Danh mục</a></li>
+                        <li><a href="<?php echo SITEURL ;?>food.php">Món ăn</a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/cart.php">Giỏ hàng <span id="cartBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
+                        <?php if(isset($_SESSION['user'])) { $display_name = isset($_SESSION['user_full_name']) ? $_SESSION['user_full_name'] : $_SESSION['user']; ?>
+                        <?php if(isset($_SESSION['user_id'])): ?>
+                        <li><a href="<?php echo SITEURL; ?>user/order-history.php">Đơn hàng</a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/chat.php" id="chatLinkMobile">Chat <span id="chatBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
+                        <?php endif; ?>
+                        <li><a href="#" onclick="confirmLogout('<?php echo SITEURL; ?>user/logout.php'); return false;">Đăng xuất (<?php echo htmlspecialchars($display_name); ?>)</a></li>
+                        <?php } else { ?>
+                        <li><a href="<?php echo SITEURL ;?>user/login.php">Đăng nhập</a></li>
+                        <li><a href="<?php echo SITEURL ;?>user/register.php">Đăng ký</a></li>
+                        <?php } ?>
+                        <?php if(!isset($_SESSION['user']) || isset($_SESSION['admin_id'])) { ?>
+                        <li><a href="<?php echo SITEURL ;?>admin/login.php">Admin</a></li>
+                        <?php } ?>
+                    </ul>
+                </div>
             </div>
 
             <div class="clearfix"></div>
@@ -342,7 +397,12 @@
                                 showCancelButton: true, confirmButtonText: 'Xem giỏ hàng', cancelButtonText: 'Tiếp tục mua', timer: 3000 })
                                 .then(r => { if (r.isConfirmed) window.location.href = '<?php echo SITEURL; ?>user/cart.php'; });
                             updateCartBadge();
-                        } else Swal.fire('Lỗi!', data.message, 'error');
+                        } else {
+                            if (data.message && data.message.indexOf('đăng nhập') !== -1) {
+                                Swal.fire({ icon: 'warning', title: 'Yêu cầu đăng nhập', text: data.message, confirmButtonColor: '#ff6b81' })
+                                    .then(() => { window.location.href = '<?php echo SITEURL; ?>user/login.php?redirect=cart'; });
+                            } else Swal.fire('Lỗi!', data.message, 'error');
+                        }
                     })
                     .catch(e => Swal.fire('Lỗi!', 'Có lỗi xảy ra!', 'error'));
             }
@@ -370,4 +430,29 @@
     // Load badge khi trang load
     updateCartBadge();
     setInterval(updateCartBadge, 3000);
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+        const btn = document.getElementById('mobileMenuBtn');
+        const panel = document.getElementById('mobileMenuPanel');
+        const closeBtn = document.getElementById('mobileMenuClose');
+
+        function openPanel(){ if(panel){ panel.classList.add('open'); panel.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; } }
+        function closePanel(){ if(panel){ panel.classList.remove('open'); panel.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; } }
+
+        if(btn) btn.addEventListener('click', function(e){ e.preventDefault(); if(panel && panel.classList.contains('open')){ closePanel(); } else { openPanel(); } });
+        if(closeBtn) closeBtn.addEventListener('click', function(e){ e.preventDefault(); closePanel(); });
+
+        function syncBadges(){
+            const cart = document.getElementById('cartBadge');
+            const cartM = document.getElementById('cartBadgeMobile');
+            if(cart && cartM){ cartM.style.display = cart.style.display; cartM.textContent = cart.textContent; }
+            const chat = document.getElementById('chatBadge');
+            const chatM = document.getElementById('chatBadgeMobile');
+            if(chat && chatM){ chatM.style.display = chat.style.display; chatM.textContent = chat.textContent; }
+        }
+        syncBadges();
+        setInterval(syncBadges, 1500);
+    });
     </script>

@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['food_id'])) {
     exit;
 }
 
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để sử dụng giỏ hàng']);
+    exit;
+}
+
 $food_id = (int) $_POST['food_id'];
 $quantity = isset($_POST['quantity']) ? max(1, (int) $_POST['quantity']) : 1;
 $note = isset($_POST['note']) ? trim($_POST['note']) : '';
