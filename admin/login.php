@@ -65,6 +65,13 @@ if(isset($_POST['submit'])){
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
+    body.login-page {
+        background: url("../image/bg.jpg") center center no-repeat;
+        background-size: cover;
+        background-attachment: fixed;
+        min-height: 100vh;
+        margin: 0;
+    }
     .login-form input[type="email"],
     .login-form input[type="password"] {
         width: 80%;
