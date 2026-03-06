@@ -69,7 +69,16 @@ if (empty($cart_items)) {
 }
 
 $user_row = null;
-$stmt = $conn->prepare("SELECT full_name, email, phone, address FROM tbl_user WHERE id = ?");
+$user_cols = ['full_name', 'email', 'phone', 'address'];
+$stmt_check = $conn->query("SHOW COLUMNS FROM tbl_user LIKE 'ghn_province_id'");
+if ($stmt_check && $stmt_check->num_rows > 0) {
+    $user_cols[] = 'ghn_province_id';
+    $user_cols[] = 'ghn_district_id';
+    $user_cols[] = 'ghn_ward_code';
+}
+$stmt_check && is_object($stmt_check) && $stmt_check->close();
+$cols_sql = implode(', ', $user_cols);
+$stmt = $conn->prepare("SELECT {$cols_sql} FROM tbl_user WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -141,10 +150,25 @@ function formatPrice($num) {
                                value="<?php echo htmlspecialchars($user_row['email'] ?? ''); ?>"
                                placeholder="email@example.com">
                     </div>
+                    <div class="form-group full ghn-address-row">
+                        <label for="ghn_province_id">Chọn địa chỉ giao hàng (Tỉnh → Quận → Phường/Xã) <span class="required">*</span></label>
+                        <div class="ghn-selects">
+                            <select id="ghn_province_id" name="ghn_province_id" class="ghn-select" aria-label="Tỉnh/Thành phố">
+                                <option value="">-- Chọn Tỉnh/TP --</option>
+                            </select>
+                            <select id="ghn_district_id" name="ghn_district_id" class="ghn-select" aria-label="Quận/Huyện" disabled>
+                                <option value="">-- Chọn Quận/Huyện --</option>
+                            </select>
+                            <select id="ghn_ward_code" name="ghn_ward_code" class="ghn-select" aria-label="Phường/Xã" disabled>
+                                <option value="">-- Chọn Phường/Xã --</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group full">
-                        <label for="customer_address">Địa chỉ giao hàng <span class="required">*</span></label>
-                        <textarea id="customer_address" name="customer_address" rows="3" required
-                                  placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"><?php echo htmlspecialchars($user_row['address'] ?? ''); ?></textarea>
+                        <label for="customer_address">Địa chỉ chi tiết <span class="required">*</span></label>
+                        <input type="text" id="customer_address" name="customer_address" required
+                               value="<?php echo htmlspecialchars($user_row['address'] ?? ''); ?>"
+                               placeholder="Ví dụ: 123 Ngõ Nguyễn Huệ">
                     </div>
                     <div class="form-group full">
                         <label for="order_note">Ghi chú đơn hàng</label>
@@ -229,7 +253,11 @@ function formatPrice($num) {
                 <div class="order-summary-footer">
                     <div class="summary-row">
                         <span>Tạm tính</span>
-                        <span><?php echo formatPrice($cart_total); ?></span>
+                        <span id="subtotalAmount"><?php echo formatPrice($cart_total); ?></span>
+                    </div>
+                    <div class="summary-row summary-row-ship" id="shippingFeeRow">
+                        <span>Phí ship (GHN)</span>
+                        <span id="shippingFeeAmount">0 đ</span>
                     </div>
                     <div class="summary-row summary-total">
                         <span>Tổng thanh toán</span>
@@ -249,11 +277,121 @@ function formatPrice($num) {
 <?php include('../partials-front/footer.php'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+window.USER_GHN = <?php
+    $ug = ['province_id' => 0, 'district_id' => 0, 'ward_code' => ''];
+    if (!empty($user_row['ghn_province_id'])) $ug['province_id'] = (int)$user_row['ghn_province_id'];
+    if (!empty($user_row['ghn_district_id'])) $ug['district_id'] = (int)$user_row['ghn_district_id'];
+    if (!empty($user_row['ghn_ward_code'])) $ug['ward_code'] = (string)$user_row['ghn_ward_code'];
+    echo json_encode($ug);
+?>;
+</script>
+<script>
 (function() {
     const SITEURL = '<?php echo SITEURL; ?>';
     const form = document.getElementById('checkoutForm');
     const btn = document.getElementById('btnPlaceOrder');
     const btnSticky = document.getElementById('btnPlaceOrderSticky');
+    const cartTotal = <?php echo json_encode((float)$cart_total); ?>;
+    const USER_GHN = window.USER_GHN || {};
+
+    function fmt(n) { return Number(n).toLocaleString('vi-VN') + ' đ'; }
+
+    // Bước 3 & 4: Chọn địa chỉ GHN + Tính phí giao hàng
+    const selProvince = document.getElementById('ghn_province_id');
+    const selDistrict = document.getElementById('ghn_district_id');
+    const selWard = document.getElementById('ghn_ward_code');
+    let shippingFee = 0;
+
+    function loadProvinces() {
+        return fetch(SITEURL + 'api/ghn-address.php?action=province').then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (!res.success || !res.data) return;
+                var list = Array.isArray(res.data) ? res.data : Object.keys(res.data).map(function(k) { var v = res.data[k]; return typeof v === 'object' ? v : { ProvinceID: k, ProvinceName: v }; });
+                selProvince.innerHTML = '<option value="">-- Chọn Tỉnh/TP --</option>';
+                list.forEach(function(p) {
+                    var id = p.ProvinceID != null ? p.ProvinceID : p.province_id;
+                    var name = p.ProvinceName || p.province_name || '';
+                    if (id != null && name) selProvince.appendChild(new Option(name, id));
+                });
+                if (USER_GHN.province_id && selProvince.querySelector('option[value="' + USER_GHN.province_id + '"]')) {
+                    selProvince.value = USER_GHN.province_id;
+                    return loadDistricts(USER_GHN.province_id);
+                }
+            }).catch(function() {});
+    }
+    function loadDistricts(provinceId) {
+        selDistrict.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>'; selDistrict.disabled = true;
+        selWard.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>'; selWard.disabled = true;
+        updateShippingFee(0);
+        if (!provinceId) return Promise.resolve();
+        return fetch(SITEURL + 'api/ghn-address.php?action=district&province_id=' + encodeURIComponent(provinceId)).then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (!res.success || !res.data) return;
+                var list = Array.isArray(res.data) ? res.data : Object.values(res.data);
+                list.forEach(function(d) {
+                    var id = d.DistrictID != null ? d.DistrictID : d.district_id;
+                    var name = d.DistrictName || d.district_name || '';
+                    if (id != null && name) selDistrict.appendChild(new Option(name, id));
+                });
+                selDistrict.disabled = false;
+                if (USER_GHN.district_id && selDistrict.querySelector('option[value="' + USER_GHN.district_id + '"]')) {
+                    selDistrict.value = USER_GHN.district_id;
+                    return loadWards(USER_GHN.district_id);
+                }
+            }).catch(function() { selDistrict.disabled = false; });
+    }
+    function loadWards(districtId) {
+        selWard.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>'; selWard.disabled = true;
+        updateShippingFee(0);
+        if (!districtId) return Promise.resolve();
+        return fetch(SITEURL + 'api/ghn-address.php?action=ward&district_id=' + encodeURIComponent(districtId)).then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (!res.success || !res.data) return;
+                var list = Array.isArray(res.data) ? res.data : Object.values(res.data);
+                list.forEach(function(w) {
+                    var code = (w.WardCode != null ? String(w.WardCode) : (w.ward_code ? String(w.ward_code) : '')).trim();
+                    var name = (w.WardName || w.ward_name || '').trim();
+                    if (code && name) selWard.appendChild(new Option(name, code));
+                });
+                selWard.disabled = false;
+                if (USER_GHN.ward_code && selWard.querySelector('option[value="' + USER_GHN.ward_code.replace(/"/g, '\\"') + '"]')) {
+                    selWard.value = USER_GHN.ward_code;
+                    fetchShippingFee();
+                }
+            }).catch(function() { selWard.disabled = false; });
+    }
+    function updateShippingFee(fee) {
+        shippingFee = fee;
+        var amountEl = document.getElementById('shippingFeeAmount');
+        var grandEl = document.getElementById('grandTotal');
+        var grandSticky = document.getElementById('grandTotalSticky');
+        var total = cartTotal + shippingFee;
+        if (amountEl) amountEl.textContent = fmt(shippingFee);
+        if (grandEl) grandEl.textContent = fmt(total);
+        if (grandSticky) grandSticky.textContent = fmt(total);
+        var priceSpans = document.querySelectorAll('.btn-place-order .btn-price');
+        priceSpans.forEach(function(el) { el.textContent = fmt(total); });
+    }
+    function fetchShippingFee() {
+        var districtId = (selDistrict && selDistrict.value) ? String(selDistrict.value).trim() : '';
+        var wardCode = (selWard && selWard.value) ? String(selWard.value).trim() : '';
+        if (!districtId || !wardCode) { updateShippingFee(0); return; }
+        var fd = new FormData();
+        fd.append('to_district_id', districtId);
+        fd.append('to_ward_code', wardCode);
+        fetch(SITEURL + 'api/ghn-fee.php', { method: 'POST', body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                var fee = res.success ? (res.fee || 0) : 0;
+                updateShippingFee(fee);
+                if (!res.success && res.message) console.warn('Phí ship GHN:', res.message);
+            })
+            .catch(function(err) { updateShippingFee(0); console.warn('Lỗi gọi phí ship:', err); });
+    }
+    if (selProvince) selProvince.addEventListener('change', function() { loadDistricts(selProvince.value); });
+    if (selDistrict) selDistrict.addEventListener('change', function() { loadWards(selDistrict.value); });
+    if (selWard) selWard.addEventListener('change', function() { fetchShippingFee(); });
+    loadProvinces();
 
     if (btnSticky) {
         btnSticky.addEventListener('click', function() {
@@ -283,11 +421,16 @@ function formatPrice($num) {
         const note = (document.getElementById('order_note').value || '').trim();
         const payment = document.querySelector('input[name="payment_method"]:checked');
         const paymentMethod = payment ? payment.value : 'cash';
+        const toDistrictId = selDistrict ? selDistrict.value : '';
+        const toWardCode = selWard ? selWard.value : '';
+        var provinceName = (selProvince && selProvince.selectedIndex >= 0) ? (selProvince.options[selProvince.selectedIndex].text || '').trim() : '';
+        var districtName = (selDistrict && selDistrict.selectedIndex >= 0) ? (selDistrict.options[selDistrict.selectedIndex].text || '').trim() : '';
+        var wardName = (selWard && selWard.selectedIndex >= 0) ? (selWard.options[selWard.selectedIndex].text || '').trim() : '';
 
         if (!name) { Swal.fire('Lỗi', 'Vui lòng nhập họ tên.', 'error'); return; }
         if (!contact) { Swal.fire('Lỗi', 'Vui lòng nhập số điện thoại.', 'error'); return; }
         if (!email) { Swal.fire('Lỗi', 'Vui lòng nhập email.', 'error'); return; }
-        if (!address) { Swal.fire('Lỗi', 'Vui lòng nhập địa chỉ giao hàng.', 'error'); return; }
+        if (!address) { Swal.fire('Lỗi', 'Vui lòng nhập số nhà.', 'error'); return; }
 
         btn.disabled = true;
         btn.querySelector('.btn-text').textContent = 'Đang xử lý...';
@@ -300,10 +443,29 @@ function formatPrice($num) {
         fd.append('customer_address', address);
         fd.append('order_note', note);
         fd.append('payment_method', paymentMethod);
+        fd.append('shipping_fee', shippingFee);
+        if (toDistrictId) fd.append('to_district_id', toDistrictId);
+        if (toWardCode) fd.append('to_ward_code', toWardCode);
+        if (provinceName) fd.append('ghn_province_name', provinceName);
+        if (districtName) fd.append('ghn_district_name', districtName);
+        if (wardName) fd.append('ghn_ward_name', wardName);
 
         fetch(SITEURL + 'api/place-order.php', { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(data => {
+            .then(function(r) {
+                return r.text().then(function(text) {
+                    if (!r.ok) return { _error: true, status: r.status, text: text };
+                    try { return JSON.parse(text); } catch (e) { return { _error: true, parseError: true, text: text }; }
+                });
+            })
+            .then(function(data) {
+                if (data._error) {
+                    btn.disabled = false; if (btnSticky) btnSticky.disabled = false; var t = btn.querySelector('.btn-text'); if (t) t.textContent = 'Đặt hàng'; if (btnSticky) { var ts = btnSticky.querySelector('.btn-text'); if (ts) ts.textContent = 'Đặt hàng'; }
+                    var msg = data.status ? ('Máy chủ lỗi (HTTP ' + data.status + ').') : 'Phản hồi không hợp lệ.';
+                    if (data.text && data.text.length < 300) msg += ' ' + data.text; else if (data.text) msg += ' (xem Console để biết chi tiết)';
+                    Swal.fire('Lỗi', msg, 'error');
+                    if (data.text && data.text.length >= 300) console.error('place-order response:', data.text);
+                    return;
+                }
                 if (data.success) {
                     // Thanh toán MoMo: tạo phiên và chuyển sang MoMo
                     if (paymentMethod === 'momo') {
@@ -380,10 +542,12 @@ function formatPrice($num) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Đặt hàng thành công!',
-                        html: 'Mã đơn hàng: <strong>' + (data.order_code || '') + '</strong><br>Chúng tôi sẽ liên hệ bạn sớm.',
+                        html: 'Mã đơn hàng: <strong>' + (data.order_code || '') + '</strong><br>Bạn sẽ nhận thông báo khi đơn có cập nhật.<br>Chat hỗ trợ đơn hàng và yêu cầu hoàn tiền: mục <strong>Chat</strong>.',
                         confirmButtonColor: '#ff6b81'
                     }).then(() => {
-                        window.location.href = data.redirect || (SITEURL + 'index.php');
+                        var url = data.redirect || (SITEURL + 'user/order-history.php');
+                        if (data.order_code) url += (url.indexOf('?') >= 0 ? '&' : '?') + 'order_code=' + encodeURIComponent(data.order_code);
+                        window.location.href = url;
                     });
                 } else {
                     btn.disabled = false; btn.querySelector('.btn-text').textContent = 'Đặt hàng';
@@ -391,10 +555,10 @@ function formatPrice($num) {
                     Swal.fire('Lỗi', data.message || 'Không thể đặt hàng. Vui lòng thử lại.', 'error');
                 }
             })
-            .catch(err => {
-                btn.disabled = false; btn.querySelector('.btn-text').textContent = 'Đặt hàng';
-                if (btnSticky) { btnSticky.disabled = false; btnSticky.querySelector('.btn-text').textContent = 'Đặt hàng'; }
-                Swal.fire('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.', 'error');
+            .catch(function(err) {
+                btn.disabled = false; var t = btn.querySelector('.btn-text'); if (t) t.textContent = 'Đặt hàng';
+                if (btnSticky) { btnSticky.disabled = false; var ts = btnSticky.querySelector('.btn-text'); if (ts) ts.textContent = 'Đặt hàng'; }
+                Swal.fire('Lỗi', 'Kết nối thất bại hoặc có lỗi xảy ra. Vui lòng thử lại.', 'error');
             });
     });
 })();

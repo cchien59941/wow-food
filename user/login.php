@@ -1,19 +1,19 @@
 <?php 
 include('../config/constants.php'); 
 
-// Nếu vào trang login với ?redirect=cart thì sau khi đăng nhập sẽ quay về giỏ hàng
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['redirect']) && $_GET['redirect'] === 'cart') {
     $_SESSION['redirect_after_login'] = SITEURL . 'user/cart.php';
 }
 
-// Xử lý đăng nhập (chỉ user, tạm thời chưa phân quyền admin)
+
 if(isset($_POST['submit'])){
     $email = $_POST['email'];
     $password = $_POST['password'];
     
     $login_success = false;
     
-    // Kiểm tra trong bảng user
+    
     $user_sql = "SELECT * FROM tbl_user WHERE email=? AND status='Active'";
     $user_stmt = mysqli_prepare($conn, $user_sql);
     

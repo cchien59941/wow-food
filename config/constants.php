@@ -12,22 +12,28 @@ $host = "localhost";
 $username = "root";
 $port = 3306; 
 $password = ""; 
-$dbname = "food-oder";
+$dbname = "food-order";
 
 if (!isset($conn) || !($conn instanceof mysqli)) {
-    $conn = new mysqli($host, $username, $password, $dbname, $port);
+    $conn = @new mysqli($host, $username, $password, $dbname, $port);
     if ($conn->connect_error) {
-        die("Kết nối thất bại: " . $conn->connect_error);
+        $msg = "Không kết nối được cơ sở dữ liệu. ";
+        if (strpos($conn->connect_error, 'refused') !== false || strpos($conn->connect_error, '2002') !== false) {
+            $msg .= "Vui lòng bật MySQL trong XAMPP Control Panel (Start MySQL).";
+        } else {
+            $msg .= "Kiểm tra lại host, tên database và mật khẩu trong config/constants.php.";
+        }
+        die("<html><head><meta charset=\"utf-8\"><title>Lỗi kết nối</title></head><body style=\"font-family:sans-serif;padding:2rem;max-width:600px;margin:0 auto;\"><h2>Lỗi kết nối cơ sở dữ liệu</h2><p>" . htmlspecialchars($msg) . "</p></body></html>");
     }
     $conn->set_charset("utf8mb4");
 }
 
 if (!defined('GHN_API_BASE')) define('GHN_API_BASE', 'https://dev-online-gateway.ghn.vn/shiip/public-api');
 if (!defined('GHN_MASTER_DATA_URL')) define('GHN_MASTER_DATA_URL', GHN_API_BASE . '/master-data');
-if (!defined('GHN_TOKEN')) define('GHN_TOKEN', '');
-if (!defined('GHN_SHOP_ID')) define('GHN_SHOP_ID', 0);
-if (!defined('GHN_FROM_DISTRICT_ID')) define('GHN_FROM_DISTRICT_ID', 0);
-if (!defined('GHN_FROM_WARD_CODE')) define('GHN_FROM_WARD_CODE', '');
+if (!defined('GHN_TOKEN')) define('GHN_TOKEN', '915d83da-c9d0-11f0-b989-ea7e29c7fb39');
+if (!defined('GHN_SHOP_ID')) define('GHN_SHOP_ID', 198208);
+if (!defined('GHN_FROM_DISTRICT_ID')) define('GHN_FROM_DISTRICT_ID', 3440);
+if (!defined('GHN_FROM_WARD_CODE')) define('GHN_FROM_WARD_CODE', '1A0607');
 if (!defined('GHN_DEFAULT_WEIGHT_GRAM')) define('GHN_DEFAULT_WEIGHT_GRAM', 500);
 
 // MoMo
