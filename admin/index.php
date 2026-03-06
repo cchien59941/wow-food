@@ -66,22 +66,26 @@
         </div>
         <div class="clearfix"></div>    
     </div>
-    <div class="grid" style="max-width: 700px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="card" style="margin-right: 50px;background-color: white;">
+    <div class="grid">
+        <div class="card">
             <div class="card-header">
                 <div>DOANH THU</div>
-                <button id="inbc">In báo cáo</button>
-                <select id="filter">
-                    <option value="week">Tuần này</option>
-                    <option value="month">Tháng này</option>
-                    <option value="all">Toàn thời gian</option>
-                </select>
+                <span>
+                    <select id="filter">
+                        <option value="week">Tuần này</option>
+                        <option value="month">Tháng này</option>
+                        <option value="all">Toàn thời gian</option>
+                    </select>
+                    <button type="button" id="inbc">In báo cáo</button>
+                </span>
             </div>
             <div class="chart-wrap"><canvas id="barChart"></canvas></div>
         </div>
-        <div class="card" style="background-color: white;">
-            <div class="card-header">ĐỒ ĂN BÁN CHẠY</div>
-            <div class="chart-wrap"><canvas id="pieChart"></canvas>
+        <div class="card">
+            <div class="card-header">
+                <div>ĐỒ ĂN BÁN CHẠY</div>
+            </div>
+            <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
         </div>
     </div>
 </div>
@@ -105,10 +109,10 @@
         },
         options: { plugins: { legend: { display: false } }, maintainAspectRatio: false }
     });
-    document.getElementById('filter').onchange = (e) => {
-        const { labels, values } = dataSet[e.target.value];
-        barChart.data.labels = labels;
-        barChart.data.datasets[0].data = values;
+    document.getElementById('filter').onchange = function() {
+        var key = this.value;
+        barChart.data.labels = labels[key] || labels.week;
+        barChart.data.datasets[0].data = values[key] || values.week;
         barChart.update();
     };
     new Chart(document.getElementById('pieChart'), {
