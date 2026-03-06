@@ -8,7 +8,7 @@ require_once('login-check.php');
 <head>
     <title>food oder</title>
 
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="<?php echo SITEURL; ?>css/admin.css">
 </head>
 
 <body>
@@ -20,7 +20,7 @@ require_once('login-check.php');
                 <li><a href="manage-admin.php">Quản trị viên</a></li>
                 <li><a href="#">Người dùng</a></li>
                 <li><a href="manage-category.php">Danh mục</a></li>
-                <li><a href="#">Món ăn</a></li>
+                <li><a href="<?php echo SITEURL; ?>admin/manage-food.php">Món ăn</a></li>
                 <li><a href="#">Đơn hàng</a></li>
                 <li><a href="manage-payment.php">Thanh toán</a></li>
                 <li><a href="refund.php">Hoàn tiền</a></li>

@@ -34,6 +34,7 @@
             <h1><?php echo $count2; ?></h1>
             <br />
             Món ăn
+            
         </div>
 
         <div class="col-4 text-center">

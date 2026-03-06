@@ -1,7 +1,7 @@
 <?php 
 include('../config/constants.php'); 
 
-// Kiểm tra xem có email trong session không
+
 if(!isset($_SESSION['reset_password_email'])){
     $_SESSION['forgot-password'] = "Vui lòng yêu cầu đặt lại mật khẩu trước!";
     header('location:'.SITEURL.'user/forgot-password.php');
@@ -10,27 +10,27 @@ if(!isset($_SESSION['reset_password_email'])){
 
 $email = $_SESSION['reset_password_email'];
 
-// Xử lý reset password
+
 if(isset($_POST['submit'])){
     $code = trim($_POST['code']);
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
     
-    // Validate password match
+
     if($new_password !== $confirm_password){
         $_SESSION['reset-password'] = "Mật khẩu không khớp!";
         header('location:'.SITEURL.'user/reset-password.php');
         exit();
     }
     
-    // Validate password length
+ 
     if(strlen($new_password) < 6){
         $_SESSION['reset-password'] = "Mật khẩu phải có ít nhất 6 ký tự!";
         header('location:'.SITEURL.'user/reset-password.php');
         exit();
     }
     
-    // Kiểm tra mã xác minh
+    
     $check_sql = "SELECT * FROM tbl_verification WHERE 
         email = ? AND 
         verification_code = ? AND 
@@ -48,7 +48,7 @@ if(isset($_POST['submit'])){
         $count = mysqli_num_rows($result);
         
         if($count == 1){
-            // Mã hợp lệ, cập nhật mật khẩu
+            
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
             
             $update_sql = "UPDATE tbl_user SET password = ? WHERE email = ? AND status = 'Active'";
@@ -60,7 +60,7 @@ if(isset($_POST['submit'])){
                 mysqli_stmt_close($stmt2);
                 
                 if($result2){
-                    // Đánh dấu mã đã được sử dụng
+                    
                     $mark_sql = "UPDATE tbl_verification SET is_verified = 1 WHERE email = ? AND verification_code = ?";
                     $stmt3 = mysqli_prepare($conn, $mark_sql);
                     if($stmt3){
@@ -69,7 +69,7 @@ if(isset($_POST['submit'])){
                         mysqli_stmt_close($stmt3);
                     }
                     
-                    // Xóa session
+                   
                     unset($_SESSION['reset_password_email']);
                     
                     $_SESSION['reset-password-success'] = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.";
@@ -82,7 +82,7 @@ if(isset($_POST['submit'])){
                 $_SESSION['reset-password'] = "Lỗi database!";
             }
         } else {
-            // Tăng số lần thử
+            
             $update_attempts_sql = "UPDATE tbl_verification SET attempts = attempts + 1 WHERE email = ? AND verification_code = ?";
             $stmt4 = mysqli_prepare($conn, $update_attempts_sql);
             if($stmt4){
@@ -185,14 +185,14 @@ if(isset($_POST['submit'])){
     <?php include('../partials-front/menu.php'); ?>
     
     <div class="login-container">
-        <h1>🔑 Đặt lại mật khẩu</h1>
+        <h1>  Đặt lại mật khẩu</h1>
         
         <div class="info-box">
             <strong>✓</strong> Mã đặt lại mật khẩu đã được gửi đến email của bạn.
         </div>
         
         <div class="email-display">
-            📧 <?php echo htmlspecialchars($email); ?>
+             <?php echo htmlspecialchars($email); ?>
         </div>
         
         <form action="" method="POST" class="login-form">
