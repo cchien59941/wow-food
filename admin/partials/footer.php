@@ -1,21 +1,11 @@
-<div class="footer">
-    <section class="social">
-        <div class="container text-center">
-            <ul>
-                <li>
-                    <a href="#"><img src="https://img.icons8.com/fluent/50/000000/facebook-new.png" /></a>
-                </li>
-                <li>
-                    <a href="#"><img src="https://img.icons8.com/fluent/48/000000/instagram-new.png" /></a>
-                </li>
-                <li>
-                    <a href="#"><img src="https://img.icons8.com/fluent/48/000000/twitter.png" /></a>
-                </li>
-            </ul>
-        </div>
-    </section>
-    <div class="wrapper">
-        <p class="text-center">All rights reserved. Designed By <a href="">5 anh em</a></p>
+<div class="footer admin-footer">
+    <div class="footer-inner">
+        <ul class="footer-social">
+            <li><a href="#"><img src="https://img.icons8.com/fluent/50/000000/facebook-new.png" alt="Facebook" /></a></li>
+            <li><a href="#"><img src="https://img.icons8.com/fluent/48/000000/instagram-new.png" alt="Instagram" /></a></li>
+            <li><a href="#"><img src="https://img.icons8.com/fluent/48/000000/twitter.png" alt="Twitter" /></a></li>
+        </ul>
+        <p class="footer-copy">All rights reserved. Designed By <a href="">5 anh em</a></p>
     </div>
 </div>
 
@@ -76,6 +66,7 @@
             }
             ?>
 </script>
+</div><!-- .admin-right -->
+</div><!-- .admin-layout -->
 </body>
-
 </html>
