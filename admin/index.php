@@ -64,9 +64,68 @@
             <br />
             Doanh thu
         </div>
-        <div class="clearfix"></div>
-
+        <div class="clearfix"></div>    
+    </div>
+    <div class="grid" style="max-width: 700px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="card" style="margin-right: 50px;background-color: white;">
+            <div class="card-header">
+                <div>DOANH THU</div>
+                <button id="inbc">In báo cáo</button>
+                <select id="filter">
+                    <option value="week">Tuần này</option>
+                    <option value="month">Tháng này</option>
+                    <option value="all">Toàn thời gian</option>
+                </select>
+            </div>
+            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+        </div>
+        <div class="card" style="background-color: white;">
+            <div class="card-header">ĐỒ ĂN BÁN CHẠY</div>
+            <div class="chart-wrap"><canvas id="pieChart"></canvas>
+        </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {
+        week: ['T2','T3','T4','T5','T6','T7','CN'],
+        month: ['Tuần 1','Tuần 2','Tuần 3','Tuần 4'],
+        all: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']
+    };
+    const values = {
+        week: [120, 150, 180, 200, 170, 220, 250],
+        month: [700, 850, 900, 950],
+        all: [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+    };
+    const barChart = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: labels.week,
+            datasets: [{ data: values.week, backgroundColor: '#36a2eb' }]
+        },
+        options: { plugins: { legend: { display: false } }, maintainAspectRatio: false }
+    });
+    document.getElementById('filter').onchange = (e) => {
+        const { labels, values } = dataSet[e.target.value];
+        barChart.data.labels = labels;
+        barChart.data.datasets[0].data = values;
+        barChart.update();
+    };
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Chí Phèo','Harry Potter','Vợ Nhặt','Sherlock','Angels'],
+            datasets: [{
+                data: [5,4,3,3,2],
+                backgroundColor: ['#ff6384','#36a2eb','#ffce56','#4bc0c0','#9966ff'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
 <?php include("partials/footer.php"); ?> 
