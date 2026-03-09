@@ -147,6 +147,56 @@ if(isset($_POST['submit'])){
         </div>
     </div>
     
+    <!-- SweetAlert2: hiển thị thông báo đăng nhập/đăng xuất -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        <?php
+        function extractMessage($html) {
+            $html = strip_tags($html);
+            return trim($html);
+        }
+
+        // Các key session có thể được set ở login/logout/register/...
+        $sessionMessages = ['login-success', 'register-success', 'login', 'no-login-message', 'reset-password-success', 'access-denied'];
+
+        foreach ($sessionMessages as $key) {
+            if (isset($_SESSION[$key]) && !empty($_SESSION[$key])) {
+                $message = extractMessage($_SESSION[$key]);
+                if (!empty($message)) {
+                    $icon = 'info';
+                    $title = 'Thông báo';
+
+                    if (strpos(strtolower($key), 'success') !== false ||
+                        strpos(strtolower($message), 'thành công') !== false ||
+                        strpos(strtolower($message), 'successfully') !== false) {
+                        $icon = 'success';
+                        $title = 'Thành công!';
+                    } elseif (strpos(strtolower($message), 'không đúng') !== false ||
+                              strpos(strtolower($message), 'lỗi') !== false ||
+                              strpos(strtolower($message), 'failed') !== false) {
+                        $icon = 'error';
+                        $title = 'Lỗi!';
+                    } elseif (strpos(strtolower($message), 'đăng nhập') !== false ||
+                              strpos(strtolower($message), 'cảnh báo') !== false ||
+                              strpos(strtolower($message), 'không có quyền') !== false) {
+                        $icon = 'warning';
+                        $title = 'Cảnh báo!';
+                    }
+
+                    echo "Swal.fire({
+                        icon: '" . $icon . "',
+                        title: '" . $title . "',
+                        text: '" . addslashes($message) . "',
+                        showConfirmButton: true,
+                        timer: 3000
+                    });";
+                }
+                unset($_SESSION[$key]);
+            }
+        }
+        ?>
+    </script>
+
     <?php include('../partials-front/footer.php'); ?>
     
  
