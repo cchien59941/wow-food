@@ -75,11 +75,33 @@ if ($stmt) {
 }
 
 if ($resultCode === 0) {
-    $stmt = $conn->prepare("UPDATE tbl_order SET status='Ordered' WHERE order_code=? LIMIT 1");
+    $stmt = $conn->prepare("UPDATE tbl_order SET status='Pending' WHERE order_code=? LIMIT 1");
     if ($stmt) {
         $stmt->bind_param("s", $order_code);
         $stmt->execute();
         $stmt->close();
+    }
+    // Thông báo cho user: đơn đã thanh toán thành công
+    $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
+      id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+      order_code varchar(20) NOT NULL,
+      user_id int(10) UNSIGNED NOT NULL,
+      message varchar(255) NOT NULL,
+      is_read tinyint(1) DEFAULT 0,
+      created_at datetime DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $row = $conn->query("SELECT user_id FROM tbl_order WHERE order_code = '" . $conn->real_escape_string($order_code) . "' LIMIT 1")->fetch_assoc();
+    if ($row && !empty($row['user_id'])) {
+        $uid = (int) $row['user_id'];
+        $notif_msg = "Đơn " . $order_code . " đã thanh toán thành công.";
+        $ins = $conn->prepare("INSERT INTO tbl_order_notification (order_code, user_id, message) VALUES (?, ?, ?)");
+        if ($ins) {
+            $ins->bind_param("sis", $order_code, $uid, $notif_msg);
+            $ins->execute();
+            $ins->close();
+        }
     }
 }
 

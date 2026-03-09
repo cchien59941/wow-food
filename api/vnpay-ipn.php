@@ -70,7 +70,7 @@ if (!in_array($order['status'], ['Pending Payment', 'Pending', 'Unpaid', 'Ordere
 }
 
 if ($vnp_ResponseCode === '00' && $vnp_TransactionStatus === '00') {
-    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Ordered' WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Pending' WHERE id = ?");
     $stmt->bind_param("i", $order['id']);
     $stmt->execute();
     $stmt->close();
@@ -83,6 +83,26 @@ if ($vnp_ResponseCode === '00' && $vnp_TransactionStatus === '00') {
         $conn->query("INSERT INTO tbl_payment (order_code, user_id, payment_method, amount, payment_status, transaction_id, raw_response) VALUES ('" . $conn->real_escape_string($order_code) . "', " . (int)$order['user_id'] . ", 'vnpay', " . (float)$order['total'] . ", 'success', '" . $conn->real_escape_string($vnp_TransactionNo) . "', '" . $conn->real_escape_string($raw) . "')");
     }
     $stmt->close();
+
+    // Thông báo cho user: đơn đã thanh toán thành công
+    $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
+      id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+      order_code varchar(20) NOT NULL,
+      user_id int(10) UNSIGNED NOT NULL,
+      message varchar(255) NOT NULL,
+      is_read tinyint(1) DEFAULT 0,
+      created_at datetime DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY user_id (user_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $uid = (int) $order['user_id'];
+    $notif_msg = "Đơn " . $order_code . " đã thanh toán thành công.";
+    $ins = $conn->prepare("INSERT INTO tbl_order_notification (order_code, user_id, message) VALUES (?, ?, ?)");
+    if ($ins) {
+        $ins->bind_param("sis", $order_code, $uid, $notif_msg);
+        $ins->execute();
+        $ins->close();
+    }
 }
 
 $returnData = ['RspCode' => '00', 'Message' => 'Confirm Success'];
