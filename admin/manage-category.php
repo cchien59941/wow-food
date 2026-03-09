@@ -2,248 +2,319 @@
 require_once('../config/constants.php');
 require_once('partials/login-check.php');
 
-if (!isset($_SESSION['demo_categories'])) {
-    $_SESSION['demo_categories'] = [
-        ['id' => 1, 'title' => 'Pizza', 'featured' => 'Yes', 'active' => 'Yes'],
-        ['id' => 2, 'title' => 'Burger', 'featured' => 'No', 'active' => 'Yes'],
-        ['id' => 3, 'title' => 'Tra sua', 'featured' => 'Yes', 'active' => 'No'],
-    ];
-}
-
-function go_manage_category()
+function chuyenTrangQuanLyDanhMuc($query = '')
 {
-    header('location:' . SITEURL . 'admin/manage-category.php');
+    $url = SITEURL . 'admin/manage-category.php';
+    if ($query !== '') {
+        $url .= '?' . ltrim($query, '?');
+    }
+
+    header('location:' . $url);
     exit;
 }
 
-function find_category_by_id($categories, $id)
+function datThongBaoTam($type, $message)
 {
-    foreach ($categories as $item) {
-        if ((int)$item['id'] === (int)$id) {
-            return $item;
-        }
-    }
-
-    return null;
+    $_SESSION['manage_category_flash'] = [
+        'type' => $type,
+        'message' => $message,
+    ];
 }
 
-$categories = $_SESSION['demo_categories'];
+function layThongBaoTam()
+{
+    if (!isset($_SESSION['manage_category_flash'])) {
+        return null;
+    }
+
+    $flash = $_SESSION['manage_category_flash'];
+    unset($_SESSION['manage_category_flash']);
+
+    return $flash;
+}
+
+function chuanHoaYesNo($value, $default = 'No')
+{
+    if ($value === 'Yes' || $value === 'No') {
+        return $value;
+    }
+
+    return $default;
+}
+
+function layDanhMucTheoId($conn, $id)
+{
+    $stmt = mysqli_prepare($conn, 'SELECT id, title, featured, active, image_name FROM tbl_category WHERE id = ? LIMIT 1');
+    if (!$stmt) {
+        return null;
+    }
+
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $category = $result ? mysqli_fetch_assoc($result) : null;
+    mysqli_stmt_close($stmt);
+
+    return $category ?: null;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $title = trim($_POST['title'] ?? '');
-    $featured = ($_POST['featured'] ?? 'No') === 'Yes' ? 'Yes' : 'No';
-    $active = ($_POST['active'] ?? 'No') === 'Yes' ? 'Yes' : 'No';
+    $featured = chuanHoaYesNo($_POST['featured'] ?? 'No');
+    $active = chuanHoaYesNo($_POST['active'] ?? 'Yes', 'Yes');
 
     if ($title === '') {
-        $_SESSION['add'] = 'Vui lòng nhập tên danh mục.';
-        go_manage_category();
+        datThongBaoTam('error', 'Vui lòng nhập tên danh mục.');
+        chuyenTrangQuanLyDanhMuc();
     }
 
     if ($action === 'add') {
-        $max_id = 0;
-        foreach ($categories as $item) {
-            if ($item['id'] > $max_id) {
-                $max_id = $item['id'];
-            }
+        $stmt = mysqli_prepare($conn, 'INSERT INTO tbl_category (title, featured, active, image_name) VALUES (?, ?, ?, ?)');
+        if (!$stmt) {
+            datThongBaoTam('error', 'Không thể thêm danh mục vào cơ sở dữ liệu.');
+            chuyenTrangQuanLyDanhMuc();
         }
 
-        $categories[] = [
-            'id' => $max_id + 1,
-            'title' => $title,
-            'featured' => $featured,
-            'active' => $active,
-        ];
+        $imageName = '';
+        mysqli_stmt_bind_param($stmt, 'ssss', $title, $featured, $active, $imageName);
+        $success = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
 
-        $_SESSION['demo_categories'] = $categories;
-        $_SESSION['add'] = 'Thêm danh mục thành công.';
-        go_manage_category();
+        if (!$success) {
+            datThongBaoTam('error', 'Thêm danh mục thất bại.');
+            chuyenTrangQuanLyDanhMuc();
+        }
+
+        datThongBaoTam('success', 'Thêm danh mục thành công.');
+        chuyenTrangQuanLyDanhMuc();
     }
 
     if ($action === 'update') {
         $id = (int)($_POST['id'] ?? 0);
+        $currentCategory = layDanhMucTheoId($conn, $id);
 
-        foreach ($categories as $index => $item) {
-            if ((int)$item['id'] === $id) {
-                $categories[$index]['title'] = $title;
-                $categories[$index]['featured'] = $featured;
-                $categories[$index]['active'] = $active;
-                break;
-            }
+        if (!$currentCategory) {
+            datThongBaoTam('error', 'Không tìm thấy danh mục cần cập nhật.');
+            chuyenTrangQuanLyDanhMuc();
         }
 
-        $_SESSION['demo_categories'] = $categories;
-        $_SESSION['update'] = 'Cập nhật danh mục thành công.';
-        go_manage_category();
+        $stmt = mysqli_prepare($conn, 'UPDATE tbl_category SET title = ?, featured = ?, active = ?, image_name = ? WHERE id = ?');
+        if (!$stmt) {
+            datThongBaoTam('error', 'Không thể cập nhật danh mục.');
+            chuyenTrangQuanLyDanhMuc('edit_id=' . $id);
+        }
+
+        mysqli_stmt_bind_param($stmt, 'ssssi', $title, $featured, $active, $currentCategory['image_name'], $id);
+        $success = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+
+        if (!$success) {
+            datThongBaoTam('error', 'Cập nhật danh mục thất bại.');
+            chuyenTrangQuanLyDanhMuc('edit_id=' . $id);
+        }
+
+        datThongBaoTam('success', 'Cập nhật danh mục thành công.');
+        chuyenTrangQuanLyDanhMuc();
     }
 }
 
 if (isset($_GET['delete_id'])) {
-    $delete_id = (int)$_GET['delete_id'];
+    $deleteId = (int)$_GET['delete_id'];
+    $category = layDanhMucTheoId($conn, $deleteId);
 
-    foreach ($categories as $index => $item) {
-        if ((int)$item['id'] === $delete_id) {
-            unset($categories[$index]);
-            break;
-        }
+    if (!$category) {
+        datThongBaoTam('error', 'Không tìm thấy danh mục cần xóa.');
+        chuyenTrangQuanLyDanhMuc();
     }
 
-    $_SESSION['demo_categories'] = array_values($categories);
-    $_SESSION['delete'] = 'Xóa danh mục thành công.';
-    go_manage_category();
+    $stmt = mysqli_prepare($conn, 'DELETE FROM tbl_category WHERE id = ?');
+    if (!$stmt) {
+        datThongBaoTam('error', 'Không thể xóa danh mục.');
+        chuyenTrangQuanLyDanhMuc();
+    }
+
+    mysqli_stmt_bind_param($stmt, 'i', $deleteId);
+    $success = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    if (!$success) {
+        datThongBaoTam('error', 'Xóa danh mục thất bại.');
+        chuyenTrangQuanLyDanhMuc();
+    }
+
+    datThongBaoTam('success', 'Xóa danh mục thành công.');
+    chuyenTrangQuanLyDanhMuc();
 }
 
 $keyword = trim($_GET['q'] ?? '');
 $status = $_GET['status'] ?? 'all';
-$edit_id = (int)($_GET['edit_id'] ?? 0);
+$editId = (int)($_GET['edit_id'] ?? 0);
 
-$filtered_categories = [];
+$conditions = [];
+$params = [];
+$types = '';
 
-foreach ($categories as $item) {
-    $match_keyword = true;
-    $match_status = true;
-
-    if ($keyword !== '' && stripos($item['title'], $keyword) === false) {
-        $match_keyword = false;
-    }
-
-    if ($status === 'active' && $item['active'] !== 'Yes') {
-        $match_status = false;
-    }
-
-    if ($status === 'inactive' && $item['active'] !== 'No') {
-        $match_status = false;
-    }
-
-    if ($match_keyword && $match_status) {
-        $filtered_categories[] = $item;
-    }
+if ($keyword !== '') {
+    $conditions[] = 'title LIKE ?';
+    $params[] = '%' . $keyword . '%';
+    $types .= 's';
 }
 
-$edit_category = null;
-if ($edit_id > 0) {
-    $edit_category = find_category_by_id($categories, $edit_id);
+if ($status === 'active') {
+    $conditions[] = 'active = ?';
+    $params[] = 'Yes';
+    $types .= 's';
+} elseif ($status === 'inactive') {
+    $conditions[] = 'active = ?';
+    $params[] = 'No';
+    $types .= 's';
 }
+
+$sql = 'SELECT id, title, featured, active, image_name FROM tbl_category';
+if ($conditions) {
+    $sql .= ' WHERE ' . implode(' AND ', $conditions);
+}
+$sql .= ' ORDER BY id DESC';
+
+$categories = [];
+$stmt = mysqli_prepare($conn, $sql);
+if ($stmt) {
+    if ($params) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    while ($result && ($row = mysqli_fetch_assoc($result))) {
+        $categories[] = $row;
+    }
+    mysqli_stmt_close($stmt);
+}
+
+$editCategory = null;
+if ($editId > 0) {
+    $editCategory = layDanhMucTheoId($conn, $editId);
+}
+
+$flash = layThongBaoTam();
 
 include('partials/menu.php');
 ?>
-
 <div class="main-content">
     <div class="wrapper">
-        <div class="page-wrap">
-            <div class="page-head">
-                <div class="title">
-                    <h1>QUẢN LÝ DANH MỤC MÓN ĂN</h1>
+        <div class="category-page">
+            <div class="page-header">
+                <div>
+                    <h1>Quản lý danh mục</h1>
+                    <p>Danh sách danh mục món ăn đang có trong hệ thống.</p>
                 </div>
-
-                <form class="search-box" method="get">
-                    <input type="text" name="q" placeholder="Tìm theo tên danh mục" value="<?php echo htmlspecialchars($keyword); ?>">
-                    <?php if ($status !== 'all') { ?>
-                        <input type="hidden" name="status" value="<?php echo htmlspecialchars($status); ?>">
-                    <?php } ?>
-                    <button type="submit">Tìm</button>
-                </form>
             </div>
 
-            <div class="form-card">
-                <div class="form-card-head">
-                    <h2><?php echo $edit_category ? 'Sửa danh mục' : 'Thêm danh mục mới'; ?></h2>
-                    <?php if ($edit_category) { ?>
-                        <a class="btn btn-ghost" href="manage-category.php">Tạo mới</a>
+            <?php if ($flash) { ?>
+                <div class="notice notice-<?php echo $flash['type'] === 'success' ? 'success' : 'error'; ?>">
+                    <?php echo htmlspecialchars($flash['message']); ?>
+                </div>
+            <?php } ?>
+
+            <div class="category-panel">
+                <div class="panel-head">
+                    <h2><?php echo $editCategory ? 'Cập nhật danh mục' : 'Thêm danh mục mới'; ?></h2>
+                    <?php if ($editCategory) { ?>
+                        <a href="manage-category.php" class="text-link">Hủy chỉnh sửa</a>
                     <?php } ?>
                 </div>
 
                 <form method="post" class="category-form">
-                    <input type="hidden" name="action" value="<?php echo $edit_category ? 'update' : 'add'; ?>">
-
-                    <?php if ($edit_category) { ?>
-                        <input type="hidden" name="id" value="<?php echo (int)$edit_category['id']; ?>">
+                    <input type="hidden" name="action" value="<?php echo $editCategory ? 'update' : 'add'; ?>">
+                    <?php if ($editCategory) { ?>
+                        <input type="hidden" name="id" value="<?php echo (int)$editCategory['id']; ?>">
                     <?php } ?>
 
-                    <div class="field">
-                        <label>Tên danh mục</label>
-                        <input type="text" name="title" required value="<?php echo htmlspecialchars($edit_category['title'] ?? ''); ?>">
-                    </div>
-
-                    <div class="field-inline">
+                    <div class="form-grid">
                         <div class="field">
-                            <label>Nổi bật</label>
-                            <select name="featured">
-                                <option value="Yes" <?php echo (($edit_category['featured'] ?? 'No') === 'Yes') ? 'selected' : ''; ?>>Có</option>
-                                <option value="No" <?php echo (($edit_category['featured'] ?? 'No') === 'No') ? 'selected' : ''; ?>>Không</option>
+                            <label for="title">Tên danh mục</label>
+                            <input id="title" type="text" name="title" required value="<?php echo htmlspecialchars($editCategory['title'] ?? ''); ?>">
+                        </div>
+
+                        <div class="field">
+                            <label for="featured">Nổi bật</label>
+                            <select id="featured" name="featured">
+                                <option value="Yes" <?php echo (($editCategory['featured'] ?? 'No') === 'Yes') ? 'selected' : ''; ?>>Yes</option>
+                                <option value="No" <?php echo (($editCategory['featured'] ?? 'No') === 'No') ? 'selected' : ''; ?>>No</option>
                             </select>
                         </div>
 
                         <div class="field">
-                            <label>Hoạt động</label>
-                            <select name="active">
-                                <option value="Yes" <?php echo (($edit_category['active'] ?? 'Yes') === 'Yes') ? 'selected' : ''; ?>>Có</option>
-                                <option value="No" <?php echo (($edit_category['active'] ?? 'Yes') === 'No') ? 'selected' : ''; ?>>Không</option>
+                            <label for="active">Hoạt động</label>
+                            <select id="active" name="active">
+                                <option value="Yes" <?php echo (($editCategory['active'] ?? 'Yes') === 'Yes') ? 'selected' : ''; ?>>Yes</option>
+                                <option value="No" <?php echo (($editCategory['active'] ?? 'Yes') === 'No') ? 'selected' : ''; ?>>No</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary"><?php echo $edit_category ? 'Lưu thay đổi' : 'Thêm danh mục'; ?></button>
+                        <button type="submit" class="submit-btn"><?php echo $editCategory ? 'Lưu thay đổi' : 'Thêm danh mục'; ?></button>
                     </div>
                 </form>
             </div>
 
-            <div class="filters">
-                <form class="filters-left" method="get">
-                    <div class="field">
-                        <label>Trạng thái</label>
-                        <select name="status">
-                            <option value="all" <?php echo $status === 'all' ? 'selected' : ''; ?>>Tất cả</option>
-                            <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Đang hoạt động</option>
-                            <option value="inactive" <?php echo $status === 'inactive' ? 'selected' : ''; ?>>Ngừng hoạt động</option>
-                        </select>
-                    </div>
+            <div class="category-panel">
+                <div class="panel-head">
+                    <h2>Danh sách danh mục</h2>
+                </div>
 
-                    <input type="hidden" name="q" value="<?php echo htmlspecialchars($keyword); ?>">
-                    <button class="btn btn-light" type="submit">Lọc</button>
+                <form method="get" class="filter-bar">
+                    <input type="text" name="q" value="<?php echo htmlspecialchars($keyword); ?>" placeholder="Tìm theo tên danh mục">
+                    <select name="status">
+                        <option value="all" <?php echo $status === 'all' ? 'selected' : ''; ?>>Tất cả trạng thái</option>
+                        <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Đang hoạt động</option>
+                        <option value="inactive" <?php echo $status === 'inactive' ? 'selected' : ''; ?>>Ngừng hoạt động</option>
+                    </select>
+                    <button type="submit">Lọc</button>
                 </form>
-            </div>
 
-            <div class="card">
-                <div class="table-wrap">
-                    <table class="tbl">
+                <div class="table-card">
+                    <table class="category-table">
                         <thead>
                             <tr>
-                                <th style="width:60px;">#</th>
+                                <th>STT</th>
                                 <th>Tên danh mục</th>
-                                <th style="width:120px;">Nổi bật</th>
-                                <th style="width:120px;">Hoạt động</th>
-                                <th style="width:170px; text-align:right;">Thao tác</th>
+                                <th>Nổi bật</th>
+                                <th>Hoạt động</th>
+                                <th>Thao tác</th>
                             </tr>
                         </thead>
-
                         <tbody>
-                            <?php if (count($filtered_categories) === 0) { ?>
+                            <?php if (!$categories) { ?>
                                 <tr>
-                                    <td colspan="5" class="empty">Chưa có danh mục phù hợp.</td>
+                                    <td colspan="5" class="empty-row">Chưa có danh mục phù hợp.</td>
                                 </tr>
                             <?php } else { ?>
-                                <?php foreach ($filtered_categories as $index => $row) { ?>
+                                <?php $sn = 1; ?>
+                                <?php foreach ($categories as $category) { ?>
                                     <tr>
-                                        <td><?php echo $index + 1; ?></td>
+                                        <td><?php echo $sn++; ?></td>
                                         <td>
                                             <div class="cell-title">
-                                                <div class="name"><?php echo htmlspecialchars($row['title']); ?></div>
-                                                <div class="sub">ID: <?php echo (int)$row['id']; ?></div>
+                                                <strong><?php echo htmlspecialchars($category['title']); ?></strong>
+                                                <span>ID: <?php echo (int)$category['id']; ?></span>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="dot <?php echo $row['featured'] === 'Yes' ? 'dot-green' : 'dot-gray'; ?>"></span>
-                                            <?php echo $row['featured'] === 'Yes' ? 'Có' : 'Không'; ?>
+                                            <span class="status <?php echo $category['featured'] === 'Yes' ? 'yes' : 'no'; ?>">
+                                                <?php echo $category['featured']; ?>
+                                            </span>
                                         </td>
                                         <td>
-                                            <span class="dot <?php echo $row['active'] === 'Yes' ? 'dot-green' : 'dot-red'; ?>"></span>
-                                            <?php echo $row['active'] === 'Yes' ? 'Có' : 'Không'; ?>
+                                            <span class="status <?php echo $category['active'] === 'Yes' ? 'yes' : 'no-danger'; ?>">
+                                                <?php echo $category['active']; ?>
+                                            </span>
                                         </td>
                                         <td class="actions">
-                                            <a class="btn btn-mini" href="manage-category.php?edit_id=<?php echo (int)$row['id']; ?>">Sửa</a>
-                                            <a class="btn btn-mini btn-danger" href="manage-category.php?delete_id=<?php echo (int)$row['id']; ?>" onclick="return confirm('Bạn có chắc muốn xóa danh mục này không?')">Xóa</a>
+                                            <a href="manage-category.php?edit_id=<?php echo (int)$category['id']; ?>" class="action-btn action-edit">Cập nhật</a>
+                                            <a href="manage-category.php?delete_id=<?php echo (int)$category['id']; ?>" class="action-btn action-delete" onclick="return confirm('Bạn có chắc muốn xóa danh mục này không?')">Xóa</a>
                                         </td>
                                     </tr>
                                 <?php } ?>
@@ -257,47 +328,49 @@ include('partials/menu.php');
 </div>
 
 <style>
-.page-wrap{padding:20px 0 30px}
-.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
-.title h1{margin:0;font-size:28px;color:#1e272e}
-.title p{margin:6px 0 0;color:#747d8c}
-.search-box{display:flex;gap:8px;background:#fff;padding:10px;border-radius:12px;border:1px solid #dfe4ea;min-width:280px}
-.search-box input{flex:1;border:none;outline:none;font-size:14px}
-.search-box button{border:none;background:#1e90ff;color:#fff;padding:0 14px;border-radius:8px;cursor:pointer}
-.form-card,.card{background:#fff;border:1px solid #e9eef3;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.05)}
-.form-card{padding:20px;margin-bottom:18px}
-.form-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
-.form-card-head h2{margin:0;font-size:20px;color:#1e272e}
-.category-form{display:grid;gap:14px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-weight:600;color:#57606f}
-.field input,.field select{height:40px;padding:0 12px;border:1px solid #dfe4ea;border-radius:10px;font-size:14px;background:#fff}
-.field-inline{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.form-actions{display:flex;justify-content:flex-start}
-.filters{display:flex;justify-content:flex-start;margin-bottom:16px}
-.filters-left{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.btn{display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 14px;border-radius:10px;border:1px solid transparent;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer}
-.btn-primary{background:#1e90ff;color:#fff}
-.btn-light{background:#fff;border-color:#dfe4ea;color:#2f3542}
-.btn-ghost{background:transparent;color:#57606f}
-.btn-mini{height:34px;padding:0 12px;background:#fff;border:1px solid #dfe4ea;color:#2f3542}
-.btn-danger{background:#fff5f5;border-color:#ffc9c9;color:#c92a2a}
-.table-wrap{overflow:auto}
-.tbl{width:100%;border-collapse:collapse;min-width:700px}
-.tbl thead th{background:#f8fafc;color:#57606f;font-size:13px;text-align:left;padding:14px;border-bottom:1px solid #e9eef3}
-.tbl tbody td{padding:14px;border-bottom:1px solid #eef2f7;font-size:14px;color:#2f3542;vertical-align:middle}
-.empty{text-align:center;color:#747d8c;padding:22px !important}
-.cell-title .name{font-weight:700;color:#1e272e}
-.cell-title .sub{font-size:12px;color:#747d8c;margin-top:4px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle}
-.dot-green{background:#2ed573}
-.dot-red{background:#ff4757}
-.dot-gray{background:#a4b0be}
-.actions{display:flex;justify-content:flex-end;gap:8px}
+.category-page{display:grid;gap:20px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.page-header h1{margin:0 0 10px;font-size:32px;color:#2d3436}
+.page-header p{margin:0;color:#747d8c}
+.category-panel{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 4px 14px rgba(0,0,0,.06);border:1px solid #ecf0f1}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.panel-head h2{margin:0;font-size:20px;color:#2d3436}
+.text-link{color:#1e90ff;text-decoration:none;font-size:14px}
+.notice{padding:12px 14px;border-radius:10px;font-size:14px}
+.notice-success{background:#edfdf3;border:1px solid #b7ebc6;color:#1e7e34}
+.notice-error{background:#fff5f5;border:1px solid #ffc9c9;color:#c92a2a}
+.category-form{display:grid;gap:16px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{font-weight:600;color:#57606f;font-size:14px}
+.field input[type="text"],.field select{width:100%;padding:11px 12px;border:1px solid #dfe4ea;border-radius:10px;font-size:14px;background:#fff;box-sizing:border-box}
+.form-actions{display:flex}
+.submit-btn{display:inline-block;padding:10px 18px;border:none;border-radius:999px;background:#1e90ff;color:#fff;font-size:13px;font-weight:500;cursor:pointer}
+.filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.filter-bar input,.filter-bar select{padding:10px 12px;border:1px solid #dfe4ea;border-radius:10px;font-size:14px;background:#fff}
+.filter-bar input{min-width:260px;flex:1}
+.filter-bar button{padding:10px 16px;border:none;border-radius:10px;background:#2f3542;color:#fff;cursor:pointer}
+.table-card{overflow-x:auto}
+.category-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;min-width:860px}
+.category-table thead tr{background:#f8f9fb}
+.category-table th{padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;color:#57606f}
+.category-table td{padding:10px 8px;border-bottom:1px solid #f0f2f5;vertical-align:middle;color:#2f3542}
+.cell-title{display:flex;flex-direction:column;gap:4px}
+.cell-title strong{font-size:14px}
+.cell-title span{font-size:12px;color:#747d8c}
+.status{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.status.yes{background:#edfdf3;color:#1e7e34}
+.status.no{background:#f1f2f6;color:#57606f}
+.status.no-danger{background:#fff5f5;color:#c92a2a}
+.actions{white-space:nowrap}
+.action-btn{display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;text-decoration:none}
+.action-edit{background:#ecf0f1;color:#2c3e50;margin-right:4px}
+.action-delete{background:#ff6b81;color:#fff}
+.empty-row{text-align:center;color:#747d8c}
 @media (max-width: 768px){
-    .page-head{flex-direction:column}
-    .search-box{min-width:100%}
-    .field-inline{grid-template-columns:1fr}
+    .page-header{flex-direction:column}
+    .form-grid{grid-template-columns:1fr}
+    .filter-bar input{min-width:100%}
 }
 </style>
 
