@@ -1,5 +1,35 @@
 <?php include("partials/menu.php"); ?>
 <?php
+    $day = "SELECT DAYOFWEEK(order_date) d, SUM(total) totals
+        FROM tbl_order
+        WHERE YEARWEEK(order_date,1)=YEARWEEK(CURDATE(),1)
+        GROUP BY d";
+    $day_res = mysqli_query($conn,$day);
+
+    $days=[0,0,0,0,0,0,0];
+
+    while($day_row=mysqli_fetch_assoc($day_res)){
+        if($day_row['d']==2)$days[0]=$day_row['totals'];
+        if($day_row['d']==3)$days[1]=$day_row['totals'];
+        if($day_row['d']==4)$days[2]=$day_row['totals'];
+        if($day_row['d']==5)$days[3]=$day_row['totals'];
+        if($day_row['d']==6)$days[4]=$day_row['totals'];
+        if($day_row['d']==7)$days[5]=$day_row['totals'];
+        if($day_row['d']==1)$days[6]=$day_row['totals'];
+    }
+
+    /* DOANH THU THEO THÁNG */
+    $month="SELECT MONTH(order_date) m,SUM(total) totals
+        FROM tbl_order
+        WHERE YEAR(order_date)=YEAR(CURDATE())
+        GROUP BY m";
+
+    $month_res=mysqli_query($conn,$month);
+    $months=array_fill(0,12,0);
+
+    while($month_row=mysqli_fetch_assoc($month_res)){
+        $months[$month_row['m']-1]=$month_row['totals'];
+    }
     $top5_sql = "select food, qty
     from tbl_order
     group by food
@@ -108,8 +138,8 @@
         pie : <?php echo json_encode($top5_labels); ?>
     };
     const values = {
-        week: [120, 150, 170, 80, 200, 250, 300],
-        all: [100, 200, 150, 300, 250, 400, 350, 500, 450, 600, 550, 700],
+        week: <?php echo json_encode($days); ?>,
+        all: <?php echo json_encode($months); ?>,
         pie : <?php echo json_encode($top5_data); ?>
     };
     const barChart = new Chart(document.getElementById('barChart'), {
