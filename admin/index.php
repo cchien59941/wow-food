@@ -1,6 +1,18 @@
 <?php include("partials/menu.php"); ?>
-
-
+<?php
+    $top5_sql = "select food, qty
+    from tbl_order
+    group by food
+    order by qty desc
+    limit 5";
+    $top5_res = mysqli_query($conn, $top5_sql);
+    $top5_labels = [];
+    $top5_data = [];
+    while($row = mysqli_fetch_assoc($top5_res)) {
+        $top5_labels[] = $row['food'];
+        $top5_data[] = $row['qty'];
+    }
+?>
 <!-- main content section starts-->
 <div class="main-content">
     <div class="wrapper">
@@ -73,7 +85,6 @@
                 <span>
                     <select id="filter">
                         <option value="week">Tuần này</option>
-                        <option value="month">Tháng này</option>
                         <option value="all">Toàn thời gian</option>
                     </select>
                     <button type="button" id="inbc">In báo cáo</button>
@@ -93,34 +104,34 @@
 <script>
     const labels = {
         week: ['T2','T3','T4','T5','T6','T7','CN'],
-        month: ['Tuần 1','Tuần 2','Tuần 3','Tuần 4'],
-        all: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12']
+        all: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+        pie : <?php echo json_encode($top5_labels); ?>
     };
     const values = {
-        week: [120, 150, 180, 200, 170, 220, 250],
-        month: [700, 850, 900, 950],
-        all: [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600]
+        week: [120, 150, 170, 80, 200, 250, 300],
+        all: [100, 200, 150, 300, 250, 400, 350, 500, 450, 600, 550, 700],
+        pie : <?php echo json_encode($top5_data); ?>
     };
     const barChart = new Chart(document.getElementById('barChart'), {
         type: 'bar',
         data: {
-            labels: labels.week,
-            datasets: [{ data: values.week, backgroundColor: '#36a2eb' }]
+            labels: labels.all,
+            datasets: [{ data: values.all, backgroundColor: '#36a2eb' }]
         },
         options: { plugins: { legend: { display: false } }, maintainAspectRatio: false }
     });
     document.getElementById('filter').onchange = function() {
-        var key = this.value;
-        barChart.data.labels = labels[key] || labels.week;
-        barChart.data.datasets[0].data = values[key] || values.week;
+        const val = this.value;
+        barChart.data.labels = labels[val];
+        barChart.data.datasets[0].data = values[val];
         barChart.update();
     };
     new Chart(document.getElementById('pieChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Chí Phèo','Harry Potter','Vợ Nhặt','Sherlock','Angels'],
+            labels: labels.pie,
             datasets: [{
-                data: [5,4,3,3,2],
+                data: values.pie,
                 backgroundColor: ['#ff6384','#36a2eb','#ffce56','#4bc0c0','#9966ff'],
                 borderWidth: 2
             }]
