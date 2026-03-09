@@ -83,6 +83,12 @@
                         <a href="<?php echo SITEURL; ?>user/order-history.php">Đơn hàng</a>
                     </li>
                     <li>
+                        <a href="<?php echo SITEURL; ?>user/notifications.php" style="position: relative;">
+                            Thông báo
+                            <span id="orderNotifBadge" class="chat-badge" style="display: none;">0</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="<?php echo SITEURL; ?>user/chat.php" id="chatLink" style="position: relative;">
                             Chat
                             <span id="chatBadge" class="chat-badge" style="display: none;">0</span>
@@ -139,6 +145,7 @@
                         <?php if(isset($_SESSION['user'])) { $display_name = isset($_SESSION['user_full_name']) ? $_SESSION['user_full_name'] : $_SESSION['user']; ?>
                         <?php if(isset($_SESSION['user_id'])): ?>
                         <li><a href="<?php echo SITEURL; ?>user/order-history.php">Đơn hàng</a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/notifications.php">Thông báo <span id="orderNotifBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
                         <li><a href="<?php echo SITEURL; ?>user/chat.php" id="chatLinkMobile">Chat <span id="chatBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
                         <?php endif; ?>
                         <li><a href="#" onclick="confirmLogout('<?php echo SITEURL; ?>user/logout.php'); return false;">Đăng xuất (<?php echo htmlspecialchars($display_name); ?>)</a></li>
@@ -259,26 +266,56 @@
         if (!chatBadge) return;
 
         fetch('<?php echo SITEURL; ?>api/get-unread-count.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const count = data.unread_count || 0;
-                    if (count > 0) {
-                        chatBadge.textContent = count > 99 ? '99+' : count;
-                        chatBadge.style.display = 'flex';
-                    } else {
-                        chatBadge.style.display = 'none';
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    var data = text ? JSON.parse(text) : null;
+                    if (data && data.success) {
+                        var count = data.unread_count || 0;
+                        if (count > 0) {
+                            chatBadge.textContent = count > 99 ? '99+' : count;
+                            chatBadge.style.display = 'flex';
+                        } else {
+                            chatBadge.style.display = 'none';
+                        }
                     }
-                }
+                } catch (e) { /* response not JSON, ignore */ }
             })
-            .catch(error => console.error('Error loading unread count:', error));
+            .catch(function() {});
     }
 
     // Cập nhật badge khi trang load
     if (document.getElementById('chatBadge')) {
         updateChatBadge();
-        // Cập nhật mỗi 5 giây
         setInterval(updateChatBadge, 5000);
+    }
+
+    function updateOrderNotifBadge() {
+        var badge = document.getElementById('orderNotifBadge');
+        if (!badge) return;
+        fetch('<?php echo SITEURL; ?>api/get-order-notification-count.php')
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    var data = text ? JSON.parse(text) : null;
+                    if (data && data.success) {
+                        var count = data.unread_count || 0;
+                        if (count > 0) {
+                            badge.textContent = count > 99 ? '99+' : count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                        var mobile = document.getElementById('orderNotifBadgeMobile');
+                        if (mobile) { mobile.textContent = badge.textContent; mobile.style.display = badge.style.display; }
+                    }
+                } catch (e) {}
+            })
+            .catch(function() {});
+    }
+    if (document.getElementById('orderNotifBadge')) {
+        updateOrderNotifBadge();
+        setInterval(updateOrderNotifBadge, 5000);
     }
 
     // Hàm thêm vào giỏ hàng (foodId, foodPrice)
@@ -415,16 +452,21 @@
         if (!badge) return;
 
         fetch('<?php echo SITEURL; ?>api/get-cart-count.php')
-            .then(response => response.json())
-            .then(data => {
-                if (data.count > 0) {
-                    badge.textContent = data.count > 99 ? '99+' : data.count;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
-                }
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    var data = text ? JSON.parse(text) : null;
+                    if (data && typeof data.count !== 'undefined') {
+                        if (data.count > 0) {
+                            badge.textContent = data.count > 99 ? '99+' : data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                } catch (e) { /* response not JSON, ignore */ }
             })
-            .catch(error => console.error('Error loading cart count:', error));
+            .catch(function() {});
     }
 
     // Load badge khi trang load

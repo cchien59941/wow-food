@@ -23,17 +23,13 @@ body.admin-body{
     flex-direction: column;
     border-right: 1px solid #636e72;
 }
-.sidebar-brand{
-    padding: 16px 14px;
-    font-weight: 700;
-    font-size: 1rem;
-    color: #fff;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+.sidebar-nav {
+    padding: 12px 0;
 }
 .sidebar-nav ul{
     list-style: none;
     margin: 0;
-    padding: 10px 0;
+    padding: 0;
 }
 .sidebar-nav li{ margin: 0; }
 .sidebar-nav li a{
@@ -80,7 +76,21 @@ body.admin-body{
     justify-content: space-between;
     flex-shrink: 0;
 }
-.topbar-left .topbar-title{ font-size: 1.1rem; font-weight: 600; color: #2d3436; }
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.topbar-brand {
+    font-size: 0.95rem;
+    color: #2d3436;
+    font-weight: 600;
+}
+.topbar-left .topbar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2d3436;
+}
 .topbar-right .topbar-user{
     display: inline-flex;
     align-items: center;
@@ -172,15 +182,26 @@ table tr th{
 /* css for main-content */
 .main-content{
     background-color: #f1f2f6;
-    padding: 3% 0;
+    padding: 24px 20px;
+}
+.main-content .wrapper > h1 {
+    margin-bottom: 20px;
+    font-size: 1.75rem;
+    color: #2d3436;
 }
 .col-4{
-    width: 18%;
+    box-sizing: border-box;
+    width: 23%;
     background-color: white;
-    margin: 1%;
-    padding: 2%;
+    margin: 0 1%;
+    padding: 20px 16px;
     float: left;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
+.col-4:first-child { margin-left: 0; }
+.col-4 h1 { font-size: 1.75rem; margin-bottom: 8px; }
+.col-4 .text-center { line-height: 1.4; }
 
 
 
@@ -278,6 +299,55 @@ body.login-page{
     outline: none;
     border-color: #1e90ff;
     box-shadow: 0 0 5px rgba(30, 144, 255, 0.3);
+}
+
+/* Dashboard: grid + card chart (index.php) */
+.main-content .grid {
+    margin-top: 24px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.main-content .card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+.main-content .card-header {
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.main-content .card-header > div:first-child {
+    font-weight: 600;
+    color: #2d3436;
+    font-size: 0.95rem;
+}
+.main-content .chart-wrap {
+    padding: 16px;
+    height: 280px;
+}
+.main-content .chart-wrap canvas {
+    max-height: 100%;
+}
+@media only screen and (max-width: 768px) {
+    .main-content .grid {
+        grid-template-columns: 1fr;
+        margin-top: 16px;
+    }
+    .main-content .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 /* CSS for Charts */

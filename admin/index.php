@@ -1,6 +1,18 @@
 <?php include("partials/menu.php"); ?>
-
-
+<?php
+    $top5_sql = "select food, qty
+    from tbl_order
+    group by food
+    order by qty desc
+    limit 5";
+    $top5_res = mysqli_query($conn, $top5_sql);
+    $top5_labels = [];
+    $top5_data = [];
+    while($row = mysqli_fetch_assoc($top5_res)) {
+        $top5_labels[] = $row['food'];
+        $top5_data[] = $row['qty'];
+    }
+?>
 <!-- main content section starts-->
 <div class="main-content">
     <div class="wrapper">
@@ -64,9 +76,71 @@
             <br />
             Doanh thu
         </div>
-        <div class="clearfix"></div>
-
+        <div class="clearfix"></div>    
+    </div>
+    <div class="grid">
+        <div class="card">
+            <div class="card-header">
+                <div>DOANH THU</div>
+                <span>
+                    <select id="filter">
+                        <option value="week">Tuần này</option>
+                        <option value="all">Toàn thời gian</option>
+                    </select>
+                    <button type="button" id="inbc">In báo cáo</button>
+                </span>
+            </div>
+            <div class="chart-wrap"><canvas id="barChart"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <div>ĐỒ ĂN BÁN CHẠY</div>
+            </div>
+            <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+        </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {
+        week: ['T2','T3','T4','T5','T6','T7','CN'],
+        all: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+        pie : <?php echo json_encode($top5_labels); ?>
+    };
+    const values = {
+        week: [120, 150, 170, 80, 200, 250, 300],
+        all: [100, 200, 150, 300, 250, 400, 350, 500, 450, 600, 550, 700],
+        pie : <?php echo json_encode($top5_data); ?>
+    };
+    const barChart = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+            labels: labels.all,
+            datasets: [{ data: values.all, backgroundColor: '#36a2eb' }]
+        },
+        options: { plugins: { legend: { display: false } }, maintainAspectRatio: false }
+    });
+    document.getElementById('filter').onchange = function() {
+        const val = this.value;
+        barChart.data.labels = labels[val];
+        barChart.data.datasets[0].data = values[val];
+        barChart.update();
+    };
+    new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+            labels: labels.pie,
+            datasets: [{
+                data: values.pie,
+                backgroundColor: ['#ff6384','#36a2eb','#ffce56','#4bc0c0','#9966ff'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
 <?php include("partials/footer.php"); ?> 
