@@ -7,7 +7,10 @@ if(isset($_POST['submit'])){
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     $phone = isset($_POST['phone']) ? mysqli_real_escape_string($conn, $_POST['phone']) : '';
-    $address = isset($_POST['address']) ? mysqli_real_escape_string($conn, $_POST['address']) : '';
+    $address = isset($_POST['address']) ? mysqli_real_escape_string($conn, trim($_POST['address'])) : '';
+    $ghn_province_id = isset($_POST['ghn_province_id']) ? (int) $_POST['ghn_province_id'] : 0;
+    $ghn_district_id = isset($_POST['ghn_district_id']) ? (int) $_POST['ghn_district_id'] : 0;
+    $ghn_ward_code = isset($_POST['ghn_ward_code']) ? mysqli_real_escape_string($conn, trim($_POST['ghn_ward_code'])) : '';
     $verification_type = isset($_POST['verification_type']) ? $_POST['verification_type'] : 'email';
     // Validate password match
     if($password !== $confirm_password){
@@ -55,6 +58,9 @@ if(isset($_POST['submit'])){
         'password' => $password, // Lưu password gốc để hash sau khi xác minh
         'phone' => $phone,
         'address' => $address,
+        'ghn_province_id' => $ghn_province_id,
+        'ghn_district_id' => $ghn_district_id,
+        'ghn_ward_code' => $ghn_ward_code,
         'verification_type' => 'email' // Chỉ dùng email
     ];
     require_once(__DIR__ . '/../api/phpmailer-send.php');
@@ -156,15 +162,23 @@ if(isset($_POST['submit'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Register - Food Order System</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/checkout.css">
     <style>
         .register-container {
-            max-width: 500px;
-            margin: 50px auto;
+            max-width: 560px;
+            margin: 0 auto;
+            margin-top: 100px;
+            margin-bottom: 80px;
             padding: 30px;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        .register-form .form-group { margin-bottom: 18px; }
+        .register-form .form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #2f3542; margin-bottom: 8px; }
+        .register-form .form-group label .required { color: #ff6b81; }
+        .register-form .ghn-address-row .ghn-selects { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        @media (max-width: 600px) { .register-form .ghn-address-row .ghn-selects { grid-template-columns: 1fr; } }
         .register-container h1 {
             text-align: center;
             color: #2f3542;
@@ -232,13 +246,45 @@ if(isset($_POST['submit'])){
     <div class="register-container">
         <h1>Đăng ký</h1>
         
-        <form action="" method="POST" class="register-form">
-            <input type="text" name="full_name" placeholder="Họ tên" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Mật khẩu" required minlength="6">
-            <input type="password" name="confirm_password" placeholder="Xác nhận mật khẩu" required>
-            <input type="tel" name="phone" placeholder="Số điện thoại (Tùy chọn)">
-            <textarea name="address" placeholder="Địa chỉ (Tùy chọn)"></textarea>
+        <form action="" method="POST" class="register-form" id="registerForm">
+            <div class="form-group">
+                <label for="full_name">Họ và tên <span class="required">*</span></label>
+                <input type="text" id="full_name" name="full_name" placeholder="Nguyễn Văn A" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
+            </div>
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" placeholder="email@gmail.com" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+            </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu <span class="required">*</span></label>
+                <input type="password" id="password" name="password" placeholder="Ít nhất 6 ký tự" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Xác nhận mật khẩu <span class="required">*</span></label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Nhập lại mật khẩu" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Số điện thoại</label>
+                <input type="tel" id="phone" name="phone" placeholder="0900 123 456" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
+            </div>
+            <div class="form-group full ghn-address-row">
+                <label for="ghn_province_id">Chọn địa chỉ (Tỉnh → Quận → Phường/Xã)</label>
+                <div class="ghn-selects">
+                    <select id="ghn_province_id" name="ghn_province_id" class="ghn-select" aria-label="Tỉnh/Thành phố">
+                        <option value="">-- Chọn Tỉnh/TP --</option>
+                    </select>
+                    <select id="ghn_district_id" name="ghn_district_id" class="ghn-select" aria-label="Quận/Huyện" disabled>
+                        <option value="">-- Chọn Quận/Huyện --</option>
+                    </select>
+                    <select id="ghn_ward_code" name="ghn_ward_code" class="ghn-select" aria-label="Phường/Xã" disabled>
+                        <option value="">-- Chọn Phường/Xã --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="address">Địa chỉ chi tiết (số nhà, đường)</label>
+                <input type="text" id="address" name="address" placeholder="Ví dụ: 123 Ngõ Nguyễn Huệ" value="<?php echo htmlspecialchars($_POST['address'] ?? ''); ?>">
+            </div>
             <div style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border-radius: 5px; font-size: 0.9em; color: #1976d2;">
                 <strong>📧 Lưu ý:</strong> Mã xác minh sẽ được gửi đến email Gmail của bạn.
             </div>
@@ -251,7 +297,65 @@ if(isset($_POST['submit'])){
     </div>
     
     <?php include('../partials-front/footer.php'); ?>
+    <script>
+    var SITEURL = <?php echo json_encode(defined('SITEURL') ? SITEURL : ''); ?>;
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    (function() {
+        var selProvince = document.getElementById('ghn_province_id');
+        var selDistrict = document.getElementById('ghn_district_id');
+        var selWard = document.getElementById('ghn_ward_code');
+        if (!selProvince) return;
+        function loadProvinces() {
+            fetch(SITEURL + 'api/ghn-address.php?action=province').then(function(r) { return r.json(); })
+                .then(function(res) {
+                    if (!res.success || !res.data) return;
+                    var list = Array.isArray(res.data) ? res.data : Object.keys(res.data).map(function(k) { var v = res.data[k]; return typeof v === 'object' ? v : { ProvinceID: k, ProvinceName: v }; });
+                    selProvince.innerHTML = '<option value="">-- Chọn Tỉnh/TP --</option>';
+                    list.forEach(function(p) {
+                        var id = p.ProvinceID != null ? p.ProvinceID : p.province_id;
+                        var name = p.ProvinceName || p.province_name || '';
+                        if (id != null && name) selProvince.appendChild(new Option(name, id));
+                    });
+                }).catch(function() {});
+        }
+        function loadDistricts(provinceId) {
+            selDistrict.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>'; selDistrict.disabled = true;
+            selWard.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>'; selWard.disabled = true;
+            if (!provinceId) return;
+            fetch(SITEURL + 'api/ghn-address.php?action=district&province_id=' + encodeURIComponent(provinceId)).then(function(r) { return r.json(); })
+                .then(function(res) {
+                    if (!res.success || !res.data) return;
+                    var list = Array.isArray(res.data) ? res.data : Object.values(res.data);
+                    list.forEach(function(d) {
+                        var id = d.DistrictID != null ? d.DistrictID : d.district_id;
+                        var name = d.DistrictName || d.district_name || '';
+                        if (id != null && name) selDistrict.appendChild(new Option(name, id));
+                    });
+                    selDistrict.disabled = false;
+                }).catch(function() { selDistrict.disabled = false; });
+        }
+        function loadWards(districtId) {
+            selWard.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>'; selWard.disabled = true;
+            if (!districtId) return;
+            fetch(SITEURL + 'api/ghn-address.php?action=ward&district_id=' + encodeURIComponent(districtId)).then(function(r) { return r.json(); })
+                .then(function(res) {
+                    if (!res.success || !res.data) return;
+                    var list = Array.isArray(res.data) ? res.data : Object.values(res.data);
+                    list.forEach(function(w) {
+                        var code = (w.WardCode != null ? String(w.WardCode) : (w.ward_code ? String(w.ward_code) : '')).trim();
+                        var name = (w.WardName || w.ward_name || '').trim();
+                        if (code && name) selWard.appendChild(new Option(name, code));
+                    });
+                    selWard.disabled = false;
+                }).catch(function() { selWard.disabled = false; });
+        }
+        selProvince.addEventListener('change', function() { loadDistricts(selProvince.value); });
+        selDistrict.addEventListener('change', function() { loadWards(selDistrict.value); });
+        loadProvinces();
+    })();
+    </script>
     <script>
         <?php
         function extractMessage($html) {
