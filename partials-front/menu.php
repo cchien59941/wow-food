@@ -9,12 +9,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WowFood - Food Delivery</title>
 
-    <!-- Link our CSS file -->
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Link our CSS file - dùng SITEURL để CSS/ảnh luôn đúng khi mở từ mọi đường dẫn (trang con user/, ...) -->
+    <link rel="stylesheet" href="<?php echo SITEURL; ?>css/style.css">
 </head>
 <style>
 .food-search {
-    background-image: url(./image/bg.jpg);
+    background-image: url('<?php echo SITEURL; ?>image/bg.jpg');
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;

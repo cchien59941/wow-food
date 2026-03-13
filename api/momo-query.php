@@ -90,7 +90,7 @@ if ($resultCode === 0) {
     $stmt->close();
 
     // Update order status
-    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Ordered' WHERE order_code = ? LIMIT 1");
+    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Pending' WHERE order_code = ? LIMIT 1");
     $stmt->bind_param("s", $order_code);
     $stmt->execute();
     $stmt->close();
