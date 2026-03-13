@@ -112,12 +112,14 @@
         <div class="card">
             <div class="card-header">
                 <div>DOANH THU</div>
+                <form action="export_pdf.php" method="post" >
+                        <button type="submit" style="margin :0px 0px 0px 100px"  class="btn-pdf">Xuất PDF</button>
+                </form>
                 <span>
                     <select id="filter">
                         <option value="week">Tuần này</option>
                         <option value="all">Toàn thời gian</option>
                     </select>
-                    <button type="button" id="inbc">In báo cáo</button>
                 </span>
             </div>
             <div class="chart-wrap"><canvas id="barChart"></canvas></div>
