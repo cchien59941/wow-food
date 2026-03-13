@@ -1,8 +1,5 @@
 <?php
-/**
- * Bước 7 & 8: Quản lý đơn hàng – Lưu mã đơn nội bộ, mã vận đơn GHN, hiển thị trong trang quản trị.
- * Admin cập nhật trạng thái giao hàng (Bước 8).
- */
+
 include('../config/constants.php');
 require_once('partials/login-check.php');
 require_once('partials/menu.php');
@@ -62,14 +59,14 @@ if (count($params) > 0) {
     $result = $conn->query($sql);
 }
 
-// Cập nhật trạng thái (Bước 8) + gửi thông báo cho user
+
 if (isset($_POST['update_status']) && isset($_POST['order_code']) && isset($_POST['status'])) {
     $oc = trim($_POST['order_code']);
     $st = trim($_POST['status']);
     $allow = ['Pending', 'Pending Payment', 'Confirmed', 'On Delivery', 'Delivered', 'Cancelled', 'Returning', 'Returned'];
     if ($oc !== '' && in_array($st, $allow, true)) {
         $conn->query("UPDATE tbl_order SET status = '" . $conn->real_escape_string($st) . "' WHERE order_code = '" . $conn->real_escape_string($oc) . "'");
-        // Thông báo cho user
+
         $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
           id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
           order_code varchar(20) NOT NULL,
@@ -111,21 +108,27 @@ if (isset($_POST['update_status']) && isset($_POST['order_code']) && isset($_POS
         <p style="color:#747d8c;margin-bottom:25px;"></p>
 
         <form method="get" style="margin-bottom: 20px;">
-            <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" placeholder="Mã đơn / tên / SĐT" style="padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; width: 280px;">
-            <button type="submit" style="padding: 10px 18px; background: #ff6b81; color: #fff; border: none; border-radius: 8px; cursor: pointer;">Tìm</button>
+            <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>"
+                placeholder="Mã đơn / tên / SĐT"
+                style="padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; width: 280px;">
+            <button type="submit"
+                style="padding: 10px 18px; background: #ff6b81; color: #fff; border: none; border-radius: 8px; cursor: pointer;">Tìm</button>
         </form>
 
-        <div style="background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 4px 14px rgba(0,0,0,0.06);border:1px solid #ecf0f1;overflow-x:auto;">
+        <div
+            style="background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 4px 14px rgba(0,0,0,0.06);border:1px solid #ecf0f1;overflow-x:auto;">
             <table class="tbl-full" style="width:100%;border-collapse:separate;border-spacing:0;font-size:14px;">
                 <thead>
                     <tr style="background:#f8f9fb;">
                         <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;">Mã đơn</th>
                         <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;">Khách hàng</th>
-                        <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;">Chi tiết đơn hàng</th>
+                        <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;">Chi tiết đơn hàng
+                        </th>
                         <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:right;">Tổng tiền</th>
                         <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;">Trạng thái</th>
                         <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:left;">Ngày đặt</th>
-                        <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:center;">Cập nhật trạng thái</th>
+                        <th style="padding:12px 10px;border-bottom:1px solid #e0e6ed;text-align:center;">Cập nhật trạng
+                            thái</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,30 +148,49 @@ if (isset($_POST['update_status']) && isset($_POST['order_code']) && isset($_POS
                             $detail_html = renderOrderDetailsHtml($order_details_json, $food_fallback);
                     ?>
                     <tr class="order-main-row" style="border-bottom:1px solid #f0f2f5;">
-                        <td style="padding:10px 8px;font-weight:600;"><?php echo htmlspecialchars($row['order_code']); ?></td>
+                        <td style="padding:10px 8px;font-weight:600;">
+                            <?php echo htmlspecialchars($row['order_code']); ?></td>
                         <td style="padding:10px 8px;font-size:13px;">
                             <strong><?php echo htmlspecialchars($row['customer_name']); ?></strong><br>
                             <small><?php echo htmlspecialchars($row['customer_contact']); ?></small><br>
-                            <small style="color:#57606f;">Địa chỉ: <?php echo nl2br(htmlspecialchars($row['customer_address'] ?? '')); ?></small>
+                            <small style="color:#57606f;">Địa chỉ:
+                                <?php echo nl2br(htmlspecialchars($row['customer_address'] ?? '')); ?></small>
                         </td>
                         <td style="padding:10px 8px;font-size:13px;max-width:280px;">
-                            <button type="button" class="admin-order-detail-toggle" aria-expanded="false" style="background:#f1f3f5;border:1px solid #dee2e6;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;margin-bottom:6px;">▶ Chi tiết đơn hàng</button>
-                            <div class="admin-order-detail-content" style="line-height:1.6;white-space:pre-line;display:none;"><?php echo nl2br(htmlspecialchars($detail_html)); ?></div>
+                            <button type="button" class="admin-order-detail-toggle" aria-expanded="false"
+                                style="background:#f1f3f5;border:1px solid #dee2e6;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;margin-bottom:6px;">▶
+                                Chi tiết đơn hàng</button>
+                            <div class="admin-order-detail-content"
+                                style="line-height:1.6;white-space:pre-line;display:none;">
+                                <?php echo nl2br(htmlspecialchars($detail_html)); ?></div>
                         </td>
-                        <td style="padding:10px 8px;text-align:right;font-weight:600;color:#ff6b81;"><?php echo number_format((float)$row['total'], 0, ',', '.'); ?> đ</td>
-                        <td style="padding:10px 8px;"><span style="<?php echo $status_style; ?>"><?php echo htmlspecialchars($status_text); ?></span></td>
-                        <td style="padding:10px 8px;"><?php echo date('d/m/Y H:i', strtotime($row['order_date'])); ?></td>
+                        <td style="padding:10px 8px;text-align:right;font-weight:600;color:#ff6b81;">
+                            <?php echo number_format((float)$row['total'], 0, ',', '.'); ?> đ</td>
+                        <td style="padding:10px 8px;"><span
+                                style="<?php echo $status_style; ?>"><?php echo htmlspecialchars($status_text); ?></span>
+                        </td>
+                        <td style="padding:10px 8px;"><?php echo date('d/m/Y H:i', strtotime($row['order_date'])); ?>
+                        </td>
                         <td style="padding:10px 8px;text-align:center;">
                             <form method="post" style="display:inline;">
-                                <input type="hidden" name="order_code" value="<?php echo htmlspecialchars($row['order_code']); ?>">
-                                <select name="status" onchange="this.form.submit()" style="padding:6px 10px;border-radius:6px;font-size:12px;">
-                                    <option value="Pending" <?php echo $status === 'Pending' ? 'selected' : ''; ?>>Chờ xử lý</option>
-                                    <option value="Confirmed" <?php echo $status === 'Confirmed' ? 'selected' : ''; ?>>Đã xác nhận</option>
-                                    <option value="On Delivery" <?php echo $status === 'On Delivery' ? 'selected' : ''; ?>>Đang giao</option>
-                                    <option value="Delivered" <?php echo $status === 'Delivered' ? 'selected' : ''; ?>>Đã giao</option>
-                                    <option value="Cancelled" <?php echo $status === 'Cancelled' ? 'selected' : ''; ?>>Đã hủy</option>
-                                    <option value="Returning" <?php echo $status === 'Returning' ? 'selected' : ''; ?>>Đang hoàn</option>
-                                    <option value="Returned" <?php echo $status === 'Returned' ? 'selected' : ''; ?>>Đã hoàn</option>
+                                <input type="hidden" name="order_code"
+                                    value="<?php echo htmlspecialchars($row['order_code']); ?>">
+                                <select name="status" onchange="this.form.submit()"
+                                    style="padding:6px 10px;border-radius:6px;font-size:12px;">
+                                    <option value="Pending" <?php echo $status === 'Pending' ? 'selected' : ''; ?>>Chờ
+                                        xử lý</option>
+                                    <option value="Confirmed" <?php echo $status === 'Confirmed' ? 'selected' : ''; ?>>
+                                        Đã xác nhận</option>
+                                    <option value="On Delivery"
+                                        <?php echo $status === 'On Delivery' ? 'selected' : ''; ?>>Đang giao</option>
+                                    <option value="Delivered" <?php echo $status === 'Delivered' ? 'selected' : ''; ?>>
+                                        Đã giao</option>
+                                    <option value="Cancelled" <?php echo $status === 'Cancelled' ? 'selected' : ''; ?>>
+                                        Đã hủy</option>
+                                    <option value="Returning" <?php echo $status === 'Returning' ? 'selected' : ''; ?>>
+                                        Đang hoàn</option>
+                                    <option value="Returned" <?php echo $status === 'Returned' ? 'selected' : ''; ?>>Đã
+                                        hoàn</option>
                                 </select>
                                 <input type="hidden" name="update_status" value="1">
                             </form>
