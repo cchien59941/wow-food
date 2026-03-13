@@ -3,25 +3,28 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!defined('SITEURL')) define('SITEURL', 'http://localhost/wow-food/');
+ if (!defined('SITEURL')) define('SITEURL', 'http://localhost/wow-food/');
 
-// if (!defined('SITEURL')) define('SITEURL', 'https://aliyah-evaporative-interrogatively.ngrok-free.dev/wow-food/'); // link deploy sử dụng tạm thời không xóa 
+// if (!defined('SITEURL')) define('SITEURL', ' https://aliyah-evaporative-interrogatively.ngrok-free.dev/wow-food/'); // link deploy sử dụng tạm thời không xóa 
 
 
 $host = "localhost";
 $username = "root";
 $port = 3306; 
 $password = ""; 
-$dbname = "food-order";
+$dbname = "food-oder"; // Tên DB phải trùng với sql/food-oder.sql (chú ý: "oder" không phải "order")
 
 if (!isset($conn) || !($conn instanceof mysqli)) {
     $conn = @new mysqli($host, $username, $password, $dbname, $port);
     if ($conn->connect_error) {
+        $err = $conn->connect_error;
         $msg = "Không kết nối được cơ sở dữ liệu. ";
-        if (strpos($conn->connect_error, 'refused') !== false || strpos($conn->connect_error, '2002') !== false) {
-            $msg .= "Vui lòng bật MySQL trong XAMPP Control Panel (Start MySQL).";
+        if (strpos($err, 'refused') !== false || strpos($err, '2002') !== false || strpos($err, 'Connection refused') !== false) {
+            $msg .= "Vui lòng bật MySQL trong XAMPP (Start MySQL).";
+        } elseif (strpos($err, 'Unknown database') !== false) {
+            $msg .= "Database \"{$dbname}\" chưa tồn tại. Tạo database và import file sql/food-oder.sql trong phpMyAdmin.";
         } else {
-            $msg .= "Kiểm tra lại host, tên database và mật khẩu trong config/constants.php.";
+            $msg .= "Kiểm tra host, dbname, password trong config/constants.php. Lỗi: " . $err;
         }
         die("<html><head><meta charset=\"utf-8\"><title>Lỗi kết nối</title></head><body style=\"font-family:sans-serif;padding:2rem;max-width:600px;margin:0 auto;\"><h2>Lỗi kết nối cơ sở dữ liệu</h2><p>" . htmlspecialchars($msg) . "</p></body></html>");
     }
