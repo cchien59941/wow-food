@@ -49,7 +49,7 @@ if ($secureHash === $vnp_SecureHash) {
         if ($vnp_Amount >= $expectedAmount - 1) {
             if (in_array($order['status'], ['Pending Payment', 'Pending', 'Unpaid', 'Ordered'], true)) {
                 if ($vnp_ResponseCode === '00') {
-                    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Ordered' WHERE id = ?");
+                    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Pending' WHERE id = ?");
                     $stmt->bind_param("i", $order['id']);
                     $stmt->execute();
                     $stmt->close();
@@ -90,6 +90,7 @@ $page_title = $success ? 'Thanh toán thành công' : 'Thanh toán không thành
     <title><?php echo htmlspecialchars($page_title); ?> - WowFood</title>
     <link rel="stylesheet" href="<?php echo SITEURL; ?>css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .vnpay-result { max-width: 520px; margin: 60px auto; padding: 32px; text-align: center; background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .vnpay-result h1 { font-size: 1.5rem; margin-bottom: 16px; color: #2f3542; }
@@ -104,7 +105,7 @@ $page_title = $success ? 'Thanh toán thành công' : 'Thanh toán không thành
 <body>
 <?php include(__DIR__ . '/../partials-front/menu.php'); ?>
 
-<div class="vnpay-result <?php echo $success ? 'success' : 'fail'; ?>">
+<div class="vnpay-result <?php echo $success ? 'success' : 'fail'; ?>" id="vnpay-result-box">
     <h1><?php echo $success ? '✓ Thanh toán thành công' : 'Thanh toán chưa hoàn tất'; ?></h1>
     <p class="msg"><?php echo htmlspecialchars($message); ?></p>
     <?php if ($order_code): ?>
@@ -115,5 +116,34 @@ $page_title = $success ? 'Thanh toán thành công' : 'Thanh toán không thành
 </div>
 
 <?php include(__DIR__ . '/../partials-front/footer.php'); ?>
+<script>
+(function() {
+    var success = <?php echo $success ? 'true' : 'false'; ?>;
+    var message = <?php echo json_encode($message); ?>;
+    var orderCode = <?php echo json_encode($order_code ?? ''); ?>;
+    var orderUrl = <?php echo json_encode(SITEURL . 'user/order-history.php'); ?>;
+
+    if (success) {
+        document.getElementById('vnpay-result-box').style.display = 'none';
+        Swal.fire({
+            icon: 'success',
+            title: 'Thanh toán thành công',
+            html: message + (orderCode ? '<br><br><strong>Mã đơn hàng:</strong> ' + orderCode : ''),
+            confirmButtonText: 'Xem đơn hàng',
+            confirmButtonColor: '#ff6b81'
+        }).then(function() {
+            window.location.href = orderUrl;
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Thanh toán chưa hoàn tất',
+            text: message,
+            confirmButtonText: 'Đóng',
+            confirmButtonColor: '#ff6b81'
+        });
+    }
+})();
+</script>
 </body>
 </html>
