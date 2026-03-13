@@ -63,6 +63,9 @@ if (isset($_POST['verify_code'])) {
             $password = $pending_data['password'];
             $phone = $pending_data['phone'];
             $address = $pending_data['address'];
+            $ghn_province_id = isset($pending_data['ghn_province_id']) ? (int) $pending_data['ghn_province_id'] : null;
+            $ghn_district_id = isset($pending_data['ghn_district_id']) ? (int) $pending_data['ghn_district_id'] : null;
+            $ghn_ward_code = isset($pending_data['ghn_ward_code']) && $pending_data['ghn_ward_code'] !== '' ? $pending_data['ghn_ward_code'] : null;
             
             // Hash password
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -85,7 +88,7 @@ if (isset($_POST['verify_code'])) {
             }
             $username = $check_username;
             
-            // Insert new user
+            // Insert new user (ghn_* có thể chưa có cột trong DB – chạy sql/user-ghn-address.sql)
             $sql = "INSERT INTO tbl_user SET
                 full_name=?,
                 username=?,
@@ -93,11 +96,23 @@ if (isset($_POST['verify_code'])) {
                 email=?,
                 phone=?,
                 address=?,
+                ghn_province_id=?,
+                ghn_district_id=?,
+                ghn_ward_code=?,
                 status='Active'
             ";
-            
             $stmt = mysqli_prepare($conn, $sql);
-            mysqli_stmt_bind_param($stmt, "ssssss", $full_name, $username, $hashed_password, $email, $phone, $address);
+            if (!$stmt) {
+                // Fallback nếu bảng chưa có cột GHN (chạy sql/user-ghn-address.sql)
+                $sql = "INSERT INTO tbl_user SET full_name=?, username=?, password=?, email=?, phone=?, address=?, status='Active'";
+                $stmt = mysqli_prepare($conn, $sql);
+                if ($stmt) mysqli_stmt_bind_param($stmt, "ssssss", $full_name, $username, $hashed_password, $email, $phone, $address);
+            } else {
+                $p = $ghn_province_id !== null ? $ghn_province_id : 0;
+                $d = $ghn_district_id !== null ? $ghn_district_id : 0;
+                $w = $ghn_ward_code !== null ? $ghn_ward_code : '';
+                mysqli_stmt_bind_param($stmt, "ssssssiis", $full_name, $username, $hashed_password, $email, $phone, $address, $p, $d, $w);
+            }
             $res = mysqli_stmt_execute($stmt);
             mysqli_stmt_close($stmt);
             
