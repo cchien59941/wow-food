@@ -11,7 +11,63 @@
     </div>
 </section>
 
-
+<section class="bestseller" style="margin-bottom:20px;">
+    <div class="container">
+        <h2 class="text-center">Món ăn bán chạy</h2>
+        <?php
+        $sql = "
+        SELECT f.id, f.title, f.price, f.image_name, SUM(o.qty) AS total_sold
+        FROM tbl_food f
+        JOIN tbl_order o ON f.title = o.food
+        GROUP BY f.id
+        ORDER BY total_sold DESC
+        LIMIT 3
+        ";
+        $res = mysqli_query($conn, $sql);
+        if ($res && mysqli_num_rows($res) > 0) {
+        ?>
+            <div class="best-grid">
+                <?php
+                $rank = 1;
+                while ($row = mysqli_fetch_assoc($res)) {
+                    $id    = $row['id'];
+                    $title = $row['title'];
+                    $price = $row['price'];
+                    $image = $row['image_name'];
+                ?>
+                    <div class="item">
+                        <div class="badge">TOP <?php echo $rank++; ?></div>
+                        <?php
+                        if ($image != "") {
+                        ?>
+                            <img src="<?php echo SITEURL; ?>image/food/<?php echo $image; ?>"
+                                 alt="<?php echo htmlspecialchars($title); ?>">
+                        <?php
+                        } else {
+                            echo "<div class='error'>Chưa có hình</div>";
+                        }
+                        ?>
+                        <h3><?php echo htmlspecialchars($title); ?></h3>
+                        <span class="price">
+                            Giá: <?php echo number_format($price, 0, ',', '.'); ?> đ
+                        </span>
+                        <button 
+                            onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" 
+                            class="btn btn-primary">
+                            🛒 Thêm vào giỏ
+                        </button>
+                    </div>
+                <?php
+                }
+                ?>
+            </div>
+        <?php
+        } else {
+            echo "<div class='error'>Chưa có món ăn.</div>";
+        }
+        ?>
+    </div>
+</section>
 
 
 <section class="categories">
@@ -74,17 +130,9 @@
             }
              ?>
 
-
-
-
-
         <div class="clearfix"></div>
     </div>
 </section>
-
-
-
-
 
 
 <section class="food-menu">
@@ -147,21 +195,8 @@
             echo "<div class='error'>Chưa có món ăn nào</div>";
           }
         
-
-
-
             ?>
-
-
-
-
-
-
-
-
         <div class="clearfix"></div>
-
-
 
     </div>
 
