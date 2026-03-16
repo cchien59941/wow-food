@@ -86,6 +86,9 @@
                         <a href="<?php echo SITEURL; ?>user/order-history.php"><i class="bi bi-box-seam"></i> Đơn hàng</a>
                     </li>
                     <li>
+                        <a href="<?php echo SITEURL; ?>user/voucher.php"><i class="bi bi-ticket-perforated"></i> Voucher</a>
+                    </li>
+                    <li>
                         <a href="<?php echo SITEURL; ?>user/notifications.php" style="position: relative;">
                             <i class="bi bi-bell"></i> Thông báo
                             <span id="orderNotifBadge" class="chat-badge" style="display: none;">0</span>
@@ -148,6 +151,7 @@
                         <?php if(isset($_SESSION['user'])) { $display_name = isset($_SESSION['user_full_name']) ? $_SESSION['user_full_name'] : $_SESSION['user']; ?>
                         <?php if(isset($_SESSION['user_id'])): ?>
                         <li><a href="<?php echo SITEURL; ?>user/order-history.php"><i class="bi bi-box-seam"></i> Đơn hàng</a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/voucher.php"><i class="bi bi-ticket-perforated"></i> Voucher</a></li>
                         <li><a href="<?php echo SITEURL; ?>user/notifications.php"><i class="bi bi-bell"></i> Thông báo <span id="orderNotifBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
                         <li><a href="<?php echo SITEURL; ?>user/chat.php" id="chatLinkMobile"><i class="bi bi-chat-dots"></i> Chat <span id="chatBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
                         <?php endif; ?>
