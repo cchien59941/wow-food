@@ -80,7 +80,7 @@ if ($res) {
 
     <?php if (!empty($notifications)): ?>
     <div class="notif-actions">
-        <a href="<?php echo SITEURL; ?>user/notifications.php?mark_read=1" class="notif-btn notif-btn-mark">✓ Đánh dấu đã đọc</a>
+        <a href="<?php echo SITEURL; ?>user/notifications.php?mark_read=1" class="notif-btn notif-btn-mark"><i class="bi bi-check-all"></i> Đánh dấu đã đọc</a>
         <a href="<?php echo SITEURL; ?>user/notifications.php?delete_all=1" class="notif-btn notif-btn-delete" id="notifDeleteAll">🗑 Xóa tất cả thông báo</a>
     </div>
     <?php endif; ?>

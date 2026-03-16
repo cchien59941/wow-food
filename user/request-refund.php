@@ -109,7 +109,7 @@ function formatPrice($num) {
             <button type="submit" class="btn-submit" id="btnSubmit">Gửi yêu cầu hoàn tiền</button>
         </form>
 
-        <a href="<?php echo SITEURL; ?>user/order-history.php" class="back-link">← Quay lại lịch sử đơn hàng</a>
+        <a href="<?php echo SITEURL; ?>user/order-history.php" class="back-link"><i class="bi bi-arrow-left"></i> Quay lại lịch sử đơn hàng</a>
     </div>
 </div>
 

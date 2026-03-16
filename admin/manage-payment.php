@@ -40,7 +40,7 @@ $search_payment = isset($_GET['search']) ? trim($_GET['search']) : '';
                 <tbody>
                     <?php
             function paymentMethodLabel($method) {
-                $map = ['cash' => 'Tiền mặt', 'momo' => 'MoMo', 'vnpay' => 'VNPay', 'bank' => 'Chuyển khoản'];
+                $map = ['cash' => 'Tiền mặt', 'momo' => 'MoMo', 'vnpay' => 'VNPay'];
                 return $map[strtolower($method)] ?? strtoupper($method);
             }
             $all_rows = [];

@@ -133,7 +133,7 @@
                 <p class="food-price"><?php echo number_format((float)$price, 0, ',', '.'); ?> đ</p>
                 <p class="food-detail"><?php echo htmlspecialchars($description); ?></p>
                 <br>
-                <button onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" class="btn btn-primary">🛒 Thêm vào giỏ</button>
+                <button onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" class="btn btn-primary"><i class="bi bi-cart-plus"></i> Thêm vào giỏ</button>
             </div>
             <div class="clearfix"></div>
         </div>

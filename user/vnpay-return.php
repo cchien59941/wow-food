@@ -89,6 +89,7 @@ $page_title = $success ? 'Thanh toán thành công' : 'Thanh toán không thành
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?> - WowFood</title>
     <link rel="stylesheet" href="<?php echo SITEURL; ?>css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -100,13 +101,14 @@ $page_title = $success ? 'Thanh toán thành công' : 'Thanh toán không thành
         .vnpay-result .btn:hover { background: #ff4757; color: #fff; }
         .vnpay-result.success h1 { color: #2ed573; }
         .vnpay-result.fail h1 { color: #ff6b81; }
+        .vnpay-result h1 .bi { margin-right: 8px; }
     </style>
 </head>
 <body>
 <?php include(__DIR__ . '/../partials-front/menu.php'); ?>
 
 <div class="vnpay-result <?php echo $success ? 'success' : 'fail'; ?>" id="vnpay-result-box">
-    <h1><?php echo $success ? '✓ Thanh toán thành công' : 'Thanh toán chưa hoàn tất'; ?></h1>
+    <h1><?php echo $success ? '<i class="bi bi-check-circle-fill"></i> Thanh toán thành công' : 'Thanh toán chưa hoàn tất'; ?></h1>
     <p class="msg"><?php echo htmlspecialchars($message); ?></p>
     <?php if ($order_code): ?>
     <p>Mã đơn hàng: <span class="order-code"><?php echo htmlspecialchars($order_code); ?></span></p>

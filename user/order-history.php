@@ -146,13 +146,13 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
     </div>
 
     <h1 class="order-history-title">
-        <span class="order-history-title-icon">📋</span>
+        <span class="order-history-title-icon"><i class="bi bi-list-ul"></i></span>
         Lịch sử đơn hàng
     </h1>
 
     <?php if (!empty($_GET['order_code']) && preg_match('/^ORD[\w]+$/', $_GET['order_code'])): ?>
     <div class="order-history-success-msg" role="alert">
-        ✓ Đơn hàng <strong><?php echo htmlspecialchars($_GET['order_code']); ?></strong> đã được tạo. Chúng tôi sẽ liên hệ bạn sớm.
+        <i class="bi bi-check-circle-fill"></i> Đơn hàng <strong><?php echo htmlspecialchars($_GET['order_code']); ?></strong> đã được tạo. Chúng tôi sẽ liên hệ bạn sớm.
     </div>
     <?php endif; ?>
     <?php if (!empty($_SESSION['refund_error'])): ?>
@@ -163,7 +163,7 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
 
     <?php if (empty($orders)): ?>
         <div class="order-history-empty">
-            <div class="empty-icon">📦</div>
+            <div class="empty-icon"><i class="bi bi-box-seam"></i></div>
             <h2>Chưa có đơn hàng nào</h2>
             <p>Đơn hàng của bạn sẽ hiển thị tại đây sau khi đặt hàng.</p>
             <a href="<?php echo SITEURL; ?>food.php" class="btn-browse">Xem thực đơn</a>
@@ -188,7 +188,7 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
                 </div>
                 <div class="order-card-body">
                     <div class="order-detail-block">
-                        <button type="button" class="order-detail-toggle" aria-expanded="false" style="background:none;border:none;padding:0;font-weight:600;font-size:14px;color:#ff6b81;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><span class="toggle-icon">▶</span> Chi tiết đơn hàng</button>
+                        <button type="button" class="order-detail-toggle" aria-expanded="false" style="background:none;border:none;padding:0;font-weight:600;font-size:14px;color:#ff6b81;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><span class="toggle-icon"><i class="bi bi-chevron-right"></i></span> Chi tiết đơn hàng</button>
                         <div class="order-detail-content" style="font-size:14px;line-height:1.7;color:#2d3436;white-space:pre-line;margin-bottom:12px;padding:12px;background:#f8f9fa;border-radius:8px;display:none;"><?php echo nl2br(htmlspecialchars($detail_text)); ?></div>
                     </div>
                     <div class="order-address-detail" style="margin-bottom:12px;padding:10px 12px;background:#fff3f4;border-radius:8px;font-size:14px;">
@@ -209,7 +209,7 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
                         <?php if (canUserRequestRefund($status, $order['order_code'], $payment_method_by_order, $order_codes_with_refund)): ?>
                         <a href="<?php echo SITEURL; ?>user/request-refund.php?order_code=<?php echo urlencode($order['order_code']); ?>" class="btn-request-refund" style="display:inline-block;padding:6px 14px;border-radius:8px;background:#27ae60;color:#fff;font-weight:600;font-size:13px;text-decoration:none;">🔄 Tạo yêu cầu hoàn tiền</a>
                         <?php elseif (in_array($order['order_code'], $order_codes_with_refund, true)): ?>
-                        <span style="color:#27ae60;font-size:13px;">✓ Đã gửi yêu cầu hoàn tiền</span>
+                        <span style="color:#27ae60;font-size:13px;"><i class="bi bi-check-circle-fill"></i> Đã gửi yêu cầu hoàn tiền</span>
                         <?php else: ?>
                         <?php endif; ?>
                     </div>
@@ -235,8 +235,8 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
             content.style.display = open ? 'none' : 'block';
             this.setAttribute('aria-expanded', open ? 'false' : 'true');
             var icon = this.querySelector('.toggle-icon');
-            if (icon) icon.textContent = open ? '▶' : '▼';
-            this.innerHTML = (open ? '<span class="toggle-icon">▶</span> Chi tiết đơn hàng' : '<span class="toggle-icon">▼</span> Thu gọn');
+            if (icon) icon.innerHTML = open ? '<i class="bi bi-chevron-right"></i>' : '<i class="bi bi-chevron-down"></i>';
+            this.innerHTML = (open ? '<span class="toggle-icon"><i class="bi bi-chevron-right"></i></span> Chi tiết đơn hàng' : '<span class="toggle-icon"><i class="bi bi-chevron-down"></i></span> Thu gọn');
         });
     });
 

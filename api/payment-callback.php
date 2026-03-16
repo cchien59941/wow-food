@@ -1,7 +1,7 @@
 <?php
 /**
  * Payment Callback Handler
- * Xử lý callback từ các cổng thanh toán (VNPay, MoMo, Bank Transfer)
+ * Xử lý callback từ các cổng thanh toán (VNPay, MoMo)
  */
 
 include('../config/constants.php');
@@ -44,11 +44,6 @@ elseif($payment_method == 'momo') {
         $payment_status = 'failed';
         $failure_reason = 'Mã lỗi: ' . $status;
     }
-}
-// Bank transfer (manual verification)
-elseif($payment_method == 'bank') {
-    // Cần admin xác nhận thủ công
-    $payment_status = 'pending';
 }
 
 if(empty($order_code)) {

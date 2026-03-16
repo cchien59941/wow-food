@@ -226,7 +226,7 @@ if(isset($_POST['submit'])){
         </form>
         
         <div class="back-link">
-            <a href="<?php echo SITEURL; ?>user/login.php">← Quay lại đăng nhập</a>
+            <a href="<?php echo SITEURL; ?>user/login.php"><i class="bi bi-arrow-left"></i> Quay lại đăng nhập</a>
         </div>
         
         <div class="register-link">

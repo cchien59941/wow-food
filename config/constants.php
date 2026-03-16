@@ -47,18 +47,10 @@ if (!defined('MOMO_SECRET_KEY')) define('MOMO_SECRET_KEY', 'k6B53GQKSjktZGJBK2My
 if (!defined('MOMO_REDIRECT_URL')) define('MOMO_REDIRECT_URL', SITEURL . 'user/momo-return.php');
 if (!defined('MOMO_IPN_URL')) define('MOMO_IPN_URL', SITEURL . 'api/momo-ipn.php');
 
-// VNPay (Sandbox)
-if (!defined('VNPAY_TMN_CODE')) define('VNPAY_TMN_CODE', '6SWCSTD3');
-if (!defined('VNPAY_HASH_SECRET')) define('VNPAY_HASH_SECRET', '0WDB0RA5OSLBGB2E14QQMHKYBKB3DAYU');
+// VNPay (Sandbox – môi trường TEST)
+if (!defined('VNPAY_TMN_CODE')) define('VNPAY_TMN_CODE', 'U1Q149D8');
+if (!defined('VNPAY_HASH_SECRET')) define('VNPAY_HASH_SECRET', '5GM0WI0CINW73KI4EGBME7ITBHB2HZMH');
 if (!defined('VNPAY_URL')) define('VNPAY_URL', 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html');
 if (!defined('VNPAY_RETURN_URL')) define('VNPAY_RETURN_URL', SITEURL . 'user/vnpay-return.php');
 if (!defined('VNPAY_IPN_URL')) define('VNPAY_IPN_URL', SITEURL . 'api/vnpay-ipn.php');
-
-// Chuyển khoản ngân hàng / VietQR (ủy nhiệm chi) – BIDV
-if (!defined('BANK_ACQ_ID')) define('BANK_ACQ_ID', 970418);
-if (!defined('BANK_ACCOUNT_NO')) define('BANK_ACCOUNT_NO', '0983224809');
-if (!defined('BANK_ACCOUNT_NAME')) define('BANK_ACCOUNT_NAME', 'WowFood');
-if (!defined('BANK_NAME')) define('BANK_NAME', 'BIDV');
-// URL ảnh VietQR: https://img.vietqr.io/image/{acqId}-{accountNo}-compact2.jpg?amount=...&addInfo=...&accountName=...
-if (!defined('VIETQR_IMG_BASE')) define('VIETQR_IMG_BASE', 'https://img.vietqr.io/image/');
 ?>
