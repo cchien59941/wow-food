@@ -1,18 +1,30 @@
 <?php 
 include('../config/constants.php'); 
 
+<<<<<<< Updated upstream
 
 if(isset($_POST['submit'])){
     $email = trim($_POST['email']);
     
     
+=======
+// Xử lý quên mật khẩu trước khi output HTML
+if(isset($_POST['submit'])){
+    $email = trim($_POST['email']);
+    
+    // Validate email format
+>>>>>>> Stashed changes
     if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
         $_SESSION['forgot-password'] = "Email không hợp lệ!";
         header('location:'.SITEURL.'user/forgot-password.php');
         exit();
     }
     
+<<<<<<< Updated upstream
     
+=======
+    // Chỉ chấp nhận Gmail
+>>>>>>> Stashed changes
     $email_domain = substr(strrchr($email, "@"), 1);
     if(strtolower($email_domain) !== 'gmail.com'){
         $_SESSION['forgot-password'] = "Chỉ chấp nhận email Gmail!";
@@ -20,7 +32,11 @@ if(isset($_POST['submit'])){
         exit();
     }
     
+<<<<<<< Updated upstream
    
+=======
+    // Kiểm tra email có tồn tại không
+>>>>>>> Stashed changes
     $check_sql = "SELECT * FROM tbl_user WHERE email=? AND status='Active'";
     $stmt = mysqli_prepare($conn, $check_sql);
     
@@ -31,6 +47,7 @@ if(isset($_POST['submit'])){
         $count = mysqli_num_rows($result);
         
         if($count == 1){
+<<<<<<< Updated upstream
             
             require_once(__DIR__ . '/../api/phpmailer-send.php');
             
@@ -39,6 +56,16 @@ if(isset($_POST['submit'])){
             $expires_at = date('Y-m-d H:i:s', time() + 600); // 10 phút
             
            
+=======
+            // Email tồn tại, gửi mã reset password
+            require_once(__DIR__ . '/../api/phpmailer-send.php');
+            
+            // Tạo mã xác minh 6 số
+            $reset_code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+            $expires_at = date('Y-m-d H:i:s', time() + 600); // 10 phút
+            
+            // Xóa mã cũ
+>>>>>>> Stashed changes
             $delete_sql = "DELETE FROM tbl_verification WHERE 
                 email = ? AND 
                 verification_type = 'email' AND 
@@ -50,7 +77,11 @@ if(isset($_POST['submit'])){
                 mysqli_stmt_close($stmt2);
             }
             
+<<<<<<< Updated upstream
          
+=======
+            // Lưu mã reset mới
+>>>>>>> Stashed changes
             $insert_sql = "INSERT INTO tbl_verification SET
                 email = ?,
                 phone = NULL,
@@ -66,7 +97,11 @@ if(isset($_POST['submit'])){
                 mysqli_stmt_close($stmt2);
                 
                 if($result2){
+<<<<<<< Updated upstream
                  
+=======
+                    // Gửi email reset password
+>>>>>>> Stashed changes
                     $subject = "Mã đặt lại mật khẩu - WowFood";
                     $message = "
                     <html>
@@ -87,7 +122,11 @@ if(isset($_POST['submit'])){
                             <div class='code'>{$reset_code}</div>
                             <p><strong>Mã này có hiệu lực trong 10 phút.</strong></p>
                             <div class='warning'>
+<<<<<<< Updated upstream
                                 <strong>Lưu ý:</strong> Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này và đảm bảo tài khoản của bạn được bảo mật.
+=======
+                                <strong Lưu ý:</strong> Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này và đảm bảo tài khoản của bạn được bảo mật.
+>>>>>>> Stashed changes
                             </div>
                             <div class='footer'>
                                 <p>Trân trọng,<br>Đội ngũ WowFood</p>
@@ -102,7 +141,11 @@ if(isset($_POST['submit'])){
                         $sent = sendEmailWithPHPMailer($email, $subject, $message);
                     }
                     
+<<<<<<< Updated upstream
                  
+=======
+                    // Log mã reset (localhost)
+>>>>>>> Stashed changes
                     $is_localhost = (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || 
                                      strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false);
                     if ($is_localhost) {
@@ -112,7 +155,11 @@ if(isset($_POST['submit'])){
                     }
                     
                     if($sent){
+<<<<<<< Updated upstream
                      
+=======
+                        // Lưu email vào session để dùng ở trang reset
+>>>>>>> Stashed changes
                         $_SESSION['reset_password_email'] = $email;
                         $_SESSION['forgot-password-success'] = "Mã đặt lại mật khẩu đã được gửi đến email của bạn!";
                         header('location:'.SITEURL.'user/reset-password.php');
@@ -127,7 +174,11 @@ if(isset($_POST['submit'])){
                 $_SESSION['forgot-password'] = "Lỗi database. Vui lòng thử lại.";
             }
         } else {
+<<<<<<< Updated upstream
             
+=======
+            // Email không tồn tại - không báo lỗi để tránh email enumeration
+>>>>>>> Stashed changes
             $_SESSION['forgot-password-success'] = "Nếu email tồn tại, mã đặt lại mật khẩu đã được gửi đến email của bạn!";
             header('location:'.SITEURL.'user/reset-password.php');
             exit();
@@ -226,7 +277,11 @@ if(isset($_POST['submit'])){
         </form>
         
         <div class="back-link">
+<<<<<<< Updated upstream
             <a href="<?php echo SITEURL; ?>user/login.php"><i class="bi bi-arrow-left"></i> Quay lại đăng nhập</a>
+=======
+            <a href="<?php echo SITEURL; ?>user/login.php">← Quay lại đăng nhập</a>
+>>>>>>> Stashed changes
         </div>
         
         <div class="register-link">
