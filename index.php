@@ -53,8 +53,8 @@
                         </span>
                         <button 
                             onclick="addToCart(<?php echo $id; ?>, <?php echo (float)$price; ?>)" 
-                            class="btn btn-primary">
-                            🛒 Thêm vào giỏ
+                            class="bi bi-cart-plus btn btn-primary">
+                            Thêm vào giỏ
                         </button>
                     </div>
                 <?php

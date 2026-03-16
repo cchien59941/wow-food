@@ -5,9 +5,7 @@
         WHERE YEARWEEK(order_date,1)=YEARWEEK(CURDATE(),1)
         GROUP BY d";
     $day_res = mysqli_query($conn,$day);
-
     $days=[0,0,0,0,0,0,0];
-
     while($day_row=mysqli_fetch_assoc($day_res)){
         if($day_row['d']==2)$days[0]=$day_row['totals'];
         if($day_row['d']==3)$days[1]=$day_row['totals'];
@@ -17,7 +15,10 @@
         if($day_row['d']==7)$days[5]=$day_row['totals'];
         if($day_row['d']==1)$days[6]=$day_row['totals'];
     }
-
+    $monday = strtotime("monday this week");
+    for($i=0;$i<7;$i++){
+        $labels_week[] = date("d/m", strtotime("+$i day", $monday));
+    }
     /* DOANH THU THEO THÁNG */
     $month="SELECT MONTH(order_date) m,SUM(total) totals
         FROM tbl_order
@@ -111,9 +112,9 @@
     <div class="grid">
         <div class="card">
             <div class="card-header">
-                <div>DOANH THU</div>
+                <div>DOANH THU <?php echo date("Y"); ?></div>
                 <form action="export_pdf.php" method="post" >
-                        <button type="submit" style="margin :0px 0px 0px 100px"  class="btn-pdf">Xuất PDF</button>
+                        <button type="submit" style="margin :0px 0px 0px 50px"  class="btn-pdf">Xuất PDF</button>
                 </form>
                 <span>
                     <select id="filter">
@@ -135,7 +136,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const labels = {
-        week: ['T2','T3','T4','T5','T6','T7','CN'],
+        week: <?php echo json_encode($labels_week); ?>,
         all: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
         pie : <?php echo json_encode($top5_labels); ?>
     };
@@ -147,8 +148,8 @@
     const barChart = new Chart(document.getElementById('barChart'), {
         type: 'bar',
         data: {
-            labels: labels.all,
-            datasets: [{ data: values.all, backgroundColor: '#36a2eb' }]
+            labels: labels.week,
+            datasets: [{ data: values.week, backgroundColor: '#36a2eb' }]
         },
         options: { plugins: { legend: { display: false } }, maintainAspectRatio: false }
     });
