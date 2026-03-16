@@ -42,6 +42,50 @@ function chuanHoaYesNo($value, $default = 'No')
     return $default;
 }
 
+function layThuMucAnhDanhMuc()
+{
+    return dirname(__DIR__) . DIRECTORY_SEPARATOR . 'image' . DIRECTORY_SEPARATOR . 'category';
+}
+
+function xoaTepAnhDanhMuc($tenAnh)
+{
+    if ($tenAnh === '') {
+        return;
+    }
+
+    $duongDan = layThuMucAnhDanhMuc() . DIRECTORY_SEPARATOR . $tenAnh;
+    if (is_file($duongDan)) {
+        @unlink($duongDan);
+    }
+}
+
+function taiLenAnhDanhMuc($tepTin)
+{
+    if (!isset($tepTin) || ($tepTin['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return ['success' => true, 'image_name' => ''];
+    }
+
+    if (($tepTin['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'message' => 'Tải ảnh lên thất bại.'];
+    }
+
+    $extension = strtolower(pathinfo($tepTin['name'], PATHINFO_EXTENSION));
+    $dinhDangChoPhep = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+    if (!in_array($extension, $dinhDangChoPhep, true)) {
+        return ['success' => false, 'message' => 'Chỉ chấp nhận ảnh JPG, JPEG, PNG, GIF hoặc WEBP.'];
+    }
+
+    $tenAnh = 'Food_Category_' . mt_rand(100, 999) . '.' . $extension;
+    $duongDan = layThuMucAnhDanhMuc() . DIRECTORY_SEPARATOR . $tenAnh;
+
+    if (!move_uploaded_file($tepTin['tmp_name'], $duongDan)) {
+        return ['success' => false, 'message' => 'Không thể lưu ảnh vào thư mục danh mục.'];
+    }
+
+    return ['success' => true, 'image_name' => $tenAnh];
+}
+
 function layDanhMucTheoId($conn, $id)
 {
     $stmt = mysqli_prepare($conn, 'SELECT id, title, featured, active, image_name FROM tbl_category WHERE id = ? LIMIT 1');
@@ -63,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
     $featured = chuanHoaYesNo($_POST['featured'] ?? 'No');
     $active = chuanHoaYesNo($_POST['active'] ?? 'Yes', 'Yes');
+    $xoaAnhHienTai = isset($_POST['remove_image']) && $_POST['remove_image'] === '1';
 
     if ($title === '') {
         datThongBaoTam('error', 'Vui lòng nhập tên danh mục.');
@@ -70,18 +115,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'add') {
+        $upload = taiLenAnhDanhMuc($_FILES['image'] ?? null);
+        if (!$upload['success']) {
+            datThongBaoTam('error', $upload['message']);
+            chuyenTrangQuanLyDanhMuc();
+        }
+
         $stmt = mysqli_prepare($conn, 'INSERT INTO tbl_category (title, featured, active, image_name) VALUES (?, ?, ?, ?)');
         if (!$stmt) {
             datThongBaoTam('error', 'Không thể thêm danh mục vào cơ sở dữ liệu.');
             chuyenTrangQuanLyDanhMuc();
         }
 
-        $imageName = '';
-        mysqli_stmt_bind_param($stmt, 'ssss', $title, $featured, $active, $imageName);
+        mysqli_stmt_bind_param($stmt, 'ssss', $title, $featured, $active, $upload['image_name']);
         $success = mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
 
         if (!$success) {
+            xoaTepAnhDanhMuc($upload['image_name']);
             datThongBaoTam('error', 'Thêm danh mục thất bại.');
             chuyenTrangQuanLyDanhMuc();
         }
@@ -99,19 +150,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             chuyenTrangQuanLyDanhMuc();
         }
 
+        $tenAnhMoi = $currentCategory['image_name'];
+        $tenAnhMoiVuaTai = '';
+
+        if (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $upload = taiLenAnhDanhMuc($_FILES['image']);
+            if (!$upload['success']) {
+                datThongBaoTam('error', $upload['message']);
+                chuyenTrangQuanLyDanhMuc('edit_id=' . $id);
+            }
+
+            $tenAnhMoiVuaTai = $upload['image_name'];
+            $tenAnhMoi = $tenAnhMoiVuaTai;
+        } elseif ($xoaAnhHienTai) {
+            $tenAnhMoi = '';
+        }
+
         $stmt = mysqli_prepare($conn, 'UPDATE tbl_category SET title = ?, featured = ?, active = ?, image_name = ? WHERE id = ?');
         if (!$stmt) {
+            xoaTepAnhDanhMuc($tenAnhMoiVuaTai);
             datThongBaoTam('error', 'Không thể cập nhật danh mục.');
             chuyenTrangQuanLyDanhMuc('edit_id=' . $id);
         }
 
-        mysqli_stmt_bind_param($stmt, 'ssssi', $title, $featured, $active, $currentCategory['image_name'], $id);
+        mysqli_stmt_bind_param($stmt, 'ssssi', $title, $featured, $active, $tenAnhMoi, $id);
         $success = mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
 
         if (!$success) {
+            xoaTepAnhDanhMuc($tenAnhMoiVuaTai);
             datThongBaoTam('error', 'Cập nhật danh mục thất bại.');
             chuyenTrangQuanLyDanhMuc('edit_id=' . $id);
+        }
+
+        if ($tenAnhMoiVuaTai !== '' && $currentCategory['image_name'] !== '') {
+            xoaTepAnhDanhMuc($currentCategory['image_name']);
+        }
+
+        if ($tenAnhMoiVuaTai === '' && $xoaAnhHienTai && $currentCategory['image_name'] !== '') {
+            xoaTepAnhDanhMuc($currentCategory['image_name']);
         }
 
         datThongBaoTam('success', 'Cập nhật danh mục thành công.');
@@ -143,6 +220,7 @@ if (isset($_GET['delete_id'])) {
         chuyenTrangQuanLyDanhMuc();
     }
 
+    xoaTepAnhDanhMuc($category['image_name']);
     datThongBaoTam('success', 'Xóa danh mục thành công.');
     chuyenTrangQuanLyDanhMuc();
 }
@@ -225,7 +303,7 @@ include('partials/menu.php');
                     <?php } ?>
                 </div>
 
-                <form method="post" class="category-form">
+                <form method="post" enctype="multipart/form-data" class="category-form">
                     <input type="hidden" name="action" value="<?php echo $editCategory ? 'update' : 'add'; ?>">
                     <?php if ($editCategory) { ?>
                         <input type="hidden" name="id" value="<?php echo (int)$editCategory['id']; ?>">
@@ -235,6 +313,11 @@ include('partials/menu.php');
                         <div class="field">
                             <label for="title">Tên danh mục</label>
                             <input id="title" type="text" name="title" required value="<?php echo htmlspecialchars($editCategory['title'] ?? ''); ?>">
+                        </div>
+
+                        <div class="field">
+                            <label for="image">Hình ảnh</label>
+                            <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
                         </div>
 
                         <div class="field">
@@ -253,6 +336,19 @@ include('partials/menu.php');
                             </select>
                         </div>
                     </div>
+
+                    <?php if ($editCategory && $editCategory['image_name'] !== '') { ?>
+                        <div class="image-preview-row">
+                            <div>
+                                <span class="preview-label">Ảnh hiện tại</span>
+                                <img src="<?php echo SITEURL; ?>image/category/<?php echo htmlspecialchars($editCategory['image_name']); ?>" alt="<?php echo htmlspecialchars($editCategory['title']); ?>" class="preview-image">
+                            </div>
+                            <label class="checkbox">
+                                <input type="checkbox" name="remove_image" value="1">
+                                Xóa ảnh hiện tại nếu không tải ảnh mới
+                            </label>
+                        </div>
+                    <?php } ?>
 
                     <div class="form-actions">
                         <button type="submit" class="submit-btn"><?php echo $editCategory ? 'Lưu thay đổi' : 'Thêm danh mục'; ?></button>
@@ -281,6 +377,7 @@ include('partials/menu.php');
                             <tr>
                                 <th>STT</th>
                                 <th>Tên danh mục</th>
+                                <th>Hình ảnh</th>
                                 <th>Nổi bật</th>
                                 <th>Hoạt động</th>
                                 <th>Thao tác</th>
@@ -289,7 +386,7 @@ include('partials/menu.php');
                         <tbody>
                             <?php if (!$categories) { ?>
                                 <tr>
-                                    <td colspan="5" class="empty-row">Chưa có danh mục phù hợp.</td>
+                                    <td colspan="6" class="empty-row">Chưa có danh mục phù hợp.</td>
                                 </tr>
                             <?php } else { ?>
                                 <?php $sn = 1; ?>
@@ -301,6 +398,13 @@ include('partials/menu.php');
                                                 <strong><?php echo htmlspecialchars($category['title']); ?></strong>
                                                 <span>ID: <?php echo (int)$category['id']; ?></span>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <?php if ($category['image_name'] !== '') { ?>
+                                                <img src="<?php echo SITEURL; ?>image/category/<?php echo htmlspecialchars($category['image_name']); ?>" alt="<?php echo htmlspecialchars($category['title']); ?>" class="table-image">
+                                            <?php } else { ?>
+                                                <span class="missing-image">Chưa có hình ảnh</span>
+                                            <?php } ?>
                                         </td>
                                         <td>
                                             <span class="status <?php echo $category['featured'] === 'Yes' ? 'yes' : 'no'; ?>">
@@ -342,8 +446,11 @@ include('partials/menu.php');
 .category-form{display:grid;gap:16px}
 .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .field{display:flex;flex-direction:column;gap:8px}
-.field label{font-weight:600;color:#57606f;font-size:14px}
-.field input[type="text"],.field select{width:100%;padding:11px 12px;border:1px solid #dfe4ea;border-radius:10px;font-size:14px;background:#fff;box-sizing:border-box}
+.field label,.preview-label{font-weight:600;color:#57606f;font-size:14px}
+.field input[type="text"],.field input[type="file"],.field select{width:100%;padding:11px 12px;border:1px solid #dfe4ea;border-radius:10px;font-size:14px;background:#fff;box-sizing:border-box}
+.image-preview-row{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.preview-image{display:block;width:110px;height:90px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid #e0e6ed}
+.checkbox{display:flex;align-items:center;gap:8px;color:#57606f;font-size:14px}
 .form-actions{display:flex}
 .submit-btn{display:inline-block;padding:10px 18px;border:none;border-radius:999px;background:#1e90ff;color:#fff;font-size:13px;font-weight:500;cursor:pointer}
 .filter-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
@@ -358,6 +465,8 @@ include('partials/menu.php');
 .cell-title{display:flex;flex-direction:column;gap:4px}
 .cell-title strong{font-size:14px}
 .cell-title span{font-size:12px;color:#747d8c}
+.table-image{width:90px;height:68px;object-fit:cover;border-radius:8px}
+.missing-image{color:#ff6b81;font-size:12px}
 .status{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
 .status.yes{background:#edfdf3;color:#1e7e34}
 .status.no{background:#f1f2f6;color:#57606f}
