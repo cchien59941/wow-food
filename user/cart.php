@@ -113,7 +113,7 @@ function formatPrice($num) {
         <div id="cartItems">
             <?php if (empty($cart_items)): ?>
                 <div class="empty-cart">
-                    <div class="empty-cart-icon">🛒</div>
+                    <div class="empty-cart-icon"><i class="bi bi-cart-x"></i></div>
                     <h2>Giỏ hàng trống</h2>
                     <p>Hãy thêm món ăn từ thực đơn nhé!</p>
                     <a href="<?php echo SITEURL; ?>food.php">Xem thực đơn</a>
@@ -133,7 +133,7 @@ function formatPrice($num) {
                         </div>
                         <div class="cart-collapse open">
                             <div class="cart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
-                                <span class="cart-collapse-icon">▼</span>
+                                <span class="cart-collapse-icon"><i class="bi bi-chevron-down"></i></span>
                                 <label>Kích thước</label>
                             </div>
                             <div class="cart-collapse-body"><div class="cart-size-select">
@@ -146,7 +146,7 @@ function formatPrice($num) {
                         </div>
                         <div class="cart-collapse">
                             <div class="cart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
-                                <span class="cart-collapse-icon">▼</span>
+                                <span class="cart-collapse-icon"><i class="bi bi-chevron-down"></i></span>
                                 <label>Món/nước kèm</label>
                             </div>
                             <div class="cart-collapse-body"><div class="cart-sides-select">

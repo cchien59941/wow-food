@@ -188,7 +188,7 @@ if(isset($_POST['submit'])){
         <h1>  Đặt lại mật khẩu</h1>
         
         <div class="info-box">
-            <strong>✓</strong> Mã đặt lại mật khẩu đã được gửi đến email của bạn.
+            <strong><i class="bi bi-check-circle-fill"></i></strong> Mã đặt lại mật khẩu đã được gửi đến email của bạn.
         </div>
         
         <div class="email-display">
@@ -203,8 +203,8 @@ if(isset($_POST['submit'])){
         </form>
         
         <div class="back-link">
-            <a href="<?php echo SITEURL; ?>user/forgot-password.php">Gửi lại mã</a> | 
-            <a href="<?php echo SITEURL; ?>user/login.php">Quay lại đăng nhập</a>
+            <a href="<?php echo SITEURL; ?>user/forgot-password.php"><i class="bi bi-arrow-repeat"></i> Gửi lại mã</a> | 
+            <a href="<?php echo SITEURL; ?>user/login.php"><i class="bi bi-arrow-left"></i> Quay lại đăng nhập</a>
         </div>
     </div>
     

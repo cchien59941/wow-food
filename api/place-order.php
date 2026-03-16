@@ -21,6 +21,11 @@ $customer_email = isset($_POST['customer_email']) ? trim($_POST['customer_email'
 $customer_address = isset($_POST['customer_address']) ? trim($_POST['customer_address']) : '';
 $order_note = isset($_POST['order_note']) ? trim($_POST['order_note']) : '';
 $payment_method = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : 'cash';
+$allowed_payment = ['cash', 'momo', 'vnpay'];
+if (!in_array($payment_method, $allowed_payment, true)) {
+    echo json_encode(['success' => false, 'message' => 'Phương thức thanh toán không hợp lệ']);
+    exit;
+}
 
 if (empty($customer_name) || empty($customer_contact) || empty($customer_email) || empty($customer_address)) {
     echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin giao hàng']);
@@ -138,7 +143,7 @@ if ($shipping_fee <= 0) {
 
 $order_total = $cart_total + $shipping_fee;
 
-$status = in_array($payment_method, ['momo', 'vnpay', 'bank'], true) ? 'Pending Payment' : 'Pending';
+$status = in_array($payment_method, ['momo', 'vnpay'], true) ? 'Pending Payment' : 'Pending';
 
 $customer_contact_safe = mb_substr($customer_contact, 0, 20);
 $customer_email_safe = mb_substr($customer_email, 0, 150);
@@ -247,16 +252,14 @@ if ($ins) {
     $ins->close();
 }
 
-// Chỉ xóa giỏ khi thanh toán tiền mặt (momo/vnpay xóa sau khi thanh toán thành công; bank chuyển khoản giữ giỏ đến khi user xem xong)
+// Chỉ xóa giỏ khi thanh toán tiền mặt (momo/vnpay xóa sau khi thanh toán thành công)
 if ($payment_method !== 'momo' && $payment_method !== 'vnpay') {
     $_SESSION['cart'] = [];
 }
 if (isset($_SESSION['redirect_after_login'])) unset($_SESSION['redirect_after_login']);
 
 $redirect = SITEURL . 'index.php';
-if ($payment_method === 'bank') {
-    $redirect = SITEURL . 'user/bank-transfer.php?order_code=' . urlencode($order_code);
-} elseif (file_exists(__DIR__ . '/../user/order-history.php')) {
+if (file_exists(__DIR__ . '/../user/order-history.php')) {
     $redirect = SITEURL . 'user/order-history.php';
 }
 

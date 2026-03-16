@@ -11,8 +11,11 @@
 
     <!-- Link our CSS file - dùng SITEURL để CSS/ảnh luôn đúng khi mở từ mọi đường dẫn (trang con user/, ...) -->
     <link rel="stylesheet" href="<?php echo SITEURL; ?>css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <style>
+.menu ul a .bi, .mobile-menu-panel a .bi { margin-right: 6px; opacity: 0.9; }
+.mobile-menu-btn .bi { font-size: 1.5rem; }
 .food-search {
     background-image: url('<?php echo SITEURL; ?>image/bg.jpg');
     background-size: cover;
@@ -55,22 +58,22 @@
                 </a>
             </div>
             <!-- Mobile menu toggle -->
-            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu">☰</button>
+            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open menu"><i class="bi bi-list"></i></button>
 
             <div class="menu text-right">
                 <ul>
                     <li>
-                        <a href="<?php echo SITEURL ;?>">Trang chủ</a>
+                        <a href="<?php echo SITEURL ;?>"><i class="bi bi-house-door"></i> Trang chủ</a>
                     </li>
                     <li>
-                        <a href="<?php echo SITEURL ;?>categories.php">Danh mục</a>
+                        <a href="<?php echo SITEURL ;?>categories.php"><i class="bi bi-grid"></i> Danh mục</a>
                     </li>
                     <li>
-                        <a href="<?php echo SITEURL ;?>food.php">Món ăn</a>
+                        <a href="<?php echo SITEURL ;?>food.php"><i class="bi bi-egg-fried"></i> Món ăn</a>
                     </li>
                     <li>
                         <a href="<?php echo SITEURL; ?>user/cart.php" style="position: relative;">
-                            Giỏ hàng
+                            <i class="bi bi-cart3"></i> Giỏ hàng
                             <span id="cartBadge" class="chat-badge" style="display: none;">0</span>
                         </a>
                     </li>
@@ -80,23 +83,23 @@
                         ?>
                     <?php if(isset($_SESSION['user_id'])): ?>
                     <li>
-                        <a href="<?php echo SITEURL; ?>user/order-history.php">Đơn hàng</a>
+                        <a href="<?php echo SITEURL; ?>user/order-history.php"><i class="bi bi-box-seam"></i> Đơn hàng</a>
                     </li>
                     <li>
                         <a href="<?php echo SITEURL; ?>user/notifications.php" style="position: relative;">
-                            Thông báo
+                            <i class="bi bi-bell"></i> Thông báo
                             <span id="orderNotifBadge" class="chat-badge" style="display: none;">0</span>
                         </a>
                     </li>
                     <li>
                         <a href="<?php echo SITEURL; ?>user/chat.php" id="chatLink" style="position: relative;">
-                            Chat
+                            <i class="bi bi-chat-dots"></i> Chat
                             <span id="chatBadge" class="chat-badge" style="display: none;">0</span>
                         </a>
                     </li>
                     <?php endif; ?>
                     <li>
-                        <a href="#" onclick="confirmLogout('<?php echo SITEURL; ?>user/logout.php'); return false;">Đăng
+                        <a href="#" onclick="confirmLogout('<?php echo SITEURL; ?>user/logout.php'); return false;"><i class="bi bi-box-arrow-right"></i> Đăng
                             xuất (<?php echo htmlspecialchars($display_name); ?>)</a>
                     </li>
                     <?php
@@ -104,10 +107,10 @@
                     else{
                         ?>
                     <li>
-                        <a href="<?php echo SITEURL ;?>user/login.php">Đăng nhập</a>
+                        <a href="<?php echo SITEURL ;?>user/login.php"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a>
                     </li>
                     <li>
-                        <a href="<?php echo SITEURL ;?>user/register.php">Đăng ký</a>
+                        <a href="<?php echo SITEURL ;?>user/register.php"><i class="bi bi-person-plus"></i> Đăng ký</a>
                     </li>
                     <?php
                     }
@@ -120,7 +123,7 @@
                     if(!isset($_SESSION['user']) || isset($_SESSION['admin_id'])){
                         ?>
                     <li>
-                        <a href="<?php echo SITEURL ;?>admin/login.php">Admin</a>
+                        <a href="<?php echo SITEURL ;?>admin/login.php"><i class="bi bi-shield-lock"></i> Admin</a>
                     </li>
                     <?php
                     }
@@ -138,23 +141,23 @@
                         </form>
                     </div>
                     <ul>
-                        <li><a href="<?php echo SITEURL ;?>">Trang chủ</a></li>
-                        <li><a href="<?php echo SITEURL ;?>categories.php">Danh mục</a></li>
-                        <li><a href="<?php echo SITEURL ;?>food.php">Món ăn</a></li>
-                        <li><a href="<?php echo SITEURL; ?>user/cart.php">Giỏ hàng <span id="cartBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
+                        <li><a href="<?php echo SITEURL ;?>"><i class="bi bi-house-door"></i> Trang chủ</a></li>
+                        <li><a href="<?php echo SITEURL ;?>categories.php"><i class="bi bi-grid"></i> Danh mục</a></li>
+                        <li><a href="<?php echo SITEURL ;?>food.php"><i class="bi bi-egg-fried"></i> Món ăn</a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/cart.php"><i class="bi bi-cart3"></i> Giỏ hàng <span id="cartBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
                         <?php if(isset($_SESSION['user'])) { $display_name = isset($_SESSION['user_full_name']) ? $_SESSION['user_full_name'] : $_SESSION['user']; ?>
                         <?php if(isset($_SESSION['user_id'])): ?>
-                        <li><a href="<?php echo SITEURL; ?>user/order-history.php">Đơn hàng</a></li>
-                        <li><a href="<?php echo SITEURL; ?>user/notifications.php">Thông báo <span id="orderNotifBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
-                        <li><a href="<?php echo SITEURL; ?>user/chat.php" id="chatLinkMobile">Chat <span id="chatBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/order-history.php"><i class="bi bi-box-seam"></i> Đơn hàng</a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/notifications.php"><i class="bi bi-bell"></i> Thông báo <span id="orderNotifBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
+                        <li><a href="<?php echo SITEURL; ?>user/chat.php" id="chatLinkMobile"><i class="bi bi-chat-dots"></i> Chat <span id="chatBadgeMobile" class="chat-badge" style="display:none;float:right;margin-top:-2px;">0</span></a></li>
                         <?php endif; ?>
-                        <li><a href="#" onclick="confirmLogout('<?php echo SITEURL; ?>user/logout.php'); return false;">Đăng xuất (<?php echo htmlspecialchars($display_name); ?>)</a></li>
+                        <li><a href="#" onclick="confirmLogout('<?php echo SITEURL; ?>user/logout.php'); return false;"><i class="bi bi-box-arrow-right"></i> Đăng xuất (<?php echo htmlspecialchars($display_name); ?>)</a></li>
                         <?php } else { ?>
-                        <li><a href="<?php echo SITEURL ;?>user/login.php">Đăng nhập</a></li>
-                        <li><a href="<?php echo SITEURL ;?>user/register.php">Đăng ký</a></li>
+                        <li><a href="<?php echo SITEURL ;?>user/login.php"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a></li>
+                        <li><a href="<?php echo SITEURL ;?>user/register.php"><i class="bi bi-person-plus"></i> Đăng ký</a></li>
                         <?php } ?>
                         <?php if(!isset($_SESSION['user']) || isset($_SESSION['admin_id'])) { ?>
-                        <li><a href="<?php echo SITEURL ;?>admin/login.php">Admin</a></li>
+                        <li><a href="<?php echo SITEURL ;?>admin/login.php"><i class="bi bi-shield-lock"></i> Admin</a></li>
                         <?php } ?>
                     </ul>
                 </div>
@@ -352,14 +355,14 @@
                 </div>
                 <div class="addcart-row addcart-collapse open">
                     <div class="addcart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
-                        <span class="addcart-collapse-icon">▼</span>
+                        <span class="addcart-collapse-icon"><i class="bi bi-chevron-down"></i></span>
                         <label>Kích thước</label>
                     </div>
                     <div class="addcart-collapse-body"><div class="addcart-sizes">${sizesHtml}</div></div>
                 </div>
                 <div class="addcart-row addcart-collapse">
                     <div class="addcart-collapse-head" onclick="this.parentElement.classList.toggle('open')">
-                        <span class="addcart-collapse-icon">▼</span>
+                        <span class="addcart-collapse-icon"><i class="bi bi-chevron-down"></i></span>
                         <label>Món/nước kèm</label>
                     </div>
                     <div class="addcart-collapse-body"><div class="addcart-sides">${sidesHtml}</div></div>
@@ -377,7 +380,7 @@
         };
 
         Swal.fire({
-            title: '🛒 Thêm vào giỏ hàng',
+            title: 'Thêm vào giỏ hàng',
             html,
             width: '480px',
             showCancelButton: true,

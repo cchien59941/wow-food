@@ -112,7 +112,7 @@ function formatPrice($num) {
     </div>
 
     <h1 class="checkout-title">
-        <span class="checkout-title-icon">✓</span>
+        <span class="checkout-title-icon"><i class="bi bi-check-circle"></i></span>
         Thanh toán đơn hàng
     </h1>
 
@@ -128,7 +128,7 @@ function formatPrice($num) {
         <div class="checkout-main">
             <section class="checkout-card checkout-form-card">
                 <h2 class="card-heading">
-                    <span class="card-icon">📍</span>
+                    <span class="card-icon"><i class="bi bi-geo-alt"></i></span>
                     Thông tin giao hàng
                 </h2>
                 <div class="form-grid">
@@ -180,24 +180,16 @@ function formatPrice($num) {
 
             <section class="checkout-card payment-card">
                 <h2 class="card-heading">
-                    <span class="card-icon">💳</span>
+                    <span class="card-icon"><i class="bi bi-credit-card"></i></span>
                     Phương thức thanh toán
                 </h2>
                 <div class="payment-methods">
                     <label class="payment-option">
                         <input type="radio" name="payment_method" value="cash" checked>
                         <span class="payment-option-box">
-                            <span class="payment-icon payment-icon-cash">💵</span>
+                            <span class="payment-icon payment-icon-cash"><i class="bi bi-cash-stack"></i></span>
                             <span class="payment-label">Tiền mặt</span>
                             <span class="payment-desc">Thanh toán khi nhận hàng (COD)</span>
-                        </span>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="bank">
-                        <span class="payment-option-box">
-                            <span class="payment-icon payment-icon-bank">🏦</span>
-                            <span class="payment-label">Chuyển khoản ngân hàng</span>
-                            <span class="payment-desc">VietQR / Ủy nhiệm chi – Quét mã hoặc chuyển khoản theo thông tin</span>
                         </span>
                     </label>
                     <label class="payment-option">
@@ -227,7 +219,7 @@ function formatPrice($num) {
         <aside class="checkout-sidebar">
             <div class="checkout-card order-summary-card">
                 <h2 class="card-heading">
-                    <span class="card-icon">🛒</span>
+                    <span class="card-icon"><i class="bi bi-cart3"></i></span>
                     Đơn hàng của bạn
                 </h2>
                 <div class="order-summary-list">
@@ -240,7 +232,7 @@ function formatPrice($num) {
                         <?php if (!empty($item['image_name'])): ?>
                         <img src="<?php echo SITEURL; ?>image/food/<?php echo htmlspecialchars($item['image_name']); ?>" alt="" class="summary-item-img">
                         <?php else: ?>
-                        <div class="summary-item-img summary-item-placeholder">🍽</div>
+                        <div class="summary-item-img summary-item-placeholder"><i class="bi bi-egg-fried"></i></div>
                         <?php endif; ?>
                         <div class="summary-item-info">
                             <span class="summary-item-name"><?php echo htmlspecialchars($item['title']); ?></span>
@@ -268,7 +260,7 @@ function formatPrice($num) {
                     <span class="btn-text">Đặt hàng</span>
                     <span class="btn-price"><?php echo formatPrice($cart_total); ?></span>
                 </button>
-                <a href="<?php echo SITEURL; ?>user/cart.php" class="back-cart">← Quay lại giỏ hàng</a>
+                <a href="<?php echo SITEURL; ?>user/cart.php" class="back-cart"><i class="bi bi-arrow-left"></i> Quay lại giỏ hàng</a>
             </div>
         </aside>
     </form>
@@ -529,16 +521,6 @@ window.USER_GHN = <?php
                             });
                         return;
                     }
-                    // Chuyển khoản ngân hàng (VietQR / ủy nhiệm chi): redirect sang trang hướng dẫn
-                    if (paymentMethod === 'bank') {
-                        if (data.redirect) {
-                            window.location.href = data.redirect;
-                        } else {
-                            window.location.href = SITEURL + 'user/bank-transfer.php?order_code=' + encodeURIComponent(data.order_code || '');
-                        }
-                        return;
-                    }
-
                     Swal.fire({
                         icon: 'success',
                         title: 'Đặt hàng thành công!',

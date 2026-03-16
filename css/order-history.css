@@ -82,6 +82,8 @@ body {
     border-radius: 12px;
     font-size: 1.25rem;
 }
+.order-history-title-icon .bi { font-size: 1.2em; }
+.order-history-empty .empty-icon .bi { display: block; color: var(--oh-accent); }
 
 .order-history-list {
     display: flex;

@@ -15,7 +15,7 @@
             <p>Bạn chịu trách nhiệm bảo mật tài khoản và mật khẩu. Đơn hàng sau khi xác nhận có thể bị hủy hoặc hoàn tiền theo chính sách của WowFood và đối tác vận chuyển.</p>
 
             <h3>4. Thanh toán &amp; hoàn tiền</h3>
-            <p>Thanh toán qua VNPay, MoMo hoặc chuyển khoản. Chính sách hoàn tiền áp dụng theo quy định từng đơn và phương thức thanh toán.</p>
+            <p>Thanh toán qua VNPay, MoMo hoặc tiền mặt khi nhận hàng. Chính sách hoàn tiền áp dụng theo quy định từng đơn và phương thức thanh toán.</p>
 
             <h3>5. Thay đổi điều khoản</h3>
             <p>WowFood có quyền cập nhật điều khoản. Phiên bản mới có hiệu lực khi đăng tải trên website. Việc tiếp tục sử dụng dịch vụ sau khi thay đổi được coi là chấp nhận điều khoản mới.</p>
