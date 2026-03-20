@@ -626,6 +626,7 @@ window.USER_GHN = <?php
         const paymentMethod = payment ? payment.value : 'cash';
         const toDistrictId = selDistrict ? selDistrict.value : '';
         const toWardCode = selWard ? selWard.value : '';
+        const toProvinceId = selProvince ? selProvince.value : '';
         var provinceName = (selProvince && selProvince.selectedIndex >= 0) ? (selProvince.options[selProvince.selectedIndex].text || '').trim() : '';
         var districtName = (selDistrict && selDistrict.selectedIndex >= 0) ? (selDistrict.options[selDistrict.selectedIndex].text || '').trim() : '';
         var wardName = (selWard && selWard.selectedIndex >= 0) ? (selWard.options[selWard.selectedIndex].text || '').trim() : '';
@@ -634,6 +635,12 @@ window.USER_GHN = <?php
         if (!contact) { Swal.fire('Lỗi', 'Vui lòng nhập số điện thoại.', 'error'); return; }
         if (!email) { Swal.fire('Lỗi', 'Vui lòng nhập email.', 'error'); return; }
         if (!address) { Swal.fire('Lỗi', 'Vui lòng nhập số nhà.', 'error'); return; }
+
+        // Bắt buộc chọn đầy đủ địa chỉ GHN (Tỉnh -> Quận -> Phường/Xã)
+        if (!toProvinceId || !toDistrictId || !toWardCode) {
+            Swal.fire('Lỗi', 'Vui lòng chọn địa chỉ giao hàng đầy đủ (Tỉnh -> Quận -> Phường/Xã).', 'error');
+            return;
+        }
 
         btn.disabled = true;
         btn.querySelector('.btn-text').textContent = 'Đang xử lý...';
