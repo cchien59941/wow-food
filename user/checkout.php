@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include('../config/constants.php');
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
@@ -117,6 +117,7 @@ function formatPrice($num) {
     </h1>
 
     <form id="checkoutForm" class="checkout-layout">
+        <input type="hidden" id="voucher_code_input" name="voucher_code" value="">
         <!-- Thanh cố định mobile: nút Đặt hàng luôn hiển thị -->
         <div class="checkout-mobile-sticky" id="checkoutMobileSticky" aria-hidden="true">
             <span class="sticky-total">Tổng: <span id="grandTotalSticky"><?php echo formatPrice($cart_total); ?></span></span>
@@ -242,10 +243,22 @@ function formatPrice($num) {
                     </div>
                     <?php endforeach; ?>
                 </div>
+                <div class="voucher-apply" style="margin:14px 0 4px 0;padding:12px;border:1px dashed #ffd1d7;border-radius:10px;background:#fff7f8;">
+                    <label for="voucher_code" style="display:block;font-weight:600;font-size:14px;margin-bottom:6px;">Mã voucher</label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="voucher_code" placeholder="Nhập mã giảm giá" style="flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;">
+                        <button type="button" id="btnApplyVoucher" style="padding:10px 14px;border:none;border-radius:8px;background:#ff6b81;color:#fff;font-weight:600;cursor:pointer;white-space:nowrap;">Áp dụng</button>
+                    </div>
+                    <div id="voucherMsg" style="margin-top:6px;font-size:13px;color:#6b7280;"></div>
+                </div>
                 <div class="order-summary-footer">
                     <div class="summary-row">
                         <span>Tạm tính</span>
                         <span id="subtotalAmount"><?php echo formatPrice($cart_total); ?></span>
+                    </div>
+                    <div class="summary-row summary-row-discount" id="voucherRow" style="display:none;">
+                        <span>Giảm voucher</span>
+                        <span id="voucherAmount">-0 đ</span>
                     </div>
                     <div class="summary-row summary-row-ship" id="shippingFeeRow">
                         <span>Phí ship (GHN)</span>
@@ -285,6 +298,15 @@ window.USER_GHN = <?php
     const btnSticky = document.getElementById('btnPlaceOrderSticky');
     const cartTotal = <?php echo json_encode((float)$cart_total); ?>;
     const USER_GHN = window.USER_GHN || {};
+
+    let voucherDiscount = 0;
+    let appliedVoucherCode = '';
+    const voucherInput = document.getElementById('voucher_code');
+    const voucherBtn = document.getElementById('btnApplyVoucher');
+    const voucherRow = document.getElementById('voucherRow');
+    const voucherAmount = document.getElementById('voucherAmount');
+    const voucherMsg = document.getElementById('voucherMsg');
+    const voucherHidden = document.getElementById('voucher_code_input');
 
     function fmt(n) { return Number(n).toLocaleString('vi-VN') + ' đ'; }
 
@@ -352,17 +374,30 @@ window.USER_GHN = <?php
                 }
             }).catch(function() { selWard.disabled = false; });
     }
-    function updateShippingFee(fee) {
-        shippingFee = fee;
+    function updateTotals() {
         var amountEl = document.getElementById('shippingFeeAmount');
         var grandEl = document.getElementById('grandTotal');
         var grandSticky = document.getElementById('grandTotalSticky');
-        var total = cartTotal + shippingFee;
+        var discount = Math.max(0, Math.min(voucherDiscount || 0, cartTotal));
+        var total = (cartTotal - discount) + shippingFee;
         if (amountEl) amountEl.textContent = fmt(shippingFee);
         if (grandEl) grandEl.textContent = fmt(total);
         if (grandSticky) grandSticky.textContent = fmt(total);
         var priceSpans = document.querySelectorAll('.btn-place-order .btn-price');
         priceSpans.forEach(function(el) { el.textContent = fmt(total); });
+        if (voucherRow && voucherAmount) {
+            if (discount > 0) {
+                voucherRow.style.display = '';
+                voucherAmount.textContent = '-' + fmt(discount);
+            } else {
+                voucherRow.style.display = 'none';
+                voucherAmount.textContent = '-0 đ';
+            }
+        }
+    }
+    function updateShippingFee(fee) {
+        shippingFee = fee;
+        updateTotals();
     }
     function fetchShippingFee() {
         var districtId = (selDistrict && selDistrict.value) ? String(selDistrict.value).trim() : '';
@@ -384,6 +419,63 @@ window.USER_GHN = <?php
     if (selDistrict) selDistrict.addEventListener('change', function() { loadWards(selDistrict.value); });
     if (selWard) selWard.addEventListener('change', function() { fetchShippingFee(); });
     loadProvinces();
+
+    function setVoucherMessage(msg, ok) {
+        if (!voucherMsg) return;
+        voucherMsg.textContent = msg || '';
+        voucherMsg.style.color = ok ? '#16a34a' : '#ef4444';
+    }
+    function clearVoucher() {
+        voucherDiscount = 0;
+        appliedVoucherCode = '';
+        if (voucherHidden) voucherHidden.value = '';
+        updateTotals();
+    }
+    function applyVoucher() {
+        if (!voucherInput || !voucherBtn) return;
+        var code = (voucherInput.value || '').trim();
+        if (!code) {
+            clearVoucher();
+            setVoucherMessage('Vui lòng nhập mã voucher.', false);
+            return;
+        }
+        voucherBtn.disabled = true;
+        voucherBtn.dataset.text = voucherBtn.dataset.text || voucherBtn.textContent;
+        voucherBtn.textContent = 'Đang kiểm tra...';
+        var fdv = new FormData();
+        fdv.append('voucher_code', code);
+        fetch(SITEURL + 'api/voucher-apply.php', { method: 'POST', body: fdv })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res && res.success) {
+                    voucherDiscount = parseFloat(res.discount || 0) || 0;
+                    appliedVoucherCode = res.code || code;
+                    if (voucherHidden) voucherHidden.value = appliedVoucherCode;
+                    setVoucherMessage(res.message || 'Đã áp dụng voucher.', true);
+                } else {
+                    clearVoucher();
+                    setVoucherMessage((res && res.message) ? res.message : 'Voucher không hợp lệ.', false);
+                }
+                updateTotals();
+            })
+            .catch(function() {
+                clearVoucher();
+                setVoucherMessage('Không thể kiểm tra voucher. Vui lòng thử lại.', false);
+            })
+            .finally(function() {
+                voucherBtn.disabled = false;
+                voucherBtn.textContent = voucherBtn.dataset.text || 'Áp dụng';
+            });
+    }
+
+    if (voucherBtn) voucherBtn.addEventListener('click', applyVoucher);
+    if (voucherInput) {
+        voucherInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); applyVoucher(); }
+        });
+    }
+
+    updateTotals();
 
     if (btnSticky) {
         btnSticky.addEventListener('click', function() {
@@ -441,6 +533,10 @@ window.USER_GHN = <?php
         if (provinceName) fd.append('ghn_province_name', provinceName);
         if (districtName) fd.append('ghn_district_name', districtName);
         if (wardName) fd.append('ghn_ward_name', wardName);
+        var voucherCode = '';
+        if (voucherHidden && voucherHidden.value) voucherCode = voucherHidden.value;
+        else if (voucherInput && voucherInput.value.trim()) voucherCode = voucherInput.value.trim();
+        if (voucherCode) fd.append('voucher_code', voucherCode);
 
         fetch(SITEURL + 'api/place-order.php', { method: 'POST', body: fd })
             .then(function(r) {

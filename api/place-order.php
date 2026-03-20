@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start();
 require_once __DIR__ . '/../config/constants.php';
 ob_end_clean();
@@ -6,12 +6,12 @@ ob_end_clean();
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Phương thức không hợp lệ']);
+    echo json_encode(['success' => false, 'message' => 'PhÆ°Æ¡ng thá»©c khÃ´ng há»£p lá»‡']);
     exit;
 }
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để đặt hàng']);
+    echo json_encode(['success' => false, 'message' => 'Vui lÃ²ng Ä‘Äƒng nháº­p Ä‘á»ƒ Ä‘áº·t hÃ ng']);
     exit;
 }
 
@@ -23,17 +23,17 @@ $order_note = isset($_POST['order_note']) ? trim($_POST['order_note']) : '';
 $payment_method = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : 'cash';
 $allowed_payment = ['cash', 'momo', 'vnpay'];
 if (!in_array($payment_method, $allowed_payment, true)) {
-    echo json_encode(['success' => false, 'message' => 'Phương thức thanh toán không hợp lệ']);
+    echo json_encode(['success' => false, 'message' => 'PhÆ°Æ¡ng thá»©c thanh toÃ¡n khÃ´ng há»£p lá»‡']);
     exit;
 }
 
 if (empty($customer_name) || empty($customer_contact) || empty($customer_email) || empty($customer_address)) {
-    echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin giao hàng']);
+    echo json_encode(['success' => false, 'message' => 'Vui lÃ²ng Ä‘iá»n Ä‘áº§y Ä‘á»§ thÃ´ng tin giao hÃ ng']);
     exit;
 }
 
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart']) || count($_SESSION['cart']) === 0) {
-    echo json_encode(['success' => false, 'message' => 'Giỏ hàng trống. Vui lòng thêm món trước khi đặt hàng.']);
+    echo json_encode(['success' => false, 'message' => 'Giá» hÃ ng trá»‘ng. Vui lÃ²ng thÃªm mÃ³n trÆ°á»›c khi Ä‘áº·t hÃ ng.']);
     exit;
 }
 
@@ -44,14 +44,31 @@ if ($res && $res->num_rows > 0) {
     while ($row = $res->fetch_assoc()) $sizes[$row['id']] = ['name' => $row['name'], 'price_add' => (float) $row['price_add']];
 }
 if (empty($sizes)) {
-    $sizes = [1 => ['name' => 'Nhỏ', 'price_add' => 0], 2 => ['name' => 'Vừa', 'price_add' => 5], 3 => ['name' => 'Lớn', 'price_add' => 10]];
+    $sizes = [1 => ['name' => 'Nhá»', 'price_add' => 0], 2 => ['name' => 'Vá»«a', 'price_add' => 5], 3 => ['name' => 'Lá»›n', 'price_add' => 10]];
 }
 $res = @$conn->query("SELECT id, name, price FROM tbl_side_dish ORDER BY sort_order ASC, id ASC");
 if ($res && $res->num_rows > 0) {
     while ($row = $res->fetch_assoc()) $side_dishes[$row['id']] = ['name' => $row['name'], 'price' => (float) $row['price']];
 }
 if (empty($side_dishes)) {
-    $side_dishes = [1 => ['name' => 'Trứng ốp la', 'price' => 8], 2 => ['name' => 'Nem rán', 'price' => 10], 3 => ['name' => 'Khoai tây chiên', 'price' => 12], 4 => ['name' => 'Salad', 'price' => 6], 5 => ['name' => 'Nước ngọt', 'price' => 5], 6 => ['name' => 'Trà đá', 'price' => 3]];
+    $side_dishes = [1 => ['name' => 'Trá»©ng á»‘p la', 'price' => 8], 2 => ['name' => 'Nem rÃ¡n', 'price' => 10], 3 => ['name' => 'Khoai tÃ¢y chiÃªn', 'price' => 12], 4 => ['name' => 'Salad', 'price' => 6], 5 => ['name' => 'NÆ°á»›c ngá»t', 'price' => 5], 6 => ['name' => 'TrÃ  Ä‘Ã¡', 'price' => 3]];
+}
+function ensureVoucherTable($conn) {
+    $createSql = "CREATE TABLE IF NOT EXISTS tbl_voucher (
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+        code VARCHAR(50) NOT NULL UNIQUE,
+        type ENUM('percent','fixed') NOT NULL DEFAULT 'percent',
+        value DECIMAL(10,2) NOT NULL DEFAULT 0,
+        min_order DECIMAL(10,2) NOT NULL DEFAULT 0,
+        max_discount DECIMAL(10,2) NOT NULL DEFAULT 0,
+        status ENUM('active','inactive') NOT NULL DEFAULT 'active',
+        valid_from DATETIME NULL,
+        valid_to DATETIME NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        KEY code_idx (code)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+    $conn->query($createSql);
 }
 
 $cart_total = 0;
@@ -74,7 +91,7 @@ foreach ($_SESSION['cart'] as $cart_row) {
     if ($food) {
         $base_price = (float) $food['price'];
         $size_add = isset($sizes[$size_id]) ? $sizes[$size_id]['price_add'] : 0;
-        $size_name = isset($sizes[$size_id]) ? $sizes[$size_id]['name'] : 'Nhỏ';
+        $size_name = isset($sizes[$size_id]) ? $sizes[$size_id]['name'] : 'Nhá»';
         $sides_list = [];
         $side_total = 0;
         foreach ((array) $side_dish_ids as $sid) {
@@ -106,7 +123,7 @@ if (mb_strlen($food_summary) > 150) {
 
 $order_code = 'ORD' . date('Ymd') . strtoupper(substr(uniqid(), -6));
 
-// ----- Bước 4: Phí giao hàng (ưu tiên tính từ GHN theo to_district_id + to_ward_code) -----
+// ----- BÆ°á»›c 4: PhÃ­ giao hÃ ng (Æ°u tiÃªn tÃ­nh tá»« GHN theo to_district_id + to_ward_code) -----
 $shipping_fee = 0;
 $to_district_id = isset($_POST['to_district_id']) ? (int) $_POST['to_district_id'] : 0;
 $to_ward_code = isset($_POST['to_ward_code']) ? trim((string) $_POST['to_ward_code']) : '';
@@ -141,13 +158,51 @@ if ($shipping_fee <= 0) {
     $shipping_fee = isset($_POST['shipping_fee']) ? max(0, (float) $_POST['shipping_fee']) : 0;
 }
 
-$order_total = $cart_total + $shipping_fee;
+$voucher_code = isset($_POST['voucher_code']) ? trim((string) $_POST['voucher_code']) : '';
+$voucher_discount = 0;
+$voucher_applied_code = '';
+if ($voucher_code !== '') {
+    ensureVoucherTable($conn);
+    $now = date('Y-m-d H:i:s');
+    $stmt = $conn->prepare("SELECT code, type, value, min_order, max_discount, valid_from, valid_to FROM tbl_voucher WHERE status = 'active' AND UPPER(code) = UPPER(?) AND (valid_from IS NULL OR valid_from <= ?) AND (valid_to IS NULL OR valid_to >= ?) LIMIT 1");
+    if (!$stmt) {
+        echo json_encode(['success' => false, 'message' => 'Loi xu ly voucher.']);
+        exit;
+    }
+    $stmt->bind_param('sss', $voucher_code, $now, $now);
+    $stmt->execute();
+    $voucher = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$voucher) {
+        echo json_encode(['success' => false, 'message' => 'Voucher khong hop le hoac da het han.']);
+        exit;
+    }
+    $min_order = (float) $voucher['min_order'];
+    if ($cart_total < $min_order) {
+        echo json_encode(['success' => false, 'message' => 'Don hang chua dat toi thieu de dung voucher.']);
+        exit;
+    }
+    if ($voucher['type'] === 'percent') {
+        $voucher_discount = $cart_total * ((float) $voucher['value'] / 100);
+        if ((float) $voucher['max_discount'] > 0) {
+            $voucher_discount = min($voucher_discount, (float) $voucher['max_discount']);
+        }
+    } else {
+        $voucher_discount = (float) $voucher['value'];
+    }
+    if ($voucher_discount < 0) $voucher_discount = 0;
+    if ($voucher_discount > $cart_total) $voucher_discount = $cart_total;
+    $voucher_applied_code = (string) $voucher['code'];
+}
+
+$order_total = max(0, $cart_total - $voucher_discount) + $shipping_fee;
 
 $status = in_array($payment_method, ['momo', 'vnpay'], true) ? 'Pending Payment' : 'Pending';
 
 $customer_contact_safe = mb_substr($customer_contact, 0, 20);
 $customer_email_safe = mb_substr($customer_email, 0, 150);
-// Địa chỉ đầy đủ: số nhà + phường/xã + quận/huyện + tỉnh/thành phố
+// Äá»‹a chá»‰ Ä‘áº§y Ä‘á»§: sá»‘ nhÃ  + phÆ°á»ng/xÃ£ + quáº­n/huyá»‡n + tá»‰nh/thÃ nh phá»‘
 $ghn_ward_name = isset($_POST['ghn_ward_name']) ? trim((string) $_POST['ghn_ward_name']) : '';
 $ghn_district_name = isset($_POST['ghn_district_name']) ? trim((string) $_POST['ghn_district_name']) : '';
 $ghn_province_name = isset($_POST['ghn_province_name']) ? trim((string) $_POST['ghn_province_name']) : '';
@@ -155,22 +210,22 @@ $address_parts = array_filter([trim($customer_address), $ghn_ward_name, $ghn_dis
 $full_address = implode(', ', $address_parts);
 $customer_address_safe = mb_substr($full_address !== '' ? $full_address : $customer_address, 0, 255);
 
-// ----- Bước 5 & 7: Lưu đơn nội bộ (total = tạm tính + phí ship) -----
+// ----- BÆ°á»›c 5 & 7: LÆ°u Ä‘Æ¡n ná»™i bá»™ (total = táº¡m tÃ­nh + phÃ­ ship) -----
 $stmt = $conn->prepare("INSERT INTO tbl_order (order_code, user_id, food, price, qty, total, order_date, status, customer_name, customer_contact, customer_email, customer_address) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?)");
 if (!$stmt) {
-    echo json_encode(['success' => false, 'message' => 'Lỗi chuẩn bị dữ liệu. Vui lòng thử lại.']);
+    echo json_encode(['success' => false, 'message' => 'Lá»—i chuáº©n bá»‹ dá»¯ liá»‡u. Vui lÃ²ng thá»­ láº¡i.']);
     exit;
 }
 $stmt->bind_param("sisdidsssss", $order_code, $_SESSION['user_id'], $food_summary, $first_price, $cart_qty_total, $order_total, $status, $customer_name, $customer_contact_safe, $customer_email_safe, $customer_address_safe);
 
 if (!$stmt->execute()) {
     $stmt->close();
-    echo json_encode(['success' => false, 'message' => 'Không thể tạo đơn hàng. Vui lòng thử lại.']);
+    echo json_encode(['success' => false, 'message' => 'KhÃ´ng thá»ƒ táº¡o Ä‘Æ¡n hÃ ng. Vui lÃ²ng thá»­ láº¡i.']);
     exit;
 }
 $stmt->close();
 
-// Cập nhật cột GHN và order_details nếu bảng đã chạy migration (sql/order-ghn-fields.sql)
+// Cáº­p nháº­t cá»™t GHN vÃ  order_details náº¿u báº£ng Ä‘Ã£ cháº¡y migration (sql/order-ghn-fields.sql)
 $has_ghn_cols = false;
 $has_order_details = false;
 $r = @$conn->query("SHOW COLUMNS FROM tbl_order LIKE 'shipping_fee'");
@@ -185,7 +240,7 @@ if ($has_order_details && !empty($order_details_items)) {
     $conn->query("UPDATE tbl_order SET order_details = '" . $order_details_json . "' WHERE order_code = '" . $conn->real_escape_string($order_code) . "'");
 }
 
-// ----- Bước 6: Tạo đơn giao hàng trên GHN, nhận mã vận đơn -----
+// ----- BÆ°á»›c 6: Táº¡o Ä‘Æ¡n giao hÃ ng trÃªn GHN, nháº­n mÃ£ váº­n Ä‘Æ¡n -----
 $ghn_order_code = null;
 $ghn_sort_code = null;
 $ghn_status = null;
@@ -208,7 +263,7 @@ if ($to_district_id > 0 && $to_ward_code !== '' && defined('GHN_TOKEN') && GHN_T
         'content'          => mb_substr($food_summary, 0, 200),
         'client_order_code'=> $order_code,
         'cod_amount'       => ($payment_method === 'cash') ? (int) round($order_total) : 0,
-        'items'            => [['name' => 'Đồ ăn', 'quantity' => 1, 'weight' => $order_weight_gram]],
+        'items'            => [['name' => 'Äá»“ Äƒn', 'quantity' => 1, 'weight' => $order_weight_gram]],
     ];
     $ch = curl_init($create_url);
     curl_setopt_array($ch, [
@@ -232,7 +287,7 @@ if ($to_district_id > 0 && $to_ward_code !== '' && defined('GHN_TOKEN') && GHN_T
     }
 }
 
-// Thông báo cho user: đơn đã đặt thành công; Chat hỗ trợ / hoàn tiền qua mục Chat
+// ThÃ´ng bÃ¡o cho user: Ä‘Æ¡n Ä‘Ã£ Ä‘áº·t thÃ nh cÃ´ng; Chat há»— trá»£ / hoÃ n tiá»n qua má»¥c Chat
 $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
   id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   order_code varchar(20) NOT NULL,
@@ -243,7 +298,7 @@ $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
   PRIMARY KEY (id),
   KEY user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-$notif_msg = "Đơn " . $order_code . " đã đặt thành công. Chat hỗ trợ / hoàn tiền: mục Chat.";
+$notif_msg = "ÄÆ¡n " . $order_code . " Ä‘Ã£ Ä‘áº·t thÃ nh cÃ´ng. Chat há»— trá»£ / hoÃ n tiá»n: má»¥c Chat.";
 $ins = $conn->prepare("INSERT INTO tbl_order_notification (order_code, user_id, message) VALUES (?, ?, ?)");
 if ($ins) {
     $uid = (int) $_SESSION['user_id'];
@@ -252,7 +307,7 @@ if ($ins) {
     $ins->close();
 }
 
-// Chỉ xóa giỏ khi thanh toán tiền mặt (momo/vnpay xóa sau khi thanh toán thành công)
+// Chá»‰ xÃ³a giá» khi thanh toÃ¡n tiá»n máº·t (momo/vnpay xÃ³a sau khi thanh toÃ¡n thÃ nh cÃ´ng)
 if ($payment_method !== 'momo' && $payment_method !== 'vnpay') {
     $_SESSION['cart'] = [];
 }
@@ -265,7 +320,10 @@ if (file_exists(__DIR__ . '/../user/order-history.php')) {
 
 echo json_encode([
     'success' => true,
-    'message' => 'Đặt hàng thành công!',
+    'message' => 'Äáº·t hÃ ng thÃ nh cÃ´ng!',
     'order_code' => $order_code,
     'redirect' => $redirect
 ]);
+
+
+
