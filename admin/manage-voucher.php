@@ -12,7 +12,7 @@ if (isset($_GET['deactivate']) && ctype_digit($_GET['deactivate'])) {
         $stmt->close();
     }
 
-    header('Location: voucher.php?msg=deactivated');
+    header('Location: manage-voucher.php?msg=deactivated');
     exit;
 }
 
@@ -195,7 +195,7 @@ if (isset($_GET['edit']) && ctype_digit($_GET['edit'])) {
                 <div class="admin-form-actions">
                     <button type="submit" class="btn-primary"><?php echo $editVoucher ? 'Cập nhật' : 'Thêm mới'; ?></button>
                     <?php if ($editVoucher): ?>
-                        <a href="voucher.php" class="btn-secondary">Hủy sửa</a>
+                        <a href="manage-voucher.php" class="btn-secondary">Hủy sửa</a>
                     <?php endif; ?>
                 </div>
             </form>
@@ -245,9 +245,9 @@ if (isset($_GET['edit']) && ctype_digit($_GET['edit'])) {
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="voucher.php?edit=<?php echo (int)$r['id']; ?>" class="btn-small">Sửa</a>
+                                    <a href="manage-voucher.php?edit=<?php echo (int)$r['id']; ?>" class="btn-small">Sửa</a>
                                     <?php if ($r['status'] === 'active'): ?>
-                                        <a href="voucher.php?deactivate=<?php echo (int)$r['id']; ?>" class="btn-small btn-danger" onclick="return confirm('Ngừng áp dụng voucher này?');">Ngừng</a>
+                                        <a href="manage-voucher.php?deactivate=<?php echo (int)$r['id']; ?>" class="btn-small btn-danger" onclick="return confirm('Ngừng áp dụng voucher này?');">Ngừng</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -259,7 +259,4 @@ if (isset($_GET['edit']) && ctype_digit($_GET['edit'])) {
         </div>
     </div>
 </main>
-
-</body>
-</html>
 <?php include('partials/footer.php'); ?>
