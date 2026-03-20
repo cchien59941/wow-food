@@ -30,7 +30,7 @@ require_once __DIR__ . '/login-check.php';
                     <li><a href="manage-order.php"><i class="menu-icon bi bi-box-seam"></i> Đơn hàng</a></li>
                     <li><a href="manage-payment.php"><i class="menu-icon bi bi-credit-card"></i> Thanh toán</a></li>
                     <li><a href="refund.php"><i class="menu-icon bi bi-cash-coin"></i> Hoàn tiền</a></li>
-                    <li><a href="#" id="chatLinkAdmin" class="sidebar-link-chat"><i
+                    <li><a href="manage-chat.php" id="chatLinkAdmin" class="sidebar-link-chat"><i
                                 class="menu-icon bi bi-chat-dots"></i> Chat <span id="chatBadgeAdmin" class="chat-badge"
                                 style="display: none;">0</span></a></li>
                     <li><a href="#" onclick="confirmLogout('logout.php'); return false;"><i
