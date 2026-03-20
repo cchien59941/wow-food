@@ -26,6 +26,7 @@ require_once __DIR__ . '/login-check.php';
                     <li><a href="manage-users.php"><i class="menu-icon bi bi-person"></i> Người dùng</a></li>
                     <li><a href="manage-category.php"><i class="menu-icon bi bi-folder2"></i> Danh mục</a></li>
                     <li><a href="manage-food.php"><i class="menu-icon bi bi-egg-fried"></i> Món ăn</a></li>
+                    <li><a href="manage-side-dish.php"><i class="menu-icon bi bi-plus-square-dotted"></i> Món kèm</a></li>
                     <li><a href="manage-order.php"><i class="menu-icon bi bi-box-seam"></i> Đơn hàng</a></li>
                     <li><a href="manage-payment.php"><i class="menu-icon bi bi-credit-card"></i> Thanh toán</a></li>
                     <li><a href="refund.php"><i class="menu-icon bi bi-cash-coin"></i> Hoàn tiền</a></li>
