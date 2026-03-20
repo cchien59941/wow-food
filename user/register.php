@@ -18,6 +18,13 @@ if(isset($_POST['submit'])){
         header('location:'.SITEURL.'user/register.php');
         exit();
     }
+
+    // Bắt buộc chọn đủ địa chỉ GHN
+    if ($ghn_province_id <= 0 || $ghn_district_id <= 0 || empty($ghn_ward_code)) {
+        $_SESSION['register'] = "Vui lòng chọn địa chỉ đầy đủ (Tỉnh → Quận → Phường/Xã).";
+        header('location:'.SITEURL.'user/register.php');
+        exit();
+    }
     
     // Validate password length
     if(strlen($password) < 6){
@@ -268,7 +275,7 @@ if(isset($_POST['submit'])){
                 <input type="tel" id="phone" name="phone" placeholder="0900 123 456" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>">
             </div>
             <div class="form-group full ghn-address-row">
-                <label for="ghn_province_id">Chọn địa chỉ (Tỉnh → Quận → Phường/Xã)</label>
+                <label for="ghn_province_id">Chọn địa chỉ (Tỉnh → Quận → Phường/Xã) <span class="required">*</span></label>
                 <div class="ghn-selects">
                     <select id="ghn_province_id" name="ghn_province_id" class="ghn-select" aria-label="Tỉnh/Thành phố">
                         <option value="">-- Chọn Tỉnh/TP --</option>
@@ -282,7 +289,7 @@ if(isset($_POST['submit'])){
                 </div>
             </div>
             <div class="form-group">
-                <label for="address">Địa chỉ chi tiết (số nhà, đường)</label>
+                <label for="address">Địa chỉ chi tiết (số nhà, đường) <span class="required">*</span></label>
                 <input type="text" id="address" name="address" placeholder="Ví dụ: 123 Ngõ Nguyễn Huệ" value="<?php echo htmlspecialchars($_POST['address'] ?? ''); ?>">
             </div>
             <div style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border-radius: 5px; font-size: 0.9em; color: #1976d2;">
@@ -354,6 +361,21 @@ if(isset($_POST['submit'])){
         selProvince.addEventListener('change', function() { loadDistricts(selProvince.value); });
         selDistrict.addEventListener('change', function() { loadWards(selDistrict.value); });
         loadProvinces();
+
+       
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', function(e) {
+                const prov = String(selProvince?.value || '').trim();
+                const dist = String(selDistrict?.value || '').trim();
+                const ward = String(selWard?.value || '').trim();
+                if (!prov || !dist || !ward) {
+                    e.preventDefault();
+                    Swal.fire('Lỗi', 'Vui lòng chọn địa chỉ đầy đủ (Tỉnh → Quận → Phường/Xã).', 'error');
+                    return false;
+                }
+            });
+        }
     })();
     </script>
     <script>
