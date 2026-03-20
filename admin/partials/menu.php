@@ -13,6 +13,7 @@ require_once __DIR__ . '/login-check.php';
     <title>Admin - wowFood</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?php echo SITEURL; ?>css/admin.css">
+    <link rel="stylesheet" href="<?php echo SITEURL; ?>css/voucher-admin.css">
 </head>
 
 <body class="admin-body">
@@ -28,6 +29,7 @@ require_once __DIR__ . '/login-check.php';
                     <li><a href="manage-food.php"><i class="menu-icon bi bi-egg-fried"></i> Món ăn</a></li>
                     <li><a href="manage-side-dish.php"><i class="menu-icon bi bi-plus-square-dotted"></i> Món kèm</a></li>
                     <li><a href="manage-order.php"><i class="menu-icon bi bi-box-seam"></i> Đơn hàng</a></li>
+                    <li><a href="manage-voucher.php"><i class="menu-icon bi bi-tag"></i> Voucher</a></li>
                     <li><a href="manage-payment.php"><i class="menu-icon bi bi-credit-card"></i> Thanh toán</a></li>
                     <li><a href="refund.php"><i class="menu-icon bi bi-cash-coin"></i> Hoàn tiền</a></li>
                     <li><a href="#" id="chatLinkAdmin" class="sidebar-link-chat"><i
