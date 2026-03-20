@@ -1,10 +1,27 @@
 <?php
 require_once('../config/constants.php');
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['access-denied'] = "Vui lòng đăng nhập để sử dụng tính năng chat";
-    header('location:'.SITEURL.'user/login.php');
-    exit();
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    $_SESSION['redirect_after_login'] = SITEURL . 'user/chat.php';
+    header('location:' . SITEURL . 'user/login.php');
+    exit;
 }
+
+$order_code = isset($_GET['order_code']) ? trim((string)$_GET['order_code']) : '';
+
+// Khi user vào trang chat thì coi các thông báo chat (order_code = 'CHAT') là đã đọc
+$conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
+  id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  order_code varchar(20) NOT NULL,
+  user_id int(10) UNSIGNED NOT NULL,
+  message varchar(255) NOT NULL,
+  is_read tinyint(1) DEFAULT 0,
+  created_at datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+$uid = (int) $_SESSION['user_id'];
+$conn->query("UPDATE tbl_order_notification SET is_read = 1 WHERE user_id = {$uid} AND order_code = 'CHAT'");
+
 include('../partials-front/menu.php');
 ?>
 
@@ -16,12 +33,13 @@ include('../partials-front/menu.php');
     <title>Chat với Admin - WowFood</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/chat.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     <div class="chat-container" style="margin-top: 100px; padding: 20px;">
         <div class="chat-wrapper">
             <div class="chat-header">
-                <h2 class="bi bi-chat">Chat với Admin</h2>
+                <h2><i class="bi bi-chat-dots"></i> Chat với Admin</h2>
                 <p>Chúng tôi sẽ phản hồi trong thời gian sớm nhất</p>
             </div>
             
@@ -30,176 +48,128 @@ include('../partials-front/menu.php');
             </div>
             
             <div class="chat-input-container">
-                <?php
-                $order_code = $_GET['order_code'] ?? '';
-                if ($order_code) {
-                    echo '<div style="background: #e8f5e9; padding: 10px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #4caf50;">';
-                    echo '📦 Bạn đang chat về đơn hàng: <strong>' . htmlspecialchars($order_code) . '</strong>';
-                    echo '<button type="button" onclick="insertOrderCode(\'' . htmlspecialchars($order_code) . '\')" style="margin-left: 10px; padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;">Chèn mã đơn</button>';
-                    echo '</div>';
-                }
-                ?>
                 <form id="chatForm" class="chat-form">
+                    <input type="hidden" name="order_code" id="orderCode" value="<?php echo htmlspecialchars($order_code); ?>">
                     <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" required>
                     <button type="submit" id="sendButton">Gửi</button>
                 </form>
             </div>
         </div>
     </div>
+
     <script>
+        const SITEURL = '<?php echo SITEURL; ?>';
         let lastMessageId = 0;
-        let pollingInterval;
+        let pollingInterval = null;
 
-        // Load messages
-        function loadMessages(isInitial = false) {
-            const url = isInitial 
-                ? `../api/get-messages.php?last_id=0`
-                : `../api/get-messages.php?last_id=${lastMessageId}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.messages.length > 0) {
-                        if (isInitial) {
-                            // Clear messages on initial load
-                            document.getElementById('chatMessages').innerHTML = '';
-                        }
-                        data.messages.forEach(msg => {
-                            addMessageToChat(msg);
-                            lastMessageId = Math.max(lastMessageId, msg.id);
-                        });
-                        scrollToBottom();
-                    }
-                })
-                .catch(error => console.error('Error loading messages:', error));
-        }
-
-        // Add message to chat
-        function addMessageToChat(msg) {
-            const messagesDiv = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${msg.sender_type === 'user' ? 'message-sent' : 'message-received'}`;
-            
-            const time = new Date(msg.created_at).toLocaleTimeString('vi-VN', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            messageDiv.innerHTML = `
-                <div class="message-content">
-                    <div class="message-text">${escapeHtml(msg.message)}</div>
-                    <div class="message-time">${time}</div>
-                </div>
-            `;
-            
-            messagesDiv.appendChild(messageDiv);
-        }
-
-        // Send message
-        document.getElementById('chatForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            const sendButton = document.getElementById('sendButton');
-            sendButton.disabled = true;
-            sendButton.textContent = 'Đang gửi...';
-            
-            const formData = new FormData();
-            formData.append('message', message);
-            
-            fetch('../api/send-message.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    input.value = '';
-                    loadMessages(false); // Reload to show sent message
-                } else {
-                    alert('Lỗi: ' + data.message);
-                }
-                sendButton.disabled = false;
-                sendButton.textContent = 'Gửi';
-            })
-            .catch(error => {
-                console.error('Error sending message:', error);
-                alert('Có lỗi xảy ra khi gửi tin nhắn');
-                sendButton.disabled = false;
-                sendButton.textContent = 'Gửi';
-            });
-        });
-
-        // Scroll to bottom
-        function scrollToBottom() {
-            const messagesDiv = document.getElementById('chatMessages');
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        // Escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
-        // Insert order code into message input
-        function insertOrderCode(orderCode) {
-            const input = document.getElementById('messageInput');
-            const currentText = input.value.trim();
-            const orderText = 'Mã đơn hàng: ' + orderCode;
-            
-            if (currentText) {
-                input.value = currentText + ' - ' + orderText;
-            } else {
-                input.value = 'Xin chào, tôi cần hỗ trợ về ' + orderText;
+
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            const date = new Date(timeString);
+            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function addMessageToChat(msg) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.sender_type === 'user' ? 'message-sent' : 'message-received'}`;
+
+            const senderName = msg.sender_type === 'user'
+                ? (msg.user_name || 'Bạn')
+                : (msg.admin_name || 'Admin');
+
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="message-sender">${escapeHtml(senderName)}</div>
+                    <div class="message-text">${escapeHtml(msg.message || '')}</div>
+                    <div class="message-time">${escapeHtml(formatTime(msg.created_at))}</div>
+                </div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+        }
+
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function loadMessages(isInitial = false) {
+            if (isInitial) {
+                lastMessageId = 0;
+                document.getElementById('chatMessages').innerHTML = '';
             }
-            
-            input.focus();
-        }
 
-        // Start polling for new messages
-        function startPolling() {
-            pollingInterval = setInterval(() => loadMessages(false), 2000); // Poll every 2 seconds
-        }
-
-        // Stop polling
-        function stopPolling() {
-            if (pollingInterval) {
-                clearInterval(pollingInterval);
-            }
-        }
-
-        // Mark messages as read when page loads
-        function markMessagesAsRead() {
-            fetch('../api/mark-messages-read.php')
-                .then(response => response.json())
+            const url = SITEURL + 'api/get-user-messages.php?last_id=' + encodeURIComponent(lastMessageId);
+            fetch(url)
+                .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        // Update badge after marking as read
-                        if (window.updateChatBadge) {
-                            updateChatBadge();
-                        }
+                    if (!data || !data.success) return;
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(msg => {
+                            addMessageToChat(msg);
+                            lastMessageId = Math.max(lastMessageId, msg.id || 0);
+                        });
+                        scrollToBottom();
+                    } else if (isInitial) {
+                        // Không có tin nhắn, giữ giao diện đơn giản
+                        document.getElementById('chatMessages').innerHTML =
+                            '<p style="text-align:center;color:#999;margin:0;">Chưa có tin nhắn nào.</p>';
                     }
                 })
-                .catch(error => console.error('Error marking messages as read:', error));
+                .catch(() => {});
         }
 
-        // Start when page loads
-        window.addEventListener('load', function() {
-            loadMessages(true); // Load all messages initially
-            markMessagesAsRead(); // Mark messages as read
-            startPolling();
+        document.getElementById('chatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendButton');
+            const orderCodeEl = document.getElementById('orderCode');
+
+            const message = (input.value || '').trim();
+            if (!message) return;
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Đang gửi...';
+
+            const fd = new FormData();
+            fd.append('message', message);
+            fd.append('order_code', orderCodeEl ? orderCodeEl.value : '');
+
+            fetch(SITEURL + 'api/send-user-message.php', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.success) {
+                        input.value = '';
+                        loadMessages(false);
+                    } else {
+                        alert('Lỗi: ' + (data && data.message ? data.message : 'Không rõ'));
+                    }
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Gửi';
+                })
+                .catch(() => {
+                    alert('Có lỗi xảy ra khi gửi tin nhắn');
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Gửi';
+                });
         });
 
-        // Stop when page unloads
+        window.addEventListener('load', function() {
+            loadMessages(true);
+            pollingInterval = setInterval(() => loadMessages(false), 2000);
+        });
+
         window.addEventListener('beforeunload', function() {
-            stopPolling();
+            if (pollingInterval) clearInterval(pollingInterval);
         });
     </script>
+
 </body>
 </html>
 
