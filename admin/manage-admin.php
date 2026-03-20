@@ -25,7 +25,13 @@
 
                 <tbody>
                     <?php
-                    $sql = "SELECT id, full_name, email, phone FROM tbl_admin ORDER BY id ASC";
+                    $hasPhone = false;
+                    $colRes = mysqli_query($conn, "SHOW COLUMNS FROM tbl_admin LIKE 'phone'");
+                    if ($colRes && mysqli_num_rows($colRes) > 0) $hasPhone = true;
+
+                    $sql = $hasPhone
+                        ? "SELECT id, full_name, email, phone FROM tbl_admin ORDER BY id ASC"
+                        : "SELECT id, full_name, email, username FROM tbl_admin ORDER BY id ASC";
                     $res = mysqli_query($conn, $sql);
 
                     if ($res instanceof mysqli_result) {
@@ -36,7 +42,9 @@
                                 $id = $rows['id'];
                                 $full_name = htmlspecialchars($rows['full_name']);
                                 $email = htmlspecialchars($rows['email']);
-                                $phone = htmlspecialchars($rows['phone']);
+                                $phone = $hasPhone
+                                    ? htmlspecialchars($rows['phone'])
+                                    : htmlspecialchars($rows['username']);
                                 ?>
 
                                 <tr>

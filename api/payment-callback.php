@@ -100,6 +100,52 @@ if($payment_status == 'success') {
     mysqli_stmt_execute($stmt);
     mysqli_stmt_close($stmt);
     
+    // Đồng bộ thông báo đơn hàng: xoá pending và tạo success
+    try {
+        $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
+            id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            order_code varchar(20) NOT NULL,
+            user_id int(10) UNSIGNED NOT NULL,
+            message varchar(255) NOT NULL,
+            is_read tinyint(1) DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY user_id (user_id),
+            KEY order_code (order_code)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $stmtUser = mysqli_prepare($conn, "SELECT user_id FROM tbl_order WHERE order_code = ? LIMIT 1");
+        mysqli_stmt_bind_param($stmtUser, "s", $order_code);
+        mysqli_stmt_execute($stmtUser);
+        $resUser = mysqli_stmt_get_result($stmtUser);
+        $orderUser = mysqli_fetch_assoc($resUser);
+        mysqli_stmt_close($stmtUser);
+
+        $uid = isset($orderUser['user_id']) ? (int)$orderUser['user_id'] : 0;
+        if ($uid > 0) {
+            $pendingLike = '%đang chờ thanh toán%';
+            $stmtDelNotif = mysqli_prepare($conn, "DELETE FROM tbl_order_notification WHERE order_code = ? AND user_id = ? AND message LIKE ?");
+            mysqli_stmt_bind_param($stmtDelNotif, "sis", $order_code, $uid, $pendingLike);
+            mysqli_stmt_execute($stmtDelNotif);
+            mysqli_stmt_close($stmtDelNotif);
+
+            $notifSuccess = "Đơn " . $order_code . " đã thanh toán thành công.";
+            $stmtInsNotif = mysqli_prepare($conn, "
+                INSERT INTO tbl_order_notification (order_code, user_id, message)
+                SELECT ?, ?, ?
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM tbl_order_notification
+                    WHERE order_code = ? AND user_id = ? AND message = ?
+                )
+            ");
+            mysqli_stmt_bind_param($stmtInsNotif, "sissis", $order_code, $uid, $notifSuccess, $order_code, $uid, $notifSuccess);
+            mysqli_stmt_execute($stmtInsNotif);
+            mysqli_stmt_close($stmtInsNotif);
+        }
+    } catch (Throwable $e) {
+        // Không chặn luồng nếu lỗi thông báo
+    }
+    
     // Gửi email thông báo (nếu cần)
     // sendPaymentConfirmationEmail($order_code);
 }

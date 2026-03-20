@@ -8,6 +8,25 @@ if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
 }
 
 $user_id = (int) $_SESSION['user_id'];
+$conn->query("UPDATE tbl_order o
+    LEFT JOIN tbl_payment p
+      ON p.order_code = o.order_code
+     AND p.payment_method IN ('momo','vnpay')
+     AND p.payment_status IN ('success','paid')
+    SET o.status = 'Payment Failed'
+    WHERE o.user_id = " . $user_id . "
+      AND o.status = 'Pending Payment'
+      AND o.order_date <= DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+      AND p.id IS NULL");
+
+$conn->query("UPDATE tbl_payment p
+    JOIN tbl_order o ON o.order_code = p.order_code
+    SET p.payment_status = 'failed', p.updated_at = NOW()
+    WHERE o.user_id = " . $user_id . "
+      AND o.status = 'Payment Failed'
+      AND p.payment_method IN ('momo','vnpay')
+      AND p.payment_status = 'pending'");
+
 $has_order_details = false;
 $r = @$conn->query("SHOW COLUMNS FROM tbl_order LIKE 'order_details'");
 if ($r && $r->num_rows > 0) $has_order_details = true;
@@ -26,19 +45,28 @@ $stmt->close();
 
 // Chỉ cho hoàn tiền khi thanh toán MoMo/VNPay và đơn đã giao: lấy payment_method + đã có yêu cầu hoàn tiền chưa
 $payment_method_by_order = [];
+$payment_method_pending_by_order = [];
 $order_codes_with_refund = [];
 if (!empty($orders)) {
     $order_codes = array_column($orders, 'order_code');
     $placeholders = implode(',', array_fill(0, count($order_codes), '?'));
-    $stmt = $conn->prepare("SELECT order_code, payment_method FROM tbl_payment WHERE order_code IN ($placeholders) AND payment_status IN ('success','paid') AND payment_method IN ('momo','vnpay')");
-    if ($stmt) {
-        $stmt->bind_param(str_repeat('s', count($order_codes)), ...$order_codes);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        while ($row = $res->fetch_assoc()) {
-            $payment_method_by_order[$row['order_code']] = $row['payment_method'];
+    $stmtPm = $conn->prepare("SELECT order_code, payment_method, payment_status, created_at
+        FROM tbl_payment
+        WHERE order_code IN ($placeholders) AND payment_method IN ('momo','vnpay')
+        ORDER BY created_at DESC, id DESC");
+    if ($stmtPm) {
+        $stmtPm->bind_param(str_repeat('s', count($order_codes)), ...$order_codes);
+        $stmtPm->execute();
+        $resPm = $stmtPm->get_result();
+        while ($row = $resPm->fetch_assoc()) {
+            if (!isset($payment_method_pending_by_order[$row['order_code']]) && $row['payment_status'] === 'pending') {
+                $payment_method_pending_by_order[$row['order_code']] = $row['payment_method'];
+            }
+            if (!isset($payment_method_by_order[$row['order_code']]) && in_array($row['payment_status'], ['success', 'paid'], true)) {
+                $payment_method_by_order[$row['order_code']] = $row['payment_method'];
+            }
         }
-        $stmt->close();
+        $stmtPm->close();
     }
     $has_refund_table = @$conn->query("SHOW TABLES LIKE 'tbl_refund'")->num_rows > 0;
     if ($has_refund_table) {
@@ -89,6 +117,7 @@ function statusLabel($status) {
     $map = [
         'Pending' => 'Đã đặt - Chờ xác nhận',
         'Pending Payment' => 'Chờ thanh toán',
+        'Payment Failed' => 'Thanh toán thất bại',
         'Confirmed' => 'Đã xác nhận',
         'Ordered' => 'Đã đặt',
         'On Delivery' => 'Đang giao',
@@ -104,6 +133,7 @@ function statusClass($status) {
     $map = [
         'Pending' => 'status-pending',
         'Pending Payment' => 'status-pending',
+        'Payment Failed' => 'status-cancelled',
         'Confirmed' => 'status-ordered',
         'Ordered' => 'status-ordered',
         'On Delivery' => 'status-delivery',
@@ -117,6 +147,12 @@ function statusClass($status) {
 
 function canUserCancel($status) {
     return in_array($status, ['Pending', 'Pending Payment'], true);
+}
+function canUserPayAgain($status, $order_date_str) {
+    if ($status !== 'Pending Payment') return false;
+    $order_time = strtotime($order_date_str);
+    if (!$order_time) return false;
+    return (time() - $order_time) < 600; // 10 phút
 }
 
 function canUserRequestRefund($status, $order_code, $payment_method_by_order, $order_codes_with_refund) {
@@ -204,6 +240,17 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
                         <button type="button" class="btn-cancel-order" data-order-code="<?php echo htmlspecialchars($order['order_code']); ?>">Hủy đơn</button>
                     </div>
                     <?php endif; ?>
+                    <?php if (canUserPayAgain($status, $order['order_date']) && isset($payment_method_pending_by_order[$order['order_code']])): ?>
+                    <div class="order-cancel-wrap" style="margin-top:8px;">
+                        <button type="button"
+                                class="btn-pay-order"
+                                data-order-code="<?php echo htmlspecialchars($order['order_code']); ?>"
+                                data-payment-method="<?php echo htmlspecialchars($payment_method_pending_by_order[$order['order_code']]); ?>"
+                                style="background:#2d9cdb;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600;">
+                            Thanh toán lại
+                        </button>
+                    </div>
+                    <?php endif; ?>
                     <div class="order-support-wrap" style="margin-top:12px;padding-top:12px;border-top:1px solid #eee;display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
                         <a href="<?php echo SITEURL; ?>user/chat.php?order_code=<?php echo urlencode($order['order_code']); ?>" class="order-chat-link" style="color:#ff6b81;font-weight:600;text-decoration:none;">💬 Chat hỗ trợ đơn hàng</a>
                         <?php if (canUserRequestRefund($status, $order['order_code'], $payment_method_by_order, $order_codes_with_refund)): ?>
@@ -268,6 +315,43 @@ function canUserRequestRefund($status, $order_code, $payment_method_by_order, $o
                     })
                     .catch(function() { Swal.fire('Lỗi', 'Có lỗi xảy ra. Vui lòng thử lại.', 'error'); });
             });
+        });
+    });
+
+    document.querySelectorAll('.btn-pay-order').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var code = this.getAttribute('data-order-code');
+            var method = this.getAttribute('data-payment-method');
+            if (!code || !method) return;
+            var fd = new FormData();
+            fd.append('order_code', code);
+
+            if (method === 'momo') {
+                fetch(SITEURL + 'api/momo-create.php', { method: 'POST', body: fd })
+                    .then(function(r) { return r.json(); })
+                    .then(function(m) {
+                        if (m.success && (m.payUrl || m.deeplink)) {
+                            window.location.href = m.payUrl || m.deeplink;
+                        } else {
+                            Swal.fire('Lỗi', m.message || 'Không thể tạo thanh toán MoMo.', 'error');
+                        }
+                    })
+                    .catch(function() { Swal.fire('Lỗi', 'Không thể tạo thanh toán MoMo.', 'error'); });
+                return;
+            }
+
+            if (method === 'vnpay') {
+                fetch(SITEURL + 'api/vnpay-create.php', { method: 'POST', body: fd })
+                    .then(function(r) { return r.json(); })
+                    .then(function(v) {
+                        if (v.success && v.payUrl) {
+                            window.location.href = v.payUrl;
+                        } else {
+                            Swal.fire('Lỗi', v.message || 'Không thể tạo thanh toán VNPay.', 'error');
+                        }
+                    })
+                    .catch(function() { Swal.fire('Lỗi', 'Không thể tạo thanh toán VNPay.', 'error'); });
+            }
         });
     });
 })();
