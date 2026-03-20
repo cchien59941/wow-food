@@ -26,7 +26,7 @@ require_once('partials/menu.php');
                     </div>
 
                     <div id="chatMessagesAdmin" class="chat-messages-admin">
-                        <!-- Messages will be displayed here -->
+                       
                     </div>
 
                     <div id="chatInputContainer" class="chat-input-container-admin" style="display: none;">
@@ -49,7 +49,7 @@ require_once('partials/menu.php');
     let pollingInterval;
     let didAutoSelect = false;
 
-    // Load chat list
+   
     function loadChatList() {
         fetch('../api/get-chat-list.php')
             .then(response => response.json())
@@ -61,7 +61,7 @@ require_once('partials/menu.php');
             .catch(error => console.error('Error loading chat list:', error));
     }
 
-    // Display chat list
+
     function displayChatList(chatList) {
         const chatListDiv = document.getElementById('chatList');
         chatListDiv.innerHTML = '';
@@ -94,48 +94,48 @@ require_once('partials/menu.php');
             chatListDiv.appendChild(chatItem);
         });
 
-        // Auto-select cuộc trò chuyện đầu tiên để tránh giao diện trống
+      
         if (!didAutoSelect && firstChat) {
             didAutoSelect = true;
             selectChat(firstChat.user_id, firstChat.user_name);
         }
     }
 
-    // Select chat
+ 
     function selectChat(userId, userName) {
         currentUserId = userId;
         lastMessageId = 0;
         
-        // Update header
+       
         document.getElementById('chatHeader').innerHTML = `
             <h3><i class="bi bi-chat-dots"></i> Chat với ${escapeHtml(userName)}</h3>
         `;
         
-        // Show input
+ 
         document.getElementById('chatInputContainer').style.display = 'block';
         document.getElementById('currentUserId').value = userId;
         
-        // Clear messages
+   
         document.getElementById('chatMessagesAdmin').innerHTML = '';
         
-        // Load messages
-        lastMessageId = 0; // Reset để load tất cả tin nhắn
+       
+        lastMessageId = 0; 
         loadMessages(true);
         
-        // Update active state
+     
         document.querySelectorAll('.chat-item').forEach(item => {
             item.classList.remove('active');
         });
-        // Mark active chat item
+
         const activeItem = Array.from(document.querySelectorAll('.chat-item'))
             .find(el => Number(el.dataset.userId || el.getAttribute('data-user-id') || 0) === Number(userId));
         if (activeItem) activeItem.classList.add('active');
         
-        // Reload chat list to update unread count
+    
         loadChatList();
     }
 
-    // Load messages
+
     function loadMessages(isInitial = false) {
         if (!currentUserId) return;
         
@@ -148,7 +148,7 @@ require_once('partials/menu.php');
             .then(data => {
                 if (data.success && data.messages.length > 0) {
                     if (isInitial) {
-                        // Clear messages on initial load
+                
                         document.getElementById('chatMessagesAdmin').innerHTML = '';
                     }
                     data.messages.forEach(msg => {
@@ -161,7 +161,7 @@ require_once('partials/menu.php');
             .catch(error => console.error('Error loading messages:', error));
     }
 
-    // Add message to chat
+
     function addMessageToChat(msg) {
         const messagesDiv = document.getElementById('chatMessagesAdmin');
         const messageDiv = document.createElement('div');
@@ -187,7 +187,7 @@ require_once('partials/menu.php');
         messagesDiv.appendChild(messageDiv);
     }
 
-    // Send message
+
     document.getElementById('chatFormAdmin').addEventListener('submit', function(e) {
         e.preventDefault();
         if (!currentUserId) return;
@@ -213,8 +213,8 @@ require_once('partials/menu.php');
         .then(data => {
             if (data.success) {
                 input.value = '';
-                loadMessages(false); // Reload to show sent message
-                loadChatList(); // Reload chat list
+                loadMessages(false);
+                loadChatList(); 
             } else {
                 alert('Lỗi: ' + data.message);
             }
@@ -229,20 +229,20 @@ require_once('partials/menu.php');
         });
     });
 
-    // Scroll to bottom
+
     function scrollToBottom() {
         const messagesDiv = document.getElementById('chatMessagesAdmin');
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    // Escape HTML
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // Format time
+
     function formatTime(timeString) {
         if (!timeString) return '';
         const date = new Date(timeString);
@@ -256,17 +256,17 @@ require_once('partials/menu.php');
         return date.toLocaleDateString('vi-VN');
     }
 
-    // Start polling
+
     function startPolling() {
         pollingInterval = setInterval(() => {
             if (currentUserId) {
-                loadMessages(false); // Only load new messages
+                loadMessages(false); 
             }
             loadChatList();
         }, 2000);
     }
 
-    // Initialize
+
     window.addEventListener('load', function() {
         loadChatList();
         startPolling();
