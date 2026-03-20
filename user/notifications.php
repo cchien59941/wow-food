@@ -33,7 +33,7 @@ if (isset($_GET['delete_all']) && $_GET['delete_all'] === '1') {
     exit;
 }
 
-$res = $conn->query("SELECT id, order_code, message, is_read, created_at FROM tbl_order_notification WHERE user_id = " . $user_id . " ORDER BY created_at DESC LIMIT 100");
+$res = $conn->query("SELECT id, order_code, message, is_read, created_at FROM tbl_order_notification WHERE user_id = " . $user_id . " AND message NOT LIKE '%đang chờ thanh toán%' ORDER BY created_at DESC LIMIT 100");
 $notifications = [];
 if ($res) {
     while ($row = $res->fetch_assoc()) $notifications[] = $row;
@@ -74,7 +74,7 @@ if ($res) {
         <span class="current">Thông báo đơn hàng</span>
     </div>
     <h1 class="order-history-title">
-        <span class="order-history-title-icon">🔔</span>
+        <span class="order-history-title-icon"><i class="bi bi-bell"></i></span>
         Thông báo đơn hàng
     </h1>
 

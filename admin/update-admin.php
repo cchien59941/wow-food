@@ -10,25 +10,39 @@ if (isset($_POST['submit'])) {
 
     $errors = [];
 
+    $hasPhone = false;
+    $colRes = mysqli_query($conn, "SHOW COLUMNS FROM tbl_admin LIKE 'phone'");
+    if ($colRes && mysqli_num_rows($colRes) > 0) $hasPhone = true;
+
     if ($full_name === '') {
         $errors[] = 'Họ tên không được để trống.';
     }
-    if ($phone === '') {
-        $errors[] = 'Số điện thoại không được để trống.';
+
+    if ($hasPhone) {
+        if ($phone === '') {
+            $errors[] = 'Số điện thoại không được để trống.';
+        }
     }
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Email không hợp lệ.';
     }
 
-  
-    $check_sql = "SELECT id FROM tbl_admin WHERE (email = ? OR phone = ?) AND id <> ?";
-    $stmt = mysqli_prepare($conn, $check_sql);
-    mysqli_stmt_bind_param($stmt, "ssi", $email, $phone, $id);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+    if ($hasPhone) {
+        $check_sql = "SELECT id FROM tbl_admin WHERE (email = ? OR phone = ?) AND id <> ?";
+        $stmt = mysqli_prepare($conn, $check_sql);
+        mysqli_stmt_bind_param($stmt, "ssi", $email, $phone, $id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+    } else {
+        $check_sql = "SELECT id FROM tbl_admin WHERE email = ? AND id <> ?";
+        $stmt = mysqli_prepare($conn, $check_sql);
+        mysqli_stmt_bind_param($stmt, "si", $email, $id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+    }
 
     if (mysqli_num_rows($result) > 0) {
-        $errors[] = 'Email hoặc số điện thoại đã được sử dụng.';
+        $errors[] = $hasPhone ? 'Email hoặc số điện thoại đã được sử dụng.' : 'Email đã được sử dụng.';
     }
     mysqli_stmt_close($stmt);
 
@@ -40,11 +54,19 @@ if (isset($_POST['submit'])) {
     }
 
     
-    $sql = "UPDATE tbl_admin SET full_name=?, email=?, phone=? WHERE id=?";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sssi", $full_name, $email, $phone, $id);
-    $res = mysqli_stmt_execute($stmt);
-    mysqli_stmt_close($stmt);
+    if ($hasPhone) {
+        $sql = "UPDATE tbl_admin SET full_name=?, email=?, phone=? WHERE id=?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "sssi", $full_name, $email, $phone, $id);
+        $res = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    } else {
+        $sql = "UPDATE tbl_admin SET full_name=?, email=? WHERE id=?";
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, "ssi", $full_name, $email, $id);
+        $res = mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+    }
 
     if ($res) {
         $_SESSION['update'] = "<div class='success'>Cập nhật quản trị viên thành công!</div>";
@@ -64,21 +86,44 @@ if ($id <= 0) {
     exit();
 }
 
-$sql = "SELECT id, full_name, email, phone FROM tbl_admin WHERE id=?";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $id);
-mysqli_stmt_execute($stmt);
-$res = mysqli_stmt_get_result($stmt);
-mysqli_stmt_close($stmt);
+$hasPhone = false;
+$colRes = mysqli_query($conn, "SHOW COLUMNS FROM tbl_admin LIKE 'phone'");
+if ($colRes && mysqli_num_rows($colRes) > 0) $hasPhone = true;
 
-if ($res && mysqli_num_rows($res) === 1) {
-    $row = mysqli_fetch_assoc($res);
-    $fullname = $row['full_name'];
-    $email    = $row['email'];
-    $phone    = $row['phone'];
+if ($hasPhone) {
+    $sql = "SELECT id, full_name, email, phone FROM tbl_admin WHERE id=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+
+    if ($res && mysqli_num_rows($res) === 1) {
+        $row = mysqli_fetch_assoc($res);
+        $fullname = $row['full_name'];
+        $email    = $row['email'];
+        $phone    = $row['phone'];
+    } else {
+        header('location: ' . SITEURL . 'admin/manage-admin.php');
+        exit();
+    }
 } else {
-    header('location: ' . SITEURL . 'admin/manage-admin.php');
-    exit();
+    $sql = "SELECT id, full_name, email, username FROM tbl_admin WHERE id=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+
+    if ($res && mysqli_num_rows($res) === 1) {
+        $row = mysqli_fetch_assoc($res);
+        $fullname = $row['full_name'];
+        $email    = $row['email'];
+        $phone    = '';
+    } else {
+        header('location: ' . SITEURL . 'admin/manage-admin.php');
+        exit();
+    }
 }
 
 require 'partials/menu.php';
@@ -123,7 +168,7 @@ require 'partials/menu.php';
                     <tr>
                         <td style="font-weight:600;">Số điện thoại</td>
                         <td>
-                            <input type="tel" name="phone" required
+                            <input type="tel" name="phone" <?php echo $hasPhone ? 'required' : ''; ?>
                                 value="<?php echo htmlspecialchars($phone); ?>"
                                 style="width:100%; padding:8px; border:1px solid #dfe4ea; border-radius:6px; box-sizing:border-box;">
                         </td>

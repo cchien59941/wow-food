@@ -11,16 +11,19 @@
     </div>
 </section>
 
-<section class="bestseller" style="margin-bottom:20px;">
+<section class="bestseller">
     <div class="container">
         <h2 class="text-center">Món ăn bán chạy</h2>
         <?php
         $sql = "
-        SELECT f.id, f.title, f.price, f.image_name, SUM(o.qty) AS total_sold
+        SELECT f.id, f.title, f.price, f.image_name,
+               COUNT(o.id) AS order_count
         FROM tbl_food f
-        JOIN tbl_order o ON f.title = o.food
-        GROUP BY f.id
-        ORDER BY total_sold DESC
+        JOIN tbl_order o
+          ON o.food LIKE CONCAT('%', f.title, '%')
+        WHERE o.status IN ('Pending','Confirmed','Ordered','On Delivery','Delivered')
+        GROUP BY f.id, f.title, f.price, f.image_name
+        ORDER BY order_count DESC
         LIMIT 3
         ";
         $res = mysqli_query($conn, $sql);

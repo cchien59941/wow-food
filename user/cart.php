@@ -32,6 +32,141 @@ $cart_items = [];
 $cart_total = 0;
 $cart_count = 0;
 
+// Nếu session giỏ hàng trống (đăng xuất/refresh/quay lại sau thanh toán),
+// tự động nạp giỏ đã lưu trong DB theo user để không bị mất dữ liệu.
+if ((!isset($_SESSION['cart']) || !is_array($_SESSION['cart']) || count($_SESSION['cart']) === 0) && isset($_SESSION['user_id'])) {
+    try {
+        $uid = (int) $_SESSION['user_id'];
+        $cols = [];
+        $colRes = @$conn->query("SHOW COLUMNS FROM tbl_cart");
+        if ($colRes) {
+            while ($cr = $colRes->fetch_assoc()) $cols[] = strtolower((string)($cr['Field'] ?? ''));
+        }
+        $hasNewSchema = in_array('cart_id', $cols, true) && in_array('qty', $cols, true);
+
+        $restored = [];
+        if ($hasNewSchema) {
+            $stmtCart = $conn->prepare("SELECT cart_id, food_id, qty, note, size_id, side_dish_ids FROM tbl_cart WHERE user_id = ?");
+            if ($stmtCart) {
+                $stmtCart->bind_param("i", $uid);
+                $stmtCart->execute();
+                $res = $stmtCart->get_result();
+                while ($c = $res->fetch_assoc()) {
+                    $side_ids = [];
+                    if (!empty($c['side_dish_ids'])) {
+                        $side_ids = array_map('intval', array_filter(explode(',', (string)$c['side_dish_ids'])));
+                    }
+                    $restored[] = [
+                        'cart_id' => (string) $c['cart_id'],
+                        'food_id' => (int) $c['food_id'],
+                        'qty' => max(1, (int) $c['qty']),
+                        'note' => (string) $c['note'],
+                        'size_id' => (int) $c['size_id'],
+                        'side_dish_ids' => $side_ids
+                    ];
+                }
+                $stmtCart->close();
+            }
+        } else {
+            // Schema cũ: id, user_id, food_id, quantity, note...
+            $stmtCart = $conn->prepare("SELECT id, food_id, quantity, note FROM tbl_cart WHERE user_id = ? ORDER BY id ASC");
+            if ($stmtCart) {
+                $stmtCart->bind_param("i", $uid);
+                $stmtCart->execute();
+                $res = $stmtCart->get_result();
+                while ($c = $res->fetch_assoc()) {
+                    $restored[] = [
+                        'cart_id' => 'legacy_' . (string)$c['id'],
+                        'food_id' => (int) $c['food_id'],
+                        'qty' => max(1, (int) $c['quantity']),
+                        'note' => (string)($c['note'] ?? ''),
+                        'size_id' => 0,
+                        'side_dish_ids' => []
+                    ];
+                }
+                $stmtCart->close();
+            }
+        }
+
+        if (!empty($restored)) {
+            $_SESSION['cart'] = $restored;
+        }
+    } catch (Throwable $e) {
+        // Không bắt buộc, nếu lỗi DB thì vẫn render theo session hiện tại
+    }
+}
+
+// Đồng bộ session -> DB để đảm bảo luôn lưu giỏ theo tài khoản
+// (trường hợp trước đó session có dữ liệu nhưng chưa kịp ghi vào DB).
+if (isset($_SESSION['user_id']) && isset($_SESSION['cart']) && is_array($_SESSION['cart']) && count($_SESSION['cart']) > 0) {
+    try {
+        $user_id = (int) $_SESSION['user_id'];
+        $conn->query("
+            CREATE TABLE IF NOT EXISTS tbl_cart (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                user_id INT UNSIGNED NOT NULL,
+                cart_id VARCHAR(50) NOT NULL,
+                food_id INT UNSIGNED NOT NULL,
+                qty INT UNSIGNED NOT NULL DEFAULT 1,
+                note TEXT NULL,
+                size_id INT UNSIGNED NOT NULL DEFAULT 0,
+                side_dish_ids TEXT NULL,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY uniq_user_cart (user_id, cart_id),
+                KEY idx_user_id (user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ");
+
+        $stmt_cart = $conn->prepare("
+            INSERT INTO tbl_cart (user_id, cart_id, food_id, qty, note, size_id, side_dish_ids)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                qty = VALUES(qty),
+                note = VALUES(note),
+                size_id = VALUES(size_id),
+                side_dish_ids = VALUES(side_dish_ids)
+        ");
+
+        if ($stmt_cart) {
+            foreach ($_SESSION['cart'] as $idx => $row) {
+                if (!is_array($row)) continue;
+                $cart_id = isset($row['cart_id']) && $row['cart_id'] !== '' ? (string)$row['cart_id'] : uniqid('c');
+                if (empty($row['cart_id'])) {
+                    $_SESSION['cart'][$idx]['cart_id'] = $cart_id;
+                }
+
+                $food_id = (int) ($row['food_id'] ?? 0);
+                $qty = max(1, (int) ($row['qty'] ?? 1));
+                $note = isset($row['note']) ? (string)$row['note'] : '';
+                $size_id = (int) ($row['size_id'] ?? 0);
+
+                $side_ids = [];
+                if (isset($row['side_dish_ids']) && is_array($row['side_dish_ids'])) {
+                    $side_ids = array_map('intval', $row['side_dish_ids']);
+                }
+                $side_dish_ids_str = !empty($side_ids) ? implode(',', $side_ids) : '';
+
+                // user_id(i), cart_id(s), food_id(i), qty(i), note(s), size_id(i), side_dish_ids(s)
+                $stmt_cart->bind_param(
+                    "isiisis",
+                    $user_id,
+                    $cart_id,
+                    $food_id,
+                    $qty,
+                    $note,
+                    $size_id,
+                    $side_dish_ids_str
+                );
+                $stmt_cart->execute();
+            }
+            $stmt_cart->close();
+        }
+    } catch (Throwable $e) {
+        // Bỏ qua lỗi DB để không chặn trang giỏ
+    }
+}
+
 if (isset($_SESSION['cart']) && is_array($_SESSION['cart']) && count($_SESSION['cart']) > 0) {
     foreach ($_SESSION['cart'] as $idx => $cart_row) {
         $food_id = (int) ($cart_row['food_id'] ?? 0);
@@ -121,6 +256,9 @@ function formatPrice($num) {
             <?php else: ?>
                 <?php foreach ($cart_items as $item): ?>
                 <div class="cart-item" data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>" data-base-price="<?php echo $item['base_price']; ?>" data-item-name="<?php echo htmlspecialchars($item['title']); ?>">
+                    <div style="display:flex;align-items:flex-start;justify-content:center;padding-top:4px;">
+                        <input type="checkbox" class="cart-select-item" data-cart-id="<?php echo htmlspecialchars($item['cart_id']); ?>" checked>
+                    </div>
                     <?php if (!empty($item['image_name'])): ?>
                         <img src="<?php echo SITEURL; ?>image/food/<?php echo htmlspecialchars($item['image_name']); ?>" alt="<?php echo htmlspecialchars($item['title']); ?>" class="cart-item-image">
                     <?php else: ?>
@@ -176,6 +314,10 @@ function formatPrice($num) {
         <?php if (!empty($cart_items)): ?>
         <div class="cart-summary" id="cartSummary">
             <div class="summary-title">Chi tiết đơn hàng</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                <input type="checkbox" id="selectAllCartItems" checked>
+                <label for="selectAllCartItems" style="font-size:0.9em;color:#374151;cursor:pointer;">Chọn tất cả món để thanh toán</label>
+            </div>
             <div class="summary-details" id="summaryDetails">
                 <?php foreach ($cart_items as $item): 
                     $extrasParts = [];
@@ -202,7 +344,7 @@ function formatPrice($num) {
                 <span>Tổng cộng:</span>
                 <span id="cartTotal"><?php echo formatPrice($cart_total); ?></span>
             </div>
-            <button type="button" class="checkout-btn" onclick="window.location.href='<?php echo SITEURL; ?>user/checkout.php'">Thanh toán</button>
+            <button type="button" class="checkout-btn" id="checkoutSelectedBtn">Thanh toán món đã chọn</button>
         </div>
         <?php endif; ?>
     </div>
@@ -255,11 +397,16 @@ function formatPrice($num) {
             return parts;
         }
 
+        function getSelectedCartIds() {
+            return Array.from(document.querySelectorAll('.cart-select-item:checked')).map(function(cb) { return cb.dataset.cartId; });
+        }
         function updateGrandTotal() {
             let total = 0;
             const details = [];
+            const selected = getSelectedCartIds();
             document.querySelectorAll('.cart-item').forEach(item => {
                 const cartId = item.dataset.cartId;
+                if (selected.indexOf(cartId) === -1) return;
                 const d = getItemData(cartId);
                 if (d) {
                     total += d.subtotal;
@@ -268,7 +415,7 @@ function formatPrice($num) {
                 }
             });
             const totalEl = document.getElementById('cartTotal');
-            if (totalEl) totalEl.textContent = formatPrice(total);
+            if (totalEl) totalEl.textContent = formatPrice(Math.max(0, total));
             const detailsEl = document.getElementById('summaryDetails');
             if (detailsEl) {
                 detailsEl.innerHTML = details.map(d => {
@@ -332,6 +479,16 @@ function formatPrice($num) {
         function updateNote(cartId, note) { saveCartItem(cartId); }
 
         document.addEventListener('DOMContentLoaded', function() {
+            const selectAll = document.getElementById('selectAllCartItems');
+            if (selectAll) {
+                selectAll.addEventListener('change', function() {
+                    document.querySelectorAll('.cart-select-item').forEach(function(cb) { cb.checked = selectAll.checked; });
+                    updateGrandTotal();
+                });
+            }
+            document.querySelectorAll('.cart-select-item').forEach(function(cb) {
+                cb.addEventListener('change', updateGrandTotal);
+            });
             document.querySelectorAll('.cart-size-opt').forEach(el => {
                 el.addEventListener('click', function() {
                     const cartId = this.dataset.cartId;
@@ -348,6 +505,18 @@ function formatPrice($num) {
                     updateItemDisplay(cartId);
                 });
             });
+            const checkoutBtn = document.getElementById('checkoutSelectedBtn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function() {
+                    const selected = getSelectedCartIds();
+                    if (!selected.length) {
+                        Swal.fire('Thông báo', 'Bạn chưa chọn món nào để thanh toán.', 'warning');
+                        return;
+                    }
+                    let url = SITEURL + 'user/checkout.php?selected=' + encodeURIComponent(selected.join(','));
+                    window.location.href = url;
+                });
+            }
         });
 
         function removeItem(cartId) {

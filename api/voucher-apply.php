@@ -6,23 +6,23 @@ ob_end_clean();
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'message' => 'Phuong thuc khong hop le.']);
+    echo json_encode(['success' => false, 'message' => 'Phương thức không hợp lệ.']);
     exit;
 }
 
 if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Vui long dang nhap de su dung voucher.']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để sử dụng voucher.']);
     exit;
 }
 
 $voucher_code = isset($_POST['voucher_code']) ? trim((string) $_POST['voucher_code']) : '';
 if ($voucher_code === '') {
-    echo json_encode(['success' => false, 'message' => 'Vui long nhap ma voucher.']);
+    echo json_encode(['success' => false, 'message' => 'Vui lòng nhập mã voucher.']);
     exit;
 }
 
 if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart']) || count($_SESSION['cart']) === 0) {
-    echo json_encode(['success' => false, 'message' => 'Gio hang trong.']);
+    echo json_encode(['success' => false, 'message' => 'Giỏ hàng trống.']);
     exit;
 }
 
@@ -89,7 +89,7 @@ foreach ($_SESSION['cart'] as $cart_row) {
 $now = date('Y-m-d H:i:s');
 $stmt = $conn->prepare("SELECT code, type, value, min_order, max_discount, valid_from, valid_to FROM tbl_voucher WHERE status = 'active' AND UPPER(code) = UPPER(?) AND (valid_from IS NULL OR valid_from <= ?) AND (valid_to IS NULL OR valid_to >= ?) LIMIT 1");
 if (!$stmt) {
-    echo json_encode(['success' => false, 'message' => 'Loi xu ly voucher.']);
+    echo json_encode(['success' => false, 'message' => 'Lỗi xử lý voucher.']);
     exit;
 }
 $stmt->bind_param('sss', $voucher_code, $now, $now);
@@ -98,13 +98,13 @@ $voucher = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$voucher) {
-    echo json_encode(['success' => false, 'message' => 'Voucher khong hop le hoac da het han.']);
+    echo json_encode(['success' => false, 'message' => 'Voucher không hợp lệ hoặc đã hết hạn.']);
     exit;
 }
 
 $min_order = (float) $voucher['min_order'];
 if ($cart_total < $min_order) {
-    echo json_encode(['success' => false, 'message' => 'Don hang chua dat toi thieu de dung voucher.']);
+    echo json_encode(['success' => false, 'message' => 'Đơn hàng chưa đạt tối thiểu để dùng voucher.']);
     exit;
 }
 

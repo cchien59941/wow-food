@@ -76,14 +76,82 @@ if (!empty($side_dish_ids) && $side_price == 0) {
 
 if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
 
+$cart_id = uniqid('c');
+
 $_SESSION['cart'][] = [
-    'cart_id' => uniqid('c'),
+    'cart_id' => $cart_id,
     'food_id' => $food_id,
     'qty' => $quantity,
     'note' => $note,
     'size_id' => $size_id,
     'side_dish_ids' => $side_dish_ids
 ];
+
+// Lưu giỏ vào DB theo user để đăng xuất/đăng nhập không mất
+try {
+    $user_id = (int) $_SESSION['user_id'];
+    $side_dish_ids_str = !empty($side_dish_ids) ? implode(',', $side_dish_ids) : '';
+
+    // Kiểm tra schema tbl_cart hiện tại để ghi tương thích (schema cũ/mới)
+    $cols = [];
+    $colRes = @$conn->query("SHOW COLUMNS FROM tbl_cart");
+    if ($colRes) {
+        while ($c = $colRes->fetch_assoc()) {
+            $cols[] = strtolower((string)($c['Field'] ?? ''));
+        }
+    }
+    $hasNewSchema = in_array('cart_id', $cols, true) && in_array('qty', $cols, true);
+
+    if ($hasNewSchema) {
+        $stmt_cart = $conn->prepare("
+            INSERT INTO tbl_cart (user_id, cart_id, food_id, qty, note, size_id, side_dish_ids)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                qty = VALUES(qty),
+                note = VALUES(note),
+                size_id = VALUES(size_id),
+                side_dish_ids = VALUES(side_dish_ids)
+        ");
+        if ($stmt_cart) {
+            $stmt_cart->bind_param("isiisis", $user_id, $cart_id, $food_id, $quantity, $note, $size_id, $side_dish_ids_str);
+            $stmt_cart->execute();
+            $stmt_cart->close();
+        }
+    } else {
+        // Schema cũ: user_id, food_id, food_name, price, quantity, note, created_at
+        $food_name = (string)($food['title'] ?? '');
+        $legacy_price = (float)$food['price'] + (float)$size_price + (float)$side_price;
+
+        // Nếu đã có dòng cùng user + food_id thì cộng quantity
+        $stmt_old_find = $conn->prepare("SELECT id, quantity FROM tbl_cart WHERE user_id = ? AND food_id = ? ORDER BY id DESC LIMIT 1");
+        if ($stmt_old_find) {
+            $stmt_old_find->bind_param("ii", $user_id, $food_id);
+            $stmt_old_find->execute();
+            $old_row = $stmt_old_find->get_result()->fetch_assoc();
+            $stmt_old_find->close();
+
+            if ($old_row && isset($old_row['id'])) {
+                $new_qty = max(1, (int)($old_row['quantity'] ?? 0) + $quantity);
+                $stmt_old_upd = $conn->prepare("UPDATE tbl_cart SET quantity = ?, note = ?, price = ? WHERE id = ?");
+                if ($stmt_old_upd) {
+                    $row_id = (int)$old_row['id'];
+                    $stmt_old_upd->bind_param("isdi", $new_qty, $note, $legacy_price, $row_id);
+                    $stmt_old_upd->execute();
+                    $stmt_old_upd->close();
+                }
+            } else {
+                $stmt_old_ins = $conn->prepare("INSERT INTO tbl_cart (user_id, food_id, food_name, price, quantity, note, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+                if ($stmt_old_ins) {
+                    $stmt_old_ins->bind_param("iisdis", $user_id, $food_id, $food_name, $legacy_price, $quantity, $note);
+                    $stmt_old_ins->execute();
+                    $stmt_old_ins->close();
+                }
+            }
+        }
+    }
+} catch (Throwable $e) {
+    // Nếu lỗi DB thì bỏ qua, vẫn dùng session bình thường
+}
 
 $total_items = 0;
 foreach ($_SESSION['cart'] as $item) $total_items += $item['qty'];

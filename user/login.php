@@ -32,6 +32,69 @@ if(isset($_POST['submit'])){
                 $_SESSION['user_full_name'] = $user_row['full_name'];
                 $_SESSION['login-success'] = "Đăng nhập thành công!";
                 $login_success = true;
+
+                // Tự khôi phục giỏ hàng đã lưu theo user (tbl_cart)
+                try {
+                    if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart']) || count($_SESSION['cart']) === 0) {
+                        $uid = (int) $user_row['id'];
+                        $cols = [];
+                        $colRes = @$conn->query("SHOW COLUMNS FROM tbl_cart");
+                        if ($colRes) {
+                            while ($cr = $colRes->fetch_assoc()) $cols[] = strtolower((string)($cr['Field'] ?? ''));
+                        }
+                        $hasNewSchema = in_array('cart_id', $cols, true) && in_array('qty', $cols, true);
+
+                        $restored_cart = [];
+                        if ($hasNewSchema) {
+                            $cart_stmt = $conn->prepare("SELECT cart_id, food_id, qty, note, size_id, side_dish_ids FROM tbl_cart WHERE user_id = ?");
+                            if ($cart_stmt) {
+                                $cart_stmt->bind_param("i", $uid);
+                                $cart_stmt->execute();
+                                $cart_res = $cart_stmt->get_result();
+                                while ($c = $cart_res->fetch_assoc()) {
+                                    $side_ids = [];
+                                    if (!empty($c['side_dish_ids'])) {
+                                        $side_ids = array_map('intval', array_filter(explode(',', (string)$c['side_dish_ids'])));
+                                    }
+                                    $restored_cart[] = [
+                                        'cart_id' => (string) $c['cart_id'],
+                                        'food_id' => (int) $c['food_id'],
+                                        'qty' => max(1, (int) $c['qty']),
+                                        'note' => (string) $c['note'],
+                                        'size_id' => (int) $c['size_id'],
+                                        'side_dish_ids' => $side_ids
+                                    ];
+                                }
+                                $cart_stmt->close();
+                            }
+                        } else {
+                            // Schema cũ: id, user_id, food_id, quantity, note...
+                            $cart_stmt = $conn->prepare("SELECT id, food_id, quantity, note FROM tbl_cart WHERE user_id = ? ORDER BY id ASC");
+                            if ($cart_stmt) {
+                                $cart_stmt->bind_param("i", $uid);
+                                $cart_stmt->execute();
+                                $cart_res = $cart_stmt->get_result();
+                                while ($c = $cart_res->fetch_assoc()) {
+                                    $restored_cart[] = [
+                                        'cart_id' => 'legacy_' . (string)$c['id'],
+                                        'food_id' => (int) $c['food_id'],
+                                        'qty' => max(1, (int) $c['quantity']),
+                                        'note' => (string)($c['note'] ?? ''),
+                                        'size_id' => 0,
+                                        'side_dish_ids' => []
+                                    ];
+                                }
+                                $cart_stmt->close();
+                            }
+                        }
+
+                        if (!empty($restored_cart)) {
+                            $_SESSION['cart'] = $restored_cart;
+                        }
+                    }
+                } catch (Throwable $e) {
+                    // Không chặn luồng đăng nhập nếu lỗi DB
+                }
             }
         }
         mysqli_stmt_close($user_stmt);

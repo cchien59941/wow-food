@@ -37,7 +37,7 @@ $vnp_Amount = isset($inputData['vnp_Amount']) ? (int)$inputData['vnp_Amount'] / 
 $success = false;
 $message = 'Chữ ký không hợp lệ.';
 
-if ($secureHash === $vnp_SecureHash) {
+            if ($secureHash === $vnp_SecureHash) {
     $stmt = $conn->prepare("SELECT id, order_code, user_id, total, status FROM tbl_order WHERE order_code = ? LIMIT 1");
     $stmt->bind_param("s", $order_code);
     $stmt->execute();
@@ -49,7 +49,7 @@ if ($secureHash === $vnp_SecureHash) {
         if ($vnp_Amount >= $expectedAmount - 1) {
             if (in_array($order['status'], ['Pending Payment', 'Pending', 'Unpaid', 'Ordered'], true)) {
                 if ($vnp_ResponseCode === '00') {
-                    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Pending' WHERE id = ?");
+                    $stmt = $conn->prepare("UPDATE tbl_order SET status = 'Ordered' WHERE id = ?");
                     $stmt->bind_param("i", $order['id']);
                     $stmt->execute();
                     $stmt->close();
@@ -60,8 +60,79 @@ if ($secureHash === $vnp_SecureHash) {
                     $stmt->execute();
                     $stmt->close();
 
+                    // Xoá message "đang chờ thanh toán" và thay bằng "đã thanh toán thành công"
+                    try {
+                        $conn->query("CREATE TABLE IF NOT EXISTS tbl_order_notification (
+                          id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+                          order_code varchar(20) NOT NULL,
+                          user_id int(10) UNSIGNED NOT NULL,
+                          message varchar(255) NOT NULL,
+                          is_read tinyint(1) DEFAULT 0,
+                          created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                          PRIMARY KEY (id),
+                          KEY user_id (user_id)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+                        $uid = (int)$order['user_id'];
+                        $notifSuccess = "Đơn " . $order_code . " đã thanh toán thành công.";
+
+                        // Xoá mọi thông báo pending theo substring (tránh phụ thuộc đúng dấu câu)
+                        $pendingLike = '%đang chờ thanh toán%';
+                        $stmtDelNotif = $conn->prepare("DELETE FROM tbl_order_notification WHERE order_code = ? AND user_id = ? AND message LIKE ?");
+                        if ($stmtDelNotif) {
+                            $stmtDelNotif->bind_param("sis", $order_code, $uid, $pendingLike);
+                            $stmtDelNotif->execute();
+                            $stmtDelNotif->close();
+                        }
+
+                        // Chèn success nếu chưa có
+                        $stmtIns = $conn->prepare("
+                            INSERT INTO tbl_order_notification (order_code, user_id, message)
+                            SELECT ?, ?, ?
+                            WHERE NOT EXISTS (
+                                SELECT 1 FROM tbl_order_notification
+                                WHERE order_code = ? AND user_id = ? AND message = ?
+                            )
+                        ");
+                        if ($stmtIns) {
+                            $stmtIns->bind_param("sissis", $order_code, $uid, $notifSuccess, $order_code, $uid, $notifSuccess);
+                            $stmtIns->execute();
+                            $stmtIns->close();
+                        }
+                    } catch (Throwable $e) {
+                        // Không chặn luồng nếu lỗi notify
+                    }
+
                     if (isset($_SESSION['user_id']) && (int)$order['user_id'] === (int)$_SESSION['user_id']) {
                         $_SESSION['cart'] = [];
+                        // Xóa luôn giỏ trong DB để sau đăng xuất/đăng nhập không bị hiện lại
+                        try {
+                            $uid = (int) $order['user_id'];
+                            $conn->query("
+                                CREATE TABLE IF NOT EXISTS tbl_cart (
+                                    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                    user_id INT UNSIGNED NOT NULL,
+                                    cart_id VARCHAR(50) NOT NULL,
+                                    food_id INT UNSIGNED NOT NULL,
+                                    qty INT UNSIGNED NOT NULL DEFAULT 1,
+                                    note TEXT NULL,
+                                    size_id INT UNSIGNED NOT NULL DEFAULT 0,
+                                    side_dish_ids TEXT NULL,
+                                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                    UNIQUE KEY uniq_user_cart (user_id, cart_id),
+                                    KEY idx_user_id (user_id)
+                                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                            ");
+                            $stmtDel = $conn->prepare("DELETE FROM tbl_cart WHERE user_id = ?");
+                            if ($stmtDel) {
+                                $stmtDel->bind_param("i", $uid);
+                                $stmtDel->execute();
+                                $stmtDel->close();
+                            }
+                        } catch (Throwable $e) {
+                            // Bỏ qua lỗi DB để không chặn luồng
+                        }
                     }
                     $success = true;
                     $message = 'Thanh toán VNPay thành công.';
