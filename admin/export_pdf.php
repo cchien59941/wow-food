@@ -11,38 +11,65 @@ $html = '
     tr th {text-align: center;}
     tr td {text-align: center;}
 </style>
-    <h2 style="text-align: center;">Đơn hàng đã bán</h2>
+
+<h2 style="text-align: center;">Đơn hàng đã bán</h2>
+
 <table border="1" width="100%" cellpadding="5">
-    <tr>
-        <th>ID</th>
-        <th>Món ăn</th>
-        <th>Giá</th>
-        <th>Số lượng</th>
-        <th>Tổng tiền</th>
-    </tr>';
+<tr>
+    <th>ID</th>
+    <th>Món ăn</th>
+    <th>Tổng tiền</th>
+</tr>
+';
+
 $counter = 1;
-$sql = "SELECT * FROM tbl_order";
+$tong_doanhthu = 0;
+
+$sql = "
+SELECT o.order_details, p.amount
+FROM tbl_order o
+JOIN tbl_payment p 
+    ON o.order_code = p.order_code
+WHERE 
+    p.payment_status = 'success'
+    AND o.status = 'Ordered'
+";
+
 $res = mysqli_query($conn,$sql);
-while($row = mysqli_fetch_assoc($res))
-{
+
+while($row = mysqli_fetch_assoc($res)) {
+
+    $details = json_decode($row['order_details'], true);
+
+    if (!$details) continue;
+
+    // gom tên món trong 1 đơn
+    $tenmon = [];
+    foreach ($details as $item) {
+        $tenmon[] = trim($item['title']);
+    }
+
+    $tenmon_str = implode(", ", $tenmon);
+
+    $amount = $row['amount'];
+    $tong_doanhthu += $amount;
+
     $html .= "<tr>
-    <td>".$counter."</td>
-    <td>".$row['food']."</td>
-    <td>".$row['price']."</td>
-    <td>".$row['qty']."</td>
-    <td>".$row['total']."</td>
+        <td>".$counter."</td>
+        <td>".$tenmon_str."</td>
+        <td>".number_format($amount,0,',','.')."</td>
     </tr>";
+
     $counter++;
 }
-$tongtien = "SELECT SUM(total) as tong FROM tbl_order";
-$res_tong = mysqli_query($conn, $tongtien);
-$row_tong = mysqli_fetch_assoc($res_tong);
 
-$html .= "<tr>
-        <td colspan='4' align='center' ><b>Tổng doanh thu</b></td>
-        <td><b>".$row_tong['tong']."</b></td>
-    </tr>
-</table>";
+$html .= "
+<tr>
+    <td colspan='2'><b>Tổng doanh thu</b></td>
+    <td><b>".number_format($tong_doanhthu,0,',','.')."</b></td>
+</tr>
+</table>
+";
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4','portrait');
 $dompdf->render();

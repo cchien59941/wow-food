@@ -1,9 +1,18 @@
 <?php include("partials/menu.php"); ?>
 <?php
-    $day = "SELECT DAYOFWEEK(order_date) d, SUM(total) totals
-        FROM tbl_order
-        WHERE YEARWEEK(order_date,1)=YEARWEEK(CURDATE(),1)
-        GROUP BY d";
+    $day = "
+    SELECT 
+        DAYOFWEEK(p.updated_at) AS d, 
+        SUM(o.total) AS totals
+    FROM tbl_order o
+    JOIN tbl_payment p 
+        ON o.order_code = p.order_code
+    WHERE 
+        p.payment_status = 'success'
+        AND o.status = 'Ordered'
+        AND YEARWEEK(p.updated_at, 1) = YEARWEEK(CURDATE(), 1)
+    GROUP BY d
+    ";
     $day_res = mysqli_query($conn,$day);
     $days=[0,0,0,0,0,0,0];
     while($day_row=mysqli_fetch_assoc($day_res)){
@@ -20,10 +29,19 @@
         $labels_week[] = date("d/m", strtotime("+$i day", $monday));
     }
     /* DOANH THU THEO THÁNG */
-    $month="SELECT MONTH(order_date) m,SUM(total) totals
-        FROM tbl_order
-        WHERE YEAR(order_date)=YEAR(CURDATE())
-        GROUP BY m";
+    $month = "
+    SELECT 
+        MONTH(p.updated_at) AS m,
+        SUM(o.total) AS totals
+    FROM tbl_order o
+    JOIN tbl_payment p 
+        ON o.order_code = p.order_code
+    WHERE 
+        p.payment_status = 'success'
+        AND o.status = 'Ordered'
+        AND YEAR(p.updated_at) = YEAR(CURDATE())
+    GROUP BY m
+    ";
 
     $month_res=mysqli_query($conn,$month);
     $months=array_fill(0,12,0);
@@ -31,18 +49,46 @@
     while($month_row=mysqli_fetch_assoc($month_res)){
         $months[$month_row['m']-1]=$month_row['totals'];
     }
-    $top5_sql = "select food, qty
-    from tbl_order
-    group by food
-    order by qty desc
-    limit 5";
-    $top5_res = mysqli_query($conn, $top5_sql);
-    $top5_labels = [];
-    $top5_data = [];
-    while($row = mysqli_fetch_assoc($top5_res)) {
-        $top5_labels[] = $row['food'];
-        $top5_data[] = $row['qty'];
+    $sql = "
+    SELECT o.order_details
+    FROM tbl_order o
+    JOIN tbl_payment p 
+        ON o.order_code = p.order_code
+    WHERE p.payment_status = 'success'
+    ";
+
+    $res = mysqli_query($conn, $sql);
+
+    $food_count = [];
+
+    while($row = mysqli_fetch_assoc($res)) {
+
+        // chuyển JSON thành mảng
+        $details = json_decode($row['order_details'], true);
+
+        if (!$details) continue;
+
+        foreach ($details as $item) {
+            $name = trim($item['title']); // tên món
+            $qty  = $item['qty'];         // số lượng
+
+            if (!isset($food_count[$name])) {
+                $food_count[$name] = 0;
+            }
+
+            $food_count[$name] += $qty;
+        }
     }
+
+    // sắp xếp giảm dần
+    arsort($food_count);
+
+    // lấy top 5
+    $top5 = array_slice($food_count, 0, 5, true);
+
+    // tách ra để vẽ chart
+    $labels = array_keys($top5);
+    $data   = array_values($top5);
 ?>
 <!-- main content section starts-->
 <div class="main-content">
@@ -138,12 +184,12 @@
     const labels = {
         week: <?php echo json_encode($labels_week); ?>,
         all: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
-        pie : <?php echo json_encode($top5_labels); ?>
+        pie : <?php echo json_encode($labels); ?>
     };
     const values = {
         week: <?php echo json_encode($days); ?>,
         all: <?php echo json_encode($months); ?>,
-        pie : <?php echo json_encode($top5_data); ?>
+        pie : <?php echo json_encode($data); ?>
     };
     const barChart = new Chart(document.getElementById('barChart'), {
         type: 'bar',
